@@ -6,36 +6,23 @@ if ($isMacOS) {
     $CertStoreLocation = "~/Desktop/"
 }
 
-Write-Host "Creating P2S cert, with name $($certName).cert. This will be stored locally, with the exported public key stored on your desktop as $($certName).cer"
-$cert = New-SelfSignedCertificate -Type Custom `
- -KeySpec Signature `
- -Subject "CN=$($certName).root" `
- -KeyExportPolicy Exportable `
- -HashAlgorithm sha256 `
- -KeyLength 2048 `
- -CertStoreLocation $($CertStoreLocation) `
- -KeyUsageProperty Sign `
- -KeyUsage CertSign `
- -FriendlyName "$($certName)_P2S_root"
-
-New-SelfSignedCertificate -Type Custom `
--DnsName "$($certName).cert" `
--KeySpec Signature `
--Subject "CN=$($certName).cert" `
--KeyExportPolicy Exportable `
--HashAlgorithm sha256 `
--KeyLength 2048 `
--CertStoreLocation $($CertStoreLocation) `
--Signer $cert `
--TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2") `
--FriendlyName "$($certName)_P2S_client"
-
-$cert=(Get-ChildItem -Path $($CertStoreLocation) | Where-Object -Property Subject -EQ "CN=$($certName).root")
-
 #########
 # TOOLS DEPENDANT ON OS
 #########
 if ($isMacOS){
+<# 
+    1. Generate Root Certificate (uses friendly name, CN=Certname.root)
+            Note - root cert must be:
+            Exportable
+            Hash Algo: SHA256
+            KeyLength: 2048
+            Key usage: Signed
+    2. Generate Signed Cert, signed by root cert (uses friendly name, CN=Certname.cert)
+    
+    3. Export signed cert to base64 encoding
+
+ #>
+$cert=(Get-ChildItem -Path $($CertStoreLocation) | Where-Object -Property Subject -EQ "CN=$($certName).root")
     Export-Certificate -Cert $cert `
     -FilePath ~\Desktop\$($certName).cer `
     -Type cert `
@@ -50,6 +37,31 @@ if ($isMacOS){
     $cert = (Get-Content ~\Desktop\$($certName)_base64.cer)
     $cert | pbcopy
 } else {
+    Write-Host "Creating P2S cert, with name $($certName).cert. This will be stored locally, with the exported public key stored on your desktop as $($certName).cer"
+    $cert = New-SelfSignedCertificate -Type Custom `
+    -KeySpec Signature `
+    -Subject "CN=$($certName).root" `
+    -KeyExportPolicy Exportable `
+    -HashAlgorithm sha256 `
+    -KeyLength 2048 `
+    -CertStoreLocation $($CertStoreLocation) `
+    -KeyUsageProperty Sign `
+    -KeyUsage CertSign `
+    -FriendlyName "$($certName)_P2S_root"
+
+    New-SelfSignedCertificate -Type Custom `
+    -DnsName "$($certName).cert" `
+    -KeySpec Signature `
+    -Subject "CN=$($certName).cert" `
+    -KeyExportPolicy Exportable `
+    -HashAlgorithm sha256 `
+    -KeyLength 2048 `
+    -CertStoreLocation $($CertStoreLocation) `
+    -Signer $cert `
+    -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.2") `
+    -FriendlyName "$($certName)_P2S_client"
+
+    $cert=(Get-ChildItem -Path $($CertStoreLocation) | Where-Object -Property Subject -EQ "CN=$($certName).root")
     Export-Certificate -Cert $cert `
     -FilePath C:\Users\$($env:username)\Desktop\$($certName).cer `
     -Type cert `
