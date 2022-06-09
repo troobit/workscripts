@@ -11,8 +11,8 @@ $From = "Ronny Drew <Ronny.Drew@email.com>"
 $To = "Seamus Heaney <Seamus.Heaney@email.com>", "Barry McGillicuddy <Barry@email.com>"
 $CC = "Paddy Powers <Paddy@email.com", "Martin McFly <marty@email.com>"
 $SMTPServer = 'what.server.are.you.using'
-$Subject = "Project VERA Users | $dateString"
-$path = 'C:\Users\ronan.obrien\OneDrive - Avanade\scripts'
+$Subject = "User in AD group x | $dateString"
+$path = 'C:\scripts'
 
 Set-Location $path
 
