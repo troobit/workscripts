@@ -44,6 +44,26 @@ function Clean-Help #Deletes duplicates in help, and updates help. Basically so 
     }
 }
 
+function Admin #Opens an admin shell at the current location OR the specified path.
+{
+    param (
+        #path to open shell in
+        [Parameter(Mandatory = $false)]
+        [string]$path
+        )
+        
+    $pathCommand = "cd "
+
+    if ($path -eq $null)
+    {
+        $pathCommand += (Set-Location).path
+    } else {
+        $pathCommand += $path
+    }
+    
+    Start-Process powershell.exe -verb runAs -ArgumentList '-NoExit', '-Command', $pathCommand
+}
+
 #### Here's where we get tricky. The following chunk of code will be for using PowerShell in conjunction with AzCopy and other CmdLets
 #### None of it is guaranteed to work. It might. But it also might not.
 

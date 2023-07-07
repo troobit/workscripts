@@ -1,0 +1,40 @@
+# USER SPECIFIC
+export PS1="\[\033[1;34m\]\n \w :: \[\033[31m\] \u @ \[\033[96m\]\h \n \[\033[32m\]=> : "
+export PS2="\[\033[32m\] => : "
+
+export EDITOR="vim"
+
+export CLICOLOR=1
+export LSCOLORS=GxFxBxDxCxegedabagacad
+
+shopt -s extglob
+alias gl='git log --oneline --graph --all'  # Lazy git log
+alias cp='cp -iv'                           # Preferred 'cp' implementation
+alias tf='terraform'                        # Terraform laziness
+alias mv='mv -iv'                           # Preferred 'mv' implementation
+alias mkdir='mkdir -pv'                     # Preferred 'mkdir' implementation
+alias ll='ls -FGlAhp'                       # Preferred 'ls' implementation
+alias less='less -FSRXc'                    # Preferred 'less' implementation
+alias sp='steampipe'                       # For steampipe cli tool
+#cd() { builtin cd "$@"; ll; }              # Always list directory contents upon 'cd'
+alias gd='cd ~/Google\ Drive/'              # Moves to the google drive folder where all your shit is.
+alias db='cd ~/Dropbox/'              # Moves to the dropbox folder where all your other shit is.
+alias cd..='cd ../'                         # Go back 1 directory level (for fast typers)
+alias ..='cd ../'                           # Go back 1 directory level
+alias ...='cd ../../'                       # Go back 2 directory levels
+alias .3='cd ../../../'                     # Go back 3 directory levels
+alias .4='cd ../../../../'                  # Go back 4 directory levels
+alias .5='cd ../../../../../'               # Go back 5 directory levels
+alias .6='cd ../../../../../../'            # Go back 6 directory levels
+alias ~="cd ~"                              # ~:            Go Home
+alias c='clear'                             # c:            Clear terminal display
+alias which='type -all'                     # which:        Find executables
+alias path='echo -e ${PATH//:/\\n}'         # path:         Echo all executable Paths
+alias show_options='shopt'                  # Show_options: display bash options settings
+alias fix_stty='stty sane'                  # fix_stty:     Restore terminal settings when screwed up
+alias cic='set completion-ignore-case On'   # cic:          Make tab-completion case-insensitive
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
+
+
+#export http_proxy=http://proxy.proxy.com:1234
+#export https_proxy=http://proxy.proxy.com:1234

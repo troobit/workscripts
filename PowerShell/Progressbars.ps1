@@ -8,7 +8,7 @@ $Progress = @{
 for ($i = 1; $i -le 100; $i++){
     Clear-Host
     $Progress.PercentComplete = $i
-    Write-Progress @Progress -
+    Write-Progress @Progress "-"
     Start-Sleep -Milliseconds 50
 }
 

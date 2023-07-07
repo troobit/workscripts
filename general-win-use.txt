@@ -1,10 +1,10 @@
 regedit locations
 1. Allow writing to non-bitlockered devices - change RVDDenyWriteAccess to 0.
 Set this in powershell pretty quickly and go from there. You can use get-psdrive/get-psproviders, and treat the registry hives as a file heriarchy.
-HKLM\SYSTEM\CurrentControlSet\Policies\Microsoft\FVE
+HKLM:\SYSTEM\CurrentControlSet\Policies\Microsoft\FVE
 
 2. Allow particular file types without Outlook being a pain in the arse - add the file type to Level1Remove value string (list, comma separated I think)
-HKCU\Software\Microsoft\Office\16.0\Outlook\Security
+HKCU:\Software\Microsoft\Office\16.0\Outlook\Security
 
 
 

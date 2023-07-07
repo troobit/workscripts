@@ -1,0 +1,20 @@
+[user]
+	name = "Ronan O'Brien"
+	email = "ronan@rtob.dev"
+    sshCommand = ssh -i ~/.ssh/github
+
+; include for all repositories inside $HOME/Repos/SPECIFIC_FOLDER/
+[includeIf "gitdir:~/Repos/SPECIFIC_FOLDER/"]
+	path = ~/.gc/specific_config_file
+
+; The above block will check the current repo - and if the path is underneat that defined after [inludeIf ], it will use the git config file defined at path = 
+
+[push]
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

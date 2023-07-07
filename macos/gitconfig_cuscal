@@ -1,0 +1,4 @@
+[user]
+  name = "Ronan O'Brien"
+  email = "robrien@specificplace.com.au"
+  sshCommand = ssh -i ~/.ssh/github
