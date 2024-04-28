@@ -1,5 +1,5 @@
 set cursorline
-set cursorcolumn
+" set cursorcolumn
 set number
 set shiftwidth=4
 set tabstop=4
@@ -12,9 +12,10 @@ set smartcase " This will allow you to search specifically for capital letters.
 set showcmd " Show partial command you type in the last line of the screen.
 set showmode " Show the mode you are on the last line.
 set showmatch " Show matching words during a search.
-set hlsearch " Use highlighting when doing a search.
-nnoremap <Leader>c :set cursorline!<CR>set cursorline
+set hlsearch " Use highlighting when doing a search."
 set list " Show spaces when editing documents
 set listchars=tab:»·,trail:·,extends:»,precedes:«,nbsp:· "Show spaces as dots?
 syntax on
-hi CursorLine cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+" hi CursorColumn cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+nnoremap <Leader>c :set cursorline!<CR>

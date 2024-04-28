@@ -18,13 +18,14 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 ########### BREW PACKAGE LIST ################
 ########### BREW PACKAGE LIST ################
 
-work=("slack" "microsoft-teams" "awscli" "azure-cli" "terraform" "firefox")
-default=("google-chrome" "defaultbrowser" "rename" "tldr" "bitwarden" "bitwarden-cli" "git" "jq" "notunes" "bluesnooze" "authy")
+work=("slack" "microsoft-teams" "awscli" "azure-cli" "terraform")
+default=("google-chrome" "defaultbrowser" "rename" "tldr" "git" "jq" "notunes" "bluesnooze" "arc" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "notunes" "openoffice" "postman" "raycast" "session-manager-plugin" "slack" "visual-studio-code" "wireshark")
 home=("transmission" "nord-vpn" "vlc")
 
 
-for package in $work+$default; do
-  brew install ---cask $package || brew install $package || echo "$package install failed with brew"
+#for package in $work+$default; do
+for package in $default; do
+  brew install --cask $package || brew install $package || echo "$package install failed with brew"
 done
 
 ######## ADD SPACES TO DOCK #########
@@ -34,3 +35,4 @@ done
 
 curl https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/vimrc >> ~/.vimrc
 curl https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/zshrc >> ~/.zshrc
+

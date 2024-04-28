@@ -14,18 +14,18 @@ ZSH_THEME=random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
-ZSH_THEME_RANDOM_CANDIDATES=( "3den" "adben" "af-magic" "afowler" "agnoster" "alanpeabody" "amuse" "apple" "arrow" "aussiegeek" "avit" "awesomepanda" "bira" "blinks" "bureau" "candy-kingdom" "candy" "clean" "cloud" "crcandy" "crunch" "cypher" "dallas" "darkblood" "daveverwer" "dieter" "dogenpunk" "dpoggi" "dst" "dstufft" "duellj" "eastwood" "edvardm" "emotty" "essembeh" "evan" "fino-time" "fino" "flazz" "fletcherm" "fox" "frisk" "frontcube" "funky" "fwalch" "gallifrey" "gallois" "garyblessington" "gentoo" "geoffgarside" "gianu" "gozilla" "half-life" "humza" "imajes" "intheloop" "itchy" "jaischeema" "jbergantine" "jispwoso" "jnrowe" "jonathan" "josh" "jreese" "jtriley" "juanghurtado" "junkfood" "kardan" "kennethreitz" "kiwi" "kolo" "kphoen" "linuxonly" "lukerandall" "macovsky-ruby" "macovsky" "mgutz" "mh" "michelebologna" "mikeh" "miloshadzic" "minimal" "mira" "mlh" "mortalscumbag" "mrtazz" "murilasso" "muse" "nanotech" "nebirhos" "nicoulaj" "norm" "obraun" "oldgallois" "philips" "pmcgee" "pygmalion-virtualenv" "pygmalion" "random" "re5et" "refined" "rgm" "risto" "rixius" "rkj-repos" "rkj" "robbyrussell" "sammy" "simonoff" "simple" "skaro" "smt" "sonicradish" "sorin" "sporty_256" "steeef" "strug" "sunaku" "sunrise" "superjarin" "suvash" "takashiyoshida" "terminalparty" "theunraveler" "tjkirch" "tjkirch_mod" "tonotdo" "trapd00r" "wedisagree" "wezm+wezm" "wuffers" "xiong-chiamiov-plus" "xiong-chiamiov" "ys" "zhann" )
+ZSH_THEME_RANDOM_CANDIDATES=( "3den" "adben" "af-magic" "afowler" "agnoster" "alanpeabody" "amuse" "apple" "arrow" "aussiegeek" "avit" "awesomepanda" "bira" "blinks" "bureau" "candy-kingdom" "candy" "clean" "cloud" "crcandy" "crunch" "cypher" "dallas" "darkblood" "daveverwer" "dieter" "dogenpunk" "dpoggi" "dst" "dstufft" "duellj" "eastwood" "edvardm" "emotty" "essembeh" "evan" "fino-time" "fino" "flazz" "fletcherm" "fox" "frisk" "frontcube" "funky" "gallifrey" "gallois" "garyblessington" "gentoo" "geoffgarside" "gianu" "gozilla" "half-life" "humza" "imajes" "intheloop" "itchy" "jaischeema" "jbergantine" "jispwoso" "jnrowe" "jonathan" "josh" "jreese" "jtriley" "juanghurtado" "junkfood" "kardan" "kennethreitz" "kiwi" "kolo" "kphoen" "linuxonly" "lukerandall" "macovsky-ruby" "macovsky" "mgutz" "mh" "michelebologna" "mikeh" "miloshadzic" "minimal" "mira" "mlh" "mortalscumbag" "mrtazz" "murilasso" "muse" "nanotech" "nebirhos" "nicoulaj" "norm" "obraun" "oldgallois" "philips" "pmcgee" "pygmalion-virtualenv" "pygmalion" "random" "re5et" "refined" "rgm" "risto" "rixius" "rkj-repos" "rkj" "robbyrussell" "sammy" "simonoff" "simple" "skaro" "sonicradish" "sorin" "sporty_256" "steeef" "strug" "sunaku" "sunrise" "superjarin" "suvash" "takashiyoshida" "terminalparty" "theunraveler" "tjkirch" "tjkirch_mod" "trapd00r" "wedisagree" "wezm+wezm" "wuffers" "xiong-chiamiov-plus" "xiong-chiamiov" "ys" "zhann" )
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
 # Uncomment one of the following lines to change the auto-update behavior
 # zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
+zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
@@ -41,7 +41,7 @@ ZSH_THEME_RANDOM_CANDIDATES=( "3den" "adben" "af-magic" "afowler" "agnoster" "al
 DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+#NABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
@@ -60,7 +60,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+HIST_STAMPS="dd/mm/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
@@ -73,4 +73,20 @@ source $ZSH/oh-my-zsh.sh
 export AWS_PAGER=""
 
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
+
+alias tf='terraform'
+alias tfaaa='terraform apply --auto-approve'
+alias tfddd='terraform destroy --auto-approve'
+alias gl='git log --oneline --graph'
+alias ggc='vim ~/.gitconfig'
+alias c='clear'
+alias py='python3'
+alias brup="brew update; brew upgrade; brew upgrade --cask --greedy; brew cleanup -s"
+alias guck='git remote get-url origin | read origin && git rev-parse --show-toplevel | read repo && cd "$repo/.." && rm -rf "$repo" && git clone $origin && cd $repo && repo="" && origin=""'
+alias gitprune='git remote prune origin && git branch -vv | grep '\''origin/.*: gone]'\'' | awk '\''{print $1}'\'' | xargs git branch -D'
+alias ssmsesh='aws ssm start-session --region ap-southeast-2 --target'
+alias zshconfig="code ~/.zshrc"
+alias ohmyzsh="code ~/.oh-my-zsh"
+export LSCOLORS='ExGxDxDxCxDxDxFxFxexEx'
+setopt EXTENDED_HISTORY
 
