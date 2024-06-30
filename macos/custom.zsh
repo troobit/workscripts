@@ -22,6 +22,6 @@ export LSCOLORS='ExGxDxDxCxDxDxFxFxexEx'
 #Plugin Options
 # autosuggestions
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=50
+export ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=500
 # export ARCHFLAGS="-arch x86_64"
 export AWS_PAGER=""
