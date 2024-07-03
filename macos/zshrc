@@ -14,7 +14,7 @@ ZSH_THEME=random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
-ZSH_THEME_RANDOM_CANDIDATES=( "3den" "adben" "af-magic" "afowler" "agnoster" "amuse" "apple" "arrow" "aussiegeek" "avit" "awesomepanda" "bira" "blinks" "bureau" "candy-kingdom" "clean" "crcandy" "darkblood" "daveverwer" "dieter" "dogenpunk" "dpoggi" "dst" "dstufft" "duellj" "eastwood" "edvardm" "evan" "fino-time" "fino" "flazz" "fletcherm" "frisk" "frontcube" "funky"  "garyblessington" "geoffgarside" "gianu" "gozilla" "half-life" "imajes" "intheloop" "itchy" "jbergantine" "jispwoso" "jnrowe" "jonathan" "josh" "jtriley" "juanghurtado" "junkfood" "kennethreitz" "kiwi" "kolo" "kphoen" "linuxonly" "lukerandall" "mgutz" "mh" "mikeh" "miloshadzic" "minimal" "mira" "mlh" "mortalscumbag" "mrtazz" "murilasso" "muse" "nanotech" "nebirhos" "nicoulaj" "pmcgee" "pygmalion-virtualenv" "refined" "rgm" "risto" "rixius" "rkj-repos" "robbyrussell" "simonoff" "simple" "skaro" "sonicradish" "sorin" "steeef" "strug" "sunrise" "suvash" "takashiyoshida" "terminalparty" "theunraveler" "trapd00r" "wedisagree" "xiong-chiamiov-plus" "xiong-chiamiov" "ys" "zhann" )
+ZSH_THEME_RANDOM_CANDIDATES=( "3den" "adben" "af-magic" "afowler" "agnoster" "amuse" "apple" "arrow" "aussiegeek" "avit" "awesomepanda" "bira" "blinks" "bureau" "candy-kingdom" "clean" "crcandy" "darkblood" "daveverwer" "dogenpunk" "dpoggi" "dst" "dstufft" "duellj" "eastwood" "edvardm" "evan" "fino-time" "fino" "flazz" "fletcherm" "frisk" "frontcube" "funky"  "garyblessington" "geoffgarside" "gianu" "gozilla" "half-life" "imajes" "intheloop" "itchy" "jbergantine" "jispwoso" "jnrowe" "jonathan" "josh" "jtriley" "juanghurtado" "junkfood" "kennethreitz" "kiwi" "kolo" "kphoen" "linuxonly" "lukerandall" "mgutz" "mh" "mikeh" "miloshadzic" "minimal" "mira" "mlh" "mortalscumbag" "mrtazz" "murilasso" "muse" "nanotech" "nebirhos" "nicoulaj" "pmcgee" "pygmalion-virtualenv" "refined" "rgm" "risto" "rixius" "rkj-repos" "robbyrussell" "simonoff" "simple" "skaro" "sonicradish" "sorin" "steeef" "strug" "sunrise" "suvash" "takashiyoshida" "terminalparty" "theunraveler" "trapd00r" "wedisagree" "xiong-chiamiov-plus" "xiong-chiamiov" "ys" "zhann" )
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -91,6 +91,6 @@ alias dockernuke='docker stop $(docker ps -aq); docker rm $(docker ps -aq); dock
 alias dockerclear='docker stop $(docker ps -aq); docker rm $(docker ps -aq); docker rmi $(docker images -q)'
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias removetheme="cp ~/.zshrc ~/.zshrc.bak; sed -i '' 's/ \"$RANDOM_THEME\"//g' ~/.zshrc; source ~/.zshrc"
-
+alias gc='gcloud'
 export LSCOLORS='ExGxDxDxCxDxDxFxFxexEx'
 setopt EXTENDED_HISTORY
