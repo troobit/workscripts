@@ -261,11 +261,11 @@ prompt_aws() {
 
 prompt_azure() {
   local azure_account
-  azure_account=$(az account show | jq -r .name 2>/dev/null)
+  azure_account=$(az account show 2>/dev/null | jq -r .name 2>/dev/null)
   [[ -z "$azure_account" ]] && return
   case "$azure_account" in
-    *-prod|*production*|*Prod*) prompt_segment red yellow  "Az:${azure_account:gs/%/%%}" ;;
-    *) prompt_segment green black "Az:${azure_account:gs/%/%%}" ;;
+    *-prod|*production*|*Prod*) prompt_segment yellow red  "Az:${azure_account:gs/%/%%}" ;;
+    *) prompt_segment black green "Az:${azure_account:gs/%/%%}" ;;
   esac
 }
 
