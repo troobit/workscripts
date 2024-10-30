@@ -254,7 +254,7 @@ prompt_status() {
 prompt_aws() {
   [[ -z "$AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
   case "$AWS_PROFILE" in
-    *-prod|*production*) prompt_segment red yellow  "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
+    *-prod|*production*) prompt_segment red yellow  "AWS:${AWS_PROFILE:gs/%/%%}" ;;
     *) prompt_segment green black "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
   esac
 }
@@ -273,7 +273,7 @@ prompt_azure() {
 build_prompt() {
   RETVAL=$?
   prompt_status
-  prompt_context
+  #prompt_context
   prompt_virtualenv
   prompt_aws
   prompt_azure
