@@ -4,6 +4,7 @@
 # script, in alphabetical order.
 
 alias tf='terraform'
+alias vim='nvim'
 alias tfaaa='terraform apply --auto-approve'
 alias tfddd='terraform destroy --auto-approve'
 alias gl='git log --oneline --graph'
