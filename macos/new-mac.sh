@@ -1,38 +1,83 @@
 #!/bin/bash
 
-# Install xcode dev tools
-xcode-select --install
+# Exit immediately if a command exits with a non-zero status.
+set -e
 
+echo "🚀 Starting new Mac setup..."
 
-# Install brew
-eval $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
-brew tap homebrew/cask-fonts
-brew install --cask font-droid-sans-mono-nerd-font
+# Install Xcode command line tools if they aren't already installed
+if ! xcode-select -p &>/dev/null; then
+  echo "Installing Xcode Command Line Tools..."
+  xcode-select --install
+else
+  echo "Xcode Command Line Tools already installed."
+fi
 
+# Install Homebrew if it isn't already installed
+if ! command -v brew &>/dev/null; then
+  echo "Installing Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+  echo "Homebrew already installed."
+fi
 
-# Install Oh-My-Zsh
-eval $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)
+# IMPORTANT: Add Homebrew to the current shell session's PATH
+# This is crucial for Apple Silicon Macs
+if [ -f /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+echo "Updating Homebrew..."
+brew update
+
+brew install --cask font-droid-sans-mono-nerd-font || echo "Nerd font already installed or failed."
+
+# Install Oh-My-Zsh if it isn't installed
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  echo "Installing Oh-My-Zsh..."
+  /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+else
+  echo "Oh My Zsh already installed."
+fi
+
+# Clone Zsh plugins only if they don't exist
+ZSH_PLUGINS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+if [ ! -d "$ZSH_PLUGINS_DIR/zsh-autosuggestions" ]; then
+  echo "Cloning zsh-autosuggestions..."
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS_DIR/zsh-autosuggestions"
+else
+  echo "zsh-autosuggestions plugin already exists."
+fi
+
 
 ########### BREW PACKAGE LIST ################
-########### BREW PACKAGE LIST ################
+default_packages=("rename" "git" "jq" "notunes" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "raycast" "session-manager-plugin" "visual-studio-code" "wireshark")
+work_packages=("slack" "microsoft-teams" "awscli" "azure-cli" "terraform")
+home_packages=("transmission" "vlc")
 
-work=("slack" "microsoft-teams" "awscli" "azure-cli" "terraform")
-default=("google-chrome" "defaultbrowser" "rename" "tldr" "git" "jq" "notunes" "bluesnooze" "arc" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "notunes" "openoffice" "postman" "raycast" "session-manager-plugin" "slack" "visual-studio-code" "wireshark")
-home=("transmission" "nord-vpn" "vlc")
+# Combine all packages into one list
+all_packages=("${default_packages[@]}" "${work_packages[@]}")
 
 
-#for package in $work+$default; do
-for package in $default; do
-  brew install --cask $package || brew install $package || echo "$package install failed with brew"
+echo "Installing brew packages..."
+# Corrected loop syntax to iterate over the array
+for package in "${all_packages[@]}"; do
+  echo "Installing $package..."
+  # Use 'brew install' which handles both casks and formulae automatically
+  brew install "$package" || echo "Could not install $package. It might already be installed or is not available."
 done
 
-######## ADD SPACES TO DOCK #########
-# Use the below line to add spacers - add as many by repeating cmd
-# defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="spacer-tile";}'; killall Dock
+# Download config files, but check if they exist first to avoid duplication
+if [ ! -f "$HOME/.vimrc" ]; then
+    echo "Downloading .vimrc..."
+    curl -o "$HOME/.vimrc" https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/vimrc
+fi
 
+if ! grep -q "rtobrien/workscripts" "$HOME/.zshrc"; then
+    echo "Appending custom .zshrc settings..."
+    # Add a comment to prevent re-adding in the future
+    echo "\n# Added from rtobrien/workscripts setup script" >> "$HOME/.zshrc"
+    curl https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/zshrc >> "$HOME/.zshrc"
+fi
 
-curl https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/vimrc >> ~/.vimrc
-curl https://raw.githubusercontent.com/rtobrien/workscripts/main/macos/zshrc >> ~/.zshrc
-
+echo "✅ Setup complete! Restart your terminal to apply all changes."
