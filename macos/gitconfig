@@ -1,7 +1,9 @@
 [user]
 	name = "Ronan"
 	email = "ronan@place.com"
-    sshCommand = ssh -i ~/.ssh/github
+
+[core]
+	sshCommand = ssh -i ~/.ssh/github
 
 ; include for all repositories inside $HOME/Repos/SPECIFIC_FOLDER/
 [includeIf "gitdir:~/Repos/SPECIFIC_FOLDER/"]

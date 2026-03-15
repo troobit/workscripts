@@ -1,6 +1,5 @@
 ---
 description: 'Agent 5'
-model: GPT-5 (copilot)
 tools: ['edit/editFiles', 'search', 'new', 'runCommands', 'runTasks', 'extensions', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'todos']
 name: 'Agent 5'
 ---

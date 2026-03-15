@@ -1,7 +1,7 @@
 ---
 description: " 🔄 REVIEW: Reviews code against the plan and adds notes (read-only)."
 tools: ['edit', 'search', 'Microsoft Docs/*', 'Azure MCP/search', 'usages', 'changes', 'fetch', 'githubRepo', 'extensions']
-infer: true
+user-invocable: true
 handoffs:
   - label: Resume Worker
     agent: worker
