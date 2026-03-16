@@ -1,0 +1,25 @@
+Orbit Session Log - Phase 8
+========================================
+
+Session ID: 06a5382a-df72-4164-a070-3a1465dcbde2
+Started:    2026-03-10T12:15:22+11:00
+Ended:      2026-03-10T12:18:26+11:00
+Duration:   3m1.786s
+Cost:       $1.0559
+Turns:      31
+Error:      false
+
+Output:
+----------------------------------------
+Done. Here's a summary of what was implemented:
+
+**Task 22: Update final success message with summary**
+
+Changes to `macos/new-mac.sh`:
+1. Added `SYMLINK_SETUP=0` variable before the symlink section, set to `1` on both success paths (existing correct symlink or newly created)
+2. Fixed the symlink creation to use `if/else` instead of `|| echo` so `SYMLINK_SETUP` is only set when `ln -s` actually succeeds
+3. Updated the final success message to match requirement 9.8: `"✅ Setup complete! Successfully set up X/Y repositories, symlink, and X/Y tools."` — with symlink mention being conditional on `SYMLINK_SETUP`
+
+Stderr:
+----------------------------------------
+

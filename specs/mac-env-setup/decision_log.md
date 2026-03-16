@@ -1,0 +1,89 @@
+# Decision Log — mac-env-setup
+
+## D1: Feature name
+- **Decision:** `mac-env-setup`
+- **Rationale:** Covers dock customization, podman container setup, and app management holistically
+
+## D2: Dock app list
+- **Decision:** Dock will contain only: Finder, Brave Browser, WhatsApp, iTerm2, Calendar
+- **Rationale:** User-specified minimal dock. All other defaults removed. Recent apps section disabled.
+
+## D3: Brave Browser and WhatsApp
+- **Decision:** Add `brave-browser` and `whatsapp` to `default_packages` in brew install list
+- **Rationale:** Both needed in the Dock, so they must be installed by the script
+
+## D4: Proxy configuration
+- **Decision:** General networking only (no corporate proxy config)
+- **Rationale:** Containers just need standard inter-container and host communication with internet access
+
+## D5: Podman volumes
+- **Decision:** Mount local project directories (e.g., ~/repos) into containers
+- **Rationale:** Primary use case is local development, not persistent named volumes for databases
+
+## D6: Docker alias strategy
+- **Decision:** Replace existing docker aliases with podman equivalents; alias `docker`→`podman` and `docker-compose`→`podman-compose`
+- **Rationale:** Single container runtime, avoid confusion between docker and podman commands
+
+## D7: Backwards compatibility
+- **Decision:** All new sections must be idempotent (safe to re-run)
+- **Rationale:** Matches existing script pattern — check state before modifying
+
+## D8: Recent apps in Dock
+- **Decision:** Disable "Show recent applications in Dock" via `defaults write`
+- **Rationale:** User explicitly requested this
+
+## D9: Dock manipulation tool
+- **Decision:** Use `dockutil` (installed via Homebrew) for Dock manipulation
+- **Rationale:** macOS has no built-in CLI for adding/removing Dock items. `dockutil` is the standard third-party tool. Added to `default_packages`.
+
+## D10: Finder in Dock list
+- **Decision:** Exclude Finder from the explicit add list; macOS preserves it automatically
+- **Rationale:** Finder cannot be removed from the Dock via `dockutil`; listing it would be redundant
+
+## D11: set -e conflict resolution
+- **Decision:** Non-critical sections use `|| true` guards; critical sections exit on failure
+- **Rationale:** Existing script uses `set -e`. Rather than removing it (which would weaken error handling for existing sections), wrap non-critical new sections.
+
+## D12: Podman default home mount
+- **Decision:** Rely on Podman 4+ default home directory mount for ~/repos access
+- **Rationale:** Podman on macOS mounts the user home by default. No need for explicit `--volume` flag on `podman machine init`.
+
+## D13: docker-compose compatibility scope
+- **Decision:** Aliases support common Compose features; full compatibility is not guaranteed
+- **Rationale:** `podman-compose` has known incompatibilities with advanced docker-compose features (depends_on conditions, some network modes)
+
+## D14: dockutil v3 syntax
+- **Decision:** Use `--no-restart` flag to batch changes, single `killall Dock` at end
+- **Rationale:** Research confirmed `--no-restart` IS supported in dockutil v3.1.3 (current Homebrew version). README documents it explicitly. Batching avoids multiple Dock restarts.
+
+## D15: Shell config deployment (aliases.zsh only)
+- **Decision:** Download `aliases.zsh` from the repo and source it from `~/.zshrc`. Remove `path.zsh` from the repo.
+- **Rationale:** `aliases.zsh` was never deployed or sourced — without this, alias changes (section 7) would never take effect. `path.zsh` is redundant (see D16).
+
+## D16: Remove path.zsh
+- **Decision:** Remove `macos/path.zsh` from the repository
+- **Rationale:** pnpm PATH is handled automatically by `brew install pnpm`. NVM manages its own PATH via its installer. Homebrew PATH is already set by `eval "$(/opt/homebrew/bin/brew shellenv)"` in the script. The file also contained a hardcoded `/Users/ronan/Library/pnpm` path that wouldn't work on other users' machines.
+
+## D17: Homebrew bash re-exec — SUPERSEDED by D19
+- **Decision:** ~~Re-exec script under Homebrew's bash 4+~~ → Replaced with indexed arrays
+- **Rationale:** See D19
+
+## D18: Drop NVM
+- **Decision:** NVM is not installed or configured by the setup script
+- **Rationale:** NVM init was only in `path.zsh` which is being removed. NVM is not in the Homebrew package list and is not needed for the current development workflow.
+
+## D19: Use indexed arrays instead of associative arrays
+- **Decision:** Use two parallel indexed arrays (`DOCK_NAMES`, `DOCK_PATHS`) instead of `declare -A`
+- **Rationale:** Eliminates need for bash 4+ and the entire re-exec component. macOS ships bash 3.2 which supports indexed arrays but not associative arrays. Two reviewers independently recommended this simplification.
+
+## D20: Podman network DNS default — SUPERSEDED by D21
+- **Decision:** ~~Omit `--dns-enabled` flag~~ → No network creation in script at all
+- **Rationale:** See D21
+
+## D21: Podman is install-only
+- **Decision:** The setup script installs Podman and podman-compose via Homebrew but does NOT initialise/start the machine, create networks, or run containers
+- **Rationale:** User feedback: Podman just needs to be available. Machine init, networking, and containers are user-initiated via the reference compose file. This keeps the setup script simple and avoids side effects.
+
+## D22: Compose file volume separation
+- **Decision:** Compose file mounts `./src` (project subdirectory) not `~/repos` directly
+- **Rationale:** User specified that network drives should not be mapped to ~/repos but rather a subdirectory. Each project gets its own compose file with its own mount context.
