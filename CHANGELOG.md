@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added VS Code keyboard shortcut reference files for macOS: `vsc-shortcuts-gem.md` (concise AI-focused cheat sheet), `vsc-shortcuts-gpt.md` (comprehensive guide with Claude Code and Copilot shortcuts), `vsc-shortcuts-gpt52.md` (extended guide including vim-style shortcuts and focus recipes), and `vsc-shortcuts-msft.pdf` (Microsoft official reference)
+
+### Fixed
+- Corrected Dock app name from `iTerm` to `iTerm2` in `macos/new-mac.sh` to match the actual application name
+
 - Added `brave-browser`, `whatsapp`, and `dockutil` to the `default_packages` array in `macos/new-mac.sh`
 - Added shell configuration deployment section to `macos/new-mac.sh`: downloads `aliases.zsh` from the repo to `~/.aliases.zsh` (overwrite on re-run), appends `source ~/.aliases.zsh` to `~/.zshrc` with idempotent `grep -q` guard
 - Added Dock configuration section to `macos/new-mac.sh`: snapshots current Dock state, removes all items via `dockutil --remove all --no-restart`, adds Brave Browser, WhatsApp, iTerm, and Calendar with `[ -d ]` path checks, disables recent apps via `defaults write`, restarts Dock with `killall Dock || true`; entire block guarded by `command -v dockutil` check

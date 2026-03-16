@@ -104,7 +104,7 @@ fi
 echo "🖥️  Configuring Dock..."
 
 # Define desired Dock apps — two parallel indexed arrays (bash 3.2 compatible)
-DOCK_NAMES=("Brave Browser" "WhatsApp" "iTerm" "Calendar")
+DOCK_NAMES=("Brave Browser" "WhatsApp" "iTerm2" "Calendar")
 DOCK_PATHS=(
   "/Applications/Brave Browser.app"
   "/Applications/WhatsApp.app"
