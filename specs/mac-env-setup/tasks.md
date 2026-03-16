@@ -29,29 +29,29 @@ references:
 
 ## Script Modifications (new-mac.sh)
 
-- [ ] 4. Add new packages to default_packages array <!-- id:0pqh9rv -->
+- [x] 4. Add new packages to default_packages array <!-- id:0pqh9rv -->
   - Stream: 2
   - Requirements: [3.1](requirements.md#3.1), [3.2](requirements.md#3.2), [3.3](requirements.md#3.3), [3.4](requirements.md#3.4), [1.1](requirements.md#1.1)
-  - [ ] 4.1. Append `brave-browser`, `whatsapp`, `dockutil` to the `default_packages` array on line 54
+  - [x] 4.1. Append `brave-browser`, `whatsapp`, `dockutil` to the `default_packages` array on line 54
 
-- [ ] 5. Add shell config deployment section after logging redirect <!-- id:0pqh9rw -->
+- [x] 5. Add shell config deployment section after logging redirect <!-- id:0pqh9rw -->
   - Blocked-by: 0pqh9rv (Add new packages to default_packages array)
   - Stream: 2
   - Requirements: [6.1](requirements.md#6.1), [6.3](requirements.md#6.3), [6.4](requirements.md#6.4), [6.5](requirements.md#6.5)
-  - [ ] 5.1. Add `curl -fsSL -o $HOME/.aliases.zsh` download from repo with `|| echo` guard
-  - [ ] 5.2. Add `grep -q` check + append `source ~/.aliases.zsh` line to `~/.zshrc` if not present
+  - [x] 5.1. Add `curl -fsSL -o $HOME/.aliases.zsh` download from repo with `|| echo` guard
+  - [x] 5.2. Add `grep -q` check + append `source ~/.aliases.zsh` line to `~/.zshrc` if not present
 
-- [ ] 6. Add Dock configuration section <!-- id:0pqh9rx -->
+- [x] 6. Add Dock configuration section <!-- id:0pqh9rx -->
   - Blocked-by: 0pqh9rv (Add new packages to default_packages array)
   - Stream: 2
   - Requirements: [1.2](requirements.md#1.2), [1.3](requirements.md#1.3), [1.4](requirements.md#1.4), [1.5](requirements.md#1.5), [1.6](requirements.md#1.6), [2.1](requirements.md#2.1), [2.2](requirements.md#2.2)
-  - [ ] 6.1. Define `DOCK_NAMES` and `DOCK_PATHS` indexed arrays (bash 3.2 compatible)
-  - [ ] 6.2. Add `command -v dockutil` guard wrapping entire Dock block
-  - [ ] 6.3. Add `dockutil --list` snapshot before changes for recovery reference
-  - [ ] 6.4. Add `dockutil --remove all --no-restart` with `|| echo` guard
-  - [ ] 6.5. Add loop over `DOCK_NAMES`/`DOCK_PATHS` with `[ -d ]` check and `dockutil --add --no-restart`
-  - [ ] 6.6. Add `defaults write com.apple.dock show-recents -bool false`
-  - [ ] 6.7. Add `killall Dock || true` at end of Dock block
+  - [x] 6.1. Define `DOCK_NAMES` and `DOCK_PATHS` indexed arrays (bash 3.2 compatible)
+  - [x] 6.2. Add `command -v dockutil` guard wrapping entire Dock block
+  - [x] 6.3. Add `dockutil --list` snapshot before changes for recovery reference
+  - [x] 6.4. Add `dockutil --remove all --no-restart` with `|| echo` guard
+  - [x] 6.5. Add loop over `DOCK_NAMES`/`DOCK_PATHS` with `[ -d ]` check and `dockutil --add --no-restart`
+  - [x] 6.6. Add `defaults write com.apple.dock show-recents -bool false`
+  - [x] 6.7. Add `killall Dock || true` at end of Dock block
 
 ## Verification
 

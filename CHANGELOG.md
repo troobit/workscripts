@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `brave-browser`, `whatsapp`, and `dockutil` to the `default_packages` array in `macos/new-mac.sh`
+- Added shell configuration deployment section to `macos/new-mac.sh`: downloads `aliases.zsh` from the repo to `~/.aliases.zsh` (overwrite on re-run), appends `source ~/.aliases.zsh` to `~/.zshrc` with idempotent `grep -q` guard
+- Added Dock configuration section to `macos/new-mac.sh`: snapshots current Dock state, removes all items via `dockutil --remove all --no-restart`, adds Brave Browser, WhatsApp, iTerm, and Calendar with `[ -d ]` path checks, disables recent apps via `defaults write`, restarts Dock with `killall Dock || true`; entire block guarded by `command -v dockutil` check
 - Added `macos/docker-compose.yml` reference compose file with PostgreSQL 16 Alpine service, placeholder app service, shared `devnet` bridge network, named volume `pgdata`, healthcheck, and env vars with defaults for all config values
 - Added `docker='podman'` and `docker-compose='podman-compose'` aliases to `macos/aliases.zsh`
 

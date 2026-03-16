@@ -51,7 +51,7 @@ fi
 
 
 ########### BREW PACKAGE LIST ################
-default_packages=("rename" "git" "jq" "notunes" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "raycast" "session-manager-plugin" "visual-studio-code" "wireshark" "gh" "go")
+default_packages=("rename" "git" "jq" "notunes" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "raycast" "session-manager-plugin" "visual-studio-code" "wireshark" "gh" "go" "brave-browser" "whatsapp" "dockutil")
 work_packages=("slack" "microsoft-teams" "terraform")
 home_packages=("transmission" "vlc" "awscli" "azure-cli" "podman" "podman-compose")
 
@@ -81,6 +81,65 @@ fi
 SETUP_LOG="$HOME/SETUP.log"
 exec > >(tee -a "$SETUP_LOG") 2>&1
 echo "=== Developer setup started at $(date) ==="
+
+########### SHELL CONFIGURATION ################
+
+echo "🔧 Deploying shell configuration..."
+
+# Download aliases.zsh (overwrite — repo-managed)
+curl -fsSL -o "$HOME/.aliases.zsh" \
+  https://raw.githubusercontent.com/troobit/workscripts/main/macos/aliases.zsh \
+  || echo "⚠️  Could not download aliases.zsh"
+
+# Source from .zshrc if not already present
+if ! grep -q "source.*\.aliases\.zsh" "$HOME/.zshrc" 2>/dev/null; then
+  echo '[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"' >> "$HOME/.zshrc"
+  echo "✅ Added aliases.zsh sourcing to .zshrc"
+else
+  echo "✅ aliases.zsh already sourced in .zshrc"
+fi
+
+########### DOCK CONFIGURATION ################
+
+echo "🖥️  Configuring Dock..."
+
+# Define desired Dock apps — two parallel indexed arrays (bash 3.2 compatible)
+DOCK_NAMES=("Brave Browser" "WhatsApp" "iTerm" "Calendar")
+DOCK_PATHS=(
+  "/Applications/Brave Browser.app"
+  "/Applications/WhatsApp.app"
+  "/Applications/iTerm.app"
+  "/System/Applications/Calendar.app"
+)
+
+if command -v dockutil &>/dev/null; then
+  # Snapshot current Dock state for recovery reference
+  echo "Current Dock state:"
+  dockutil --list || true
+
+  # Remove all existing Dock items (Finder preserved by macOS)
+  dockutil --remove all --no-restart || echo "⚠️  dockutil remove failed"
+
+  # Add each app in order
+  for i in "${!DOCK_NAMES[@]}"; do
+    app_name="${DOCK_NAMES[$i]}"
+    app_path="${DOCK_PATHS[$i]}"
+    if [ -d "$app_path" ]; then
+      dockutil --add "$app_path" --no-restart || echo "⚠️  Could not add $app_name to Dock"
+    else
+      echo "⚠️  $app_name not found at $app_path — skipping Dock add"
+    fi
+  done
+
+  # Disable recent apps in Dock
+  defaults write com.apple.dock show-recents -bool false
+
+  # Restart Dock to apply all changes
+  killall Dock || true
+  echo "✅ Dock configured"
+else
+  echo "⚠️  dockutil not found — skipping Dock configuration"
+fi
 
 # Verify required dependencies are available
 echo "🔍 Verifying required dependencies..."
