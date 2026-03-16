@@ -7,6 +7,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `macos/docker-compose.yml` reference compose file with PostgreSQL 16 Alpine service, placeholder app service, shared `devnet` bridge network, named volume `pgdata`, healthcheck, and env vars with defaults for all config values
+- Added `docker='podman'` and `docker-compose='podman-compose'` aliases to `macos/aliases.zsh`
+
+### Changed
+- Updated `dockernuke` alias to use `podman` commands with `2>/dev/null` error suppression, `;` separators, and `podman system prune -af` instead of `docker-buildx prune`
+- Updated `dockerclear` alias to use `podman` commands with `2>/dev/null` error suppression and `;` separators
+
+### Removed
+- Deleted `macos/path.zsh` — pnpm PATH handled by `brew install pnpm`, Homebrew PATH set via `eval "$(/opt/homebrew/bin/brew shellenv)"`, NVM not installed
+
+---
+
+## [Previous]
+
+### Added
 - Added `gh` (GitHub CLI) and `go` to `default_packages` in `macos/new-mac.sh` to support GitHub authentication and Go tool installation during Mac setup
 - Added logging initialization to `macos/new-mac.sh`: all developer setup output is tee'd to `~/SETUP.log`
 - Added dependency verification in `macos/new-mac.sh`: checks that `gh`, `go`, and `git` are available after Homebrew install, exits with a clear error if any are missing

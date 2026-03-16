@@ -8,22 +8,22 @@ references:
 
 ## Repo Changes (no script modifications)
 
-- [ ] 1. Update aliases.zsh with Podman aliases <!-- id:0pqh9rs -->
+- [x] 1. Update aliases.zsh with Podman aliases <!-- id:0pqh9rs -->
   - Stream: 1
   - Requirements: [5.1](requirements.md#5.1), [5.2](requirements.md#5.2), [5.3](requirements.md#5.3), [5.4](requirements.md#5.4), [5.5](requirements.md#5.5)
-  - [ ] 1.1. Add `alias docker=podman` and `alias docker-compose=podman-compose`
-  - [ ] 1.2. Replace `dockernuke` alias: use `podman` commands with `2>/dev/null` on each subcommand, `;` separators, end with `podman system prune -af`
-  - [ ] 1.3. Replace `dockerclear` alias: use `podman` commands with `2>/dev/null` on each subcommand, `;` separators
+  - [x] 1.1. Add `alias docker=podman` and `alias docker-compose=podman-compose`
+  - [x] 1.2. Replace `dockernuke` alias: use `podman` commands with `2>/dev/null` on each subcommand, `;` separators, end with `podman system prune -af`
+  - [x] 1.3. Replace `dockerclear` alias: use `podman` commands with `2>/dev/null` on each subcommand, `;` separators
 
-- [ ] 2. Create reference docker-compose.yml <!-- id:0pqh9rt -->
+- [x] 2. Create reference docker-compose.yml <!-- id:0pqh9rt -->
   - Stream: 1
   - Requirements: [4.1](requirements.md#4.1), [4.2](requirements.md#4.2), [4.3](requirements.md#4.3), [4.4](requirements.md#4.4), [4.5](requirements.md#4.5), [4.6](requirements.md#4.6)
-  - [ ] 2.1. Create `macos/docker-compose.yml` with PostgreSQL 16 Alpine service, named volume `pgdata`, healthcheck
-  - [ ] 2.2. Add placeholder `app` service on shared `devnet` bridge network, volume mount `./src:/app/src`
-  - [ ] 2.3. Use env vars with defaults for all config: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, DB_PORT, APP_PORT
-  - [ ] 2.4. Add comments documenting prerequisites (`podman machine init/start`) and usage instructions
+  - [x] 2.1. Create `macos/docker-compose.yml` with PostgreSQL 16 Alpine service, named volume `pgdata`, healthcheck
+  - [x] 2.2. Add placeholder `app` service on shared `devnet` bridge network, volume mount `./src:/app/src`
+  - [x] 2.3. Use env vars with defaults for all config: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, DB_PORT, APP_PORT
+  - [x] 2.4. Add comments documenting prerequisites (`podman machine init/start`) and usage instructions
 
-- [ ] 3. Delete macos/path.zsh <!-- id:0pqh9ru -->
+- [x] 3. Delete macos/path.zsh <!-- id:0pqh9ru -->
   - Stream: 1
   - Requirements: [6.2](requirements.md#6.2)
 

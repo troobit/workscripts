@@ -1,0 +1,57 @@
+# Reference compose file for local development with Podman
+# Copy to your project directory and run: docker-compose up
+#
+# Prerequisites:
+#   podman machine init && podman machine start
+#
+# Usage:
+#   cp this file to ~/repos/<project>/docker-compose.yml
+#   cd ~/repos/<project>
+#   docker-compose up -d
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-devdb}
+      POSTGRES_USER: ${POSTGRES_USER:-devuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpass}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - devnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-devuser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: alpine:latest
+    # Replace with your app image or build context:
+    #   build: .
+    #   image: your-app:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-devuser}:${POSTGRES_PASSWORD:-devpass}@db:5432/${POSTGRES_DB:-devdb}"
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - devnet
+    # Placeholder command — replace with your app's entrypoint
+    command: ["echo", "App container ready. Replace this with your entrypoint."]
+
+volumes:
+  pgdata:
+    name: ${COMPOSE_PROJECT_NAME:-dev}_pgdata
+
+networks:
+  devnet:
+    driver: bridge
