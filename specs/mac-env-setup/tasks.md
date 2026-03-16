@@ -55,15 +55,15 @@ references:
 
 ## Verification
 
-- [ ] 7. Create verify-setup.sh script <!-- id:0pqh9ry -->
+- [x] 7. Create verify-setup.sh script <!-- id:0pqh9ry -->
   - Blocked-by: 0pqh9rw (Add shell config deployment section after logging redirect), 0pqh9rx (Add Dock configuration section)
   - Stream: 2
   - Requirements: [7.1](requirements.md#7.1), [7.2](requirements.md#7.2), [7.3](requirements.md#7.3), [7.4](requirements.md#7.4)
-  - [ ] 7.1. Add Dock checks: `dockutil --find` for each app, `defaults read show-recents`
-  - [ ] 7.2. Add brew package checks: `brew list --cask` for brave-browser, whatsapp; `brew list` for dockutil, podman, podman-compose
-  - [ ] 7.3. Add shell config checks: aliases.zsh exists, sourced in zshrc, docker/docker-compose aliases defined
-  - [ ] 7.4. Add compose file existence check
+  - [x] 7.1. Add Dock checks: `dockutil --find` for each app, `defaults read show-recents`
+  - [x] 7.2. Add brew package checks: `brew list --cask` for brave-browser, whatsapp; `brew list` for dockutil, podman, podman-compose
+  - [x] 7.3. Add shell config checks: aliases.zsh exists, sourced in zshrc, docker/docker-compose aliases defined
+  - [x] 7.4. Add compose file existence check
 
-- [ ] 8. Validate docker-compose.yml syntax <!-- id:0pqh9rz -->
+- [x] 8. Validate docker-compose.yml syntax <!-- id:0pqh9rz -->
   - Blocked-by: 0pqh9rt (Create reference docker-compose.yml)
   - Stream: 1

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added Dock configuration section to `macos/new-mac.sh`: snapshots current Dock state, removes all items via `dockutil --remove all --no-restart`, adds Brave Browser, WhatsApp, iTerm, and Calendar with `[ -d ]` path checks, disables recent apps via `defaults write`, restarts Dock with `killall Dock || true`; entire block guarded by `command -v dockutil` check
 - Added `macos/docker-compose.yml` reference compose file with PostgreSQL 16 Alpine service, placeholder app service, shared `devnet` bridge network, named volume `pgdata`, healthcheck, and env vars with defaults for all config values
 - Added `docker='podman'` and `docker-compose='podman-compose'` aliases to `macos/aliases.zsh`
+- Added `macos/verify-setup.sh` verification script with checks for Dock configuration, Homebrew packages, shell config deployment, alias definitions, and compose file existence
 
 ### Changed
 - Updated `dockernuke` alias to use `podman` commands with `2>/dev/null` error suppression, `;` separators, and `podman system prune -af` instead of `docker-buildx prune`
