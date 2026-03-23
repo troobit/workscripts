@@ -100,6 +100,11 @@ echo ""
 ########### UNATTENDED PHASE ################
 # No further user interaction required
 
+# Initialize logging — capture all unattended operations
+SETUP_LOG="$HOME/SETUP.log"
+exec > >(tee -a "$SETUP_LOG") 2>&1
+echo "=== Setup started at $(date) ==="
+
 echo "Updating Homebrew..."
 brew update
 
@@ -180,13 +185,6 @@ if ! grep -q "troobit/workscripts" "$HOME/.zshrc"; then
     echo "\n# Added from troobit/workscripts setup script" >> "$HOME/.zshrc"
     curl https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc >> "$HOME/.zshrc"
 fi
-
-########### DEVELOPER SETUP ################
-
-# Initialize logging
-SETUP_LOG="$HOME/SETUP.log"
-exec > >(tee -a "$SETUP_LOG") 2>&1
-echo "=== Developer setup started at $(date) ==="
 
 ########### SHELL CONFIGURATION ################
 

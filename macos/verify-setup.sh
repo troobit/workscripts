@@ -7,9 +7,21 @@ FAIL=0
 check() {
   local desc=$1; shift
   if "$@" &>/dev/null; then
-    echo "  $desc"; PASS=$((PASS + 1))
+    echo "  ✅ $desc"; PASS=$((PASS + 1))
   else
-    echo "  $desc"; FAIL=$((FAIL + 1))
+    echo "  ❌ $desc"; FAIL=$((FAIL + 1))
+  fi
+}
+
+# Helper for checks that need pipes (pipes can't be passed as arguments to check)
+check_grep() {
+  local desc=$1
+  local haystack=$2
+  local needle=$3
+  if echo "$haystack" | grep -qi "$needle"; then
+    echo "  ✅ $desc"; PASS=$((PASS + 1))
+  else
+    echo "  ❌ $desc"; FAIL=$((FAIL + 1))
   fi
 }
 
@@ -45,15 +57,15 @@ check "Battery system sleep: 1" test "$(pmset -g custom | awk '/Battery Power/{f
 
 echo ""
 echo "=== Default Browser ==="
-check "Brave is default browser" plutil -extract LSHandlers json -o - \
-  ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist 2>/dev/null \
-  | grep -q "com.brave.Browser"
+BROWSER_HANDLERS=$(plutil -extract LSHandlers json -o - \
+  ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist 2>/dev/null || echo "")
+check_grep "Brave is default browser" "$BROWSER_HANDLERS" "com.brave.Browser"
 
 echo ""
 echo "=== Login Items ==="
 LOGIN_ITEMS=$(osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null || echo "")
 for app in "Caffeine" "noTunes" "Magnet" "Bluesnooze" "Google Drive" "Raycast"; do
-  check "$app is login item" echo "$LOGIN_ITEMS" | grep -qi "$app"
+  check_grep "$app is login item" "$LOGIN_ITEMS" "$app"
 done
 
 echo ""
