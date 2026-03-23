@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Expanded `macos/verify-setup.sh` with comprehensive verification: Dock app checks for all 16 apps via `dockutil --find`, Dock preference checks (tilesize, magnification, largesize, autohide, show-recents), system preference checks (hot corner, accent color, Mission Control, Finder view), power management checks via `pmset -g custom` parsing, default browser check via LaunchServices plist, login items checks via `osascript` query, and expanded Homebrew package spot-checks (bat, fzf, tmux, mas, dockutil)
+- Added iTerm2 preferences export (`macos/iterm2-prefs.plist`) and import section in `macos/new-mac.sh`: checks for plist file and iTerm2 installation, imports via `defaults import com.googlecode.iterm2` with `|| echo` guard
+- Added D31 to `specs/mac-env-setup/decision_log.md` documenting app-level settings automation limitations (Magnet license verification, Raycast encryption, NordVPN/Bitwarden interactive login, VS Code Settings Sync)
+
+### Added
 - Added system preferences section to `macos/new-mac.sh`: hot corner (bottom-right Quick Note), accent color (Pink), highlight color (Green), Mission Control settings (group by app, disable auto-rearrange spaces), Finder column view default, with `killall Finder || true` to apply changes
 - Updated Dock configuration in `macos/new-mac.sh` from 4 apps to full 16-app layout with 2 spacer tiles using `SPACER` sentinel pattern in indexed arrays; added Downloads folder to persistent-others section; added Dock preferences (`tilesize 44`, `magnification true`, `largesize 128`, `autohide true`)
 - Added power management section to `macos/new-mac.sh`: AC power never-sleep (`displaysleep 0`, `sleep 0`), battery conservative sleep (`displaysleep 10`, `sleep 1`) via `sudo pmset` with `|| echo` guards

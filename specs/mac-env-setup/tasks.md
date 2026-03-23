@@ -85,35 +85,35 @@ references:
 
 ## Phase D: Verification & Documentation
 
-- [ ] 9. Update verify-setup.sh with all new checks <!-- id:1a0009 -->
+- [x] 9. Update verify-setup.sh with all new checks <!-- id:1a0009 -->
   - Blocked-by: 1a0004, 1a0005, 1a0006, 1a0007, 1a0008
   - Stream: 1
   - Requirements: [11.1](requirements.md#11.1)
-  - [ ] 9.1. Add Dock app checks for all 16 apps via `dockutil --find`
-  - [ ] 9.2. Add Dock preference checks: tilesize, magnification, largesize, autohide, show-recents
-  - [ ] 9.3. Add system preference checks: hot corner, accent color, Mission Control, Finder view
-  - [ ] 9.4. Add power management checks via `pmset -g custom` parsing
-  - [ ] 9.5. Add default browser check via LaunchServices plist
-  - [ ] 9.6. Add login items checks via `osascript` query
-  - [ ] 9.7. Add expanded Homebrew package spot-checks (bat, fzf, tmux, mas, dockutil)
+  - [x] 9.1. Add Dock app checks for all 16 apps via `dockutil --find`
+  - [x] 9.2. Add Dock preference checks: tilesize, magnification, largesize, autohide, show-recents
+  - [x] 9.3. Add system preference checks: hot corner, accent color, Mission Control, Finder view
+  - [x] 9.4. Add power management checks via `pmset -g custom` parsing
+  - [x] 9.5. Add default browser check via LaunchServices plist
+  - [x] 9.6. Add login items checks via `osascript` query
+  - [x] 9.7. Add expanded Homebrew package spot-checks (bat, fzf, tmux, mas, dockutil)
 
-- [ ] 10. Update decision_log.md with new design decisions <!-- id:1a0010 -->
+- [x] 10. Update decision_log.md with new design decisions <!-- id:1a0010 -->
   - Stream: 1
-  - [ ] 10.1. Add D23: Script restructuring into interactive/unattended phases
-  - [ ] 10.2. Add D24: Sudo keep-alive mechanism
-  - [ ] 10.3. Add D25: Default browser via Swift/NSWorkspace (replacing defaultbrowser CLI)
-  - [ ] 10.4. Add D26: Full Dock layout with SPACER sentinel pattern
-  - [ ] 10.5. Add D27: Login items via osascript
-  - [ ] 10.6. Add D28: Power management values (AC: never, Battery: 10/1)
-  - [ ] 10.7. Add D29: Scoped out items (VS Code extensions, wallpaper, computer name) with rationale
-  - [ ] 10.8. Add D30: Mac App Store via mas for Magnet only
+  - [x] 10.1. Add D23: Script restructuring into interactive/unattended phases
+  - [x] 10.2. Add D24: Sudo keep-alive mechanism
+  - [x] 10.3. Add D25: Default browser via Swift/NSWorkspace (replacing defaultbrowser CLI)
+  - [x] 10.4. Add D26: Full Dock layout with SPACER sentinel pattern
+  - [x] 10.5. Add D27: Login items via osascript
+  - [x] 10.6. Add D28: Power management values (AC: never, Battery: 10/1)
+  - [x] 10.7. Add D29: Scoped out items (VS Code extensions, wallpaper, computer name) with rationale
+  - [x] 10.8. Add D30: Mac App Store via mas for Magnet only
 
 ## Phase E: Stretch Goal
 
-- [ ] 11. Add iTerm2 preferences import (stretch) <!-- id:1a0011 -->
+- [x] 11. Add iTerm2 preferences import (stretch) <!-- id:1a0011 -->
   - Blocked-by: 1a0005
   - Stream: 3
   - Requirements: [12.1](requirements.md#12.1), [12.2](requirements.md#12.2), [12.3](requirements.md#12.3)
-  - [ ] 11.1. Export current iTerm2 preferences: `defaults export com.googlecode.iterm2 macos/iterm2-prefs.plist` and commit to repo
-  - [ ] 11.2. Add import section in new-mac.sh: check plist exists and iTerm2 installed, then `defaults import com.googlecode.iterm2 macos/iterm2-prefs.plist`
-  - [ ] 11.3. Document limitations for apps that cannot be automated (Magnet license, Raycast, NordVPN, Bitwarden) in decision_log.md
+  - [x] 11.1. Export current iTerm2 preferences: `defaults export com.googlecode.iterm2 macos/iterm2-prefs.plist` and commit to repo
+  - [x] 11.2. Add import section in new-mac.sh: check plist exists and iTerm2 installed, then `defaults import com.googlecode.iterm2 macos/iterm2-prefs.plist`
+  - [x] 11.3. Document limitations for apps that cannot be automated (Magnet license, Raycast, NordVPN, Bitwarden) in decision_log.md

@@ -124,6 +124,15 @@
 - **Decision:** Install `mas` via Homebrew, use `mas install 441258766` for Magnet. No other App Store apps needed.
 - **Rationale:** Magnet is the only currently-installed app that is only available via the Mac App Store. All other apps are available via Homebrew casks. `mas` requires prior App Store authentication — script warns and continues if not signed in.
 
+## D31: App-level settings automation limitations
+- **Decision:** Only iTerm2 preferences are automated (via `defaults export`/`import`). The following apps cannot be reliably automated:
+  - **Magnet** — Shortcuts stored in `com.crowdcafe.windowmagnet` plist; export/import possible but activation requires license verification
+  - **Raycast** — Settings encrypted and tied to Raycast account; export requires Raycast Pro
+  - **NordVPN** — Requires interactive login; cannot automate credentials
+  - **Bitwarden** — Requires interactive login; security-sensitive
+  - **VS Code** — Managed by logged-in user via Settings Sync (out of scope per D29)
+- **Rationale:** iTerm2 is the only app where plist import reliably reproduces the full configuration. Other apps either require license/account authentication or use encrypted settings formats.
+
 ## D18: Drop NVM — SUPERSEDED
 - **Decision:** ~~NVM is not installed by the setup script~~ → NVM is now included in `home_packages`
 - **Rationale:** NVM is currently installed via Homebrew on the existing environment. v2 aims for complete environment reproduction, so NVM is included. (Overrides v1 D18 which excluded NVM.)

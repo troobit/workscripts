@@ -589,6 +589,24 @@ for tool in rune orbit; do
 done
 echo ""
 
+########### APP-LEVEL SETTINGS (STRETCH) ################
+
+# iTerm2 preferences import
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ITERM_PLIST="$SCRIPT_DIR/iterm2-prefs.plist"
+if [ -f "$ITERM_PLIST" ] && [ -d "/Applications/iTerm.app" ]; then
+  echo "Importing iTerm2 preferences..."
+  defaults import com.googlecode.iterm2 "$ITERM_PLIST" \
+    || echo "Could not import iTerm2 preferences"
+  echo "iTerm2 preferences imported"
+else
+  if [ ! -d "/Applications/iTerm.app" ]; then
+    echo "iTerm2 not installed — skipping preferences import"
+  elif [ ! -f "$ITERM_PLIST" ]; then
+    echo "iterm2-prefs.plist not found — skipping preferences import"
+  fi
+fi
+
 ########### SUMMARY ################
 
 # Kill sudo keep-alive — no longer needed
