@@ -5,6 +5,9 @@ set -e
 
 echo "🚀 Starting new Mac setup..."
 
+########### INTERACTIVE PHASE ################
+# User must be present for this section
+
 # Install Xcode command line tools if they aren't already installed
 if ! xcode-select -p &>/dev/null; then
   echo "Installing Xcode Command Line Tools..."
@@ -26,6 +29,76 @@ fi
 if [ -f /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+# Install gh early — needed for SSH/GitHub auth in interactive phase
+brew install gh 2>/dev/null || true
+
+# Collect user input upfront
+echo "📝 Collecting user information..."
+while true; do
+  read -rp "Enter your GitHub email: " GITHUB_EMAIL
+  [ -n "$GITHUB_EMAIL" ] && break
+  echo "⚠️  Email cannot be empty. Please try again."
+done
+
+while true; do
+  read -rp "Enter your full name for Git: " GIT_NAME
+  [ -n "$GIT_NAME" ] && break
+  echo "⚠️  Name cannot be empty. Please try again."
+done
+
+########### SSH KEY SETUP ################
+
+if [ ! -f "$HOME/.ssh/github" ]; then
+  echo "🔑 Generating SSH key..."
+  mkdir -p "$HOME/.ssh"
+  ssh-keygen -t ed25519 -C "$GITHUB_EMAIL" -f "$HOME/.ssh/github" -N ""
+
+  echo "Starting SSH agent..."
+  eval "$(ssh-agent -s)"
+
+  echo "Adding SSH key to agent..."
+  ssh-add "$HOME/.ssh/github"
+
+  echo "Authenticating with GitHub..."
+  gh auth login --git-protocol ssh --web
+
+  echo "Checking for existing SSH key on GitHub..."
+  KEY_FINGERPRINT=$(ssh-keygen -lf "$HOME/.ssh/github.pub" | awk '{print $2}')
+  if gh ssh-key list | grep -q "$KEY_FINGERPRINT"; then
+    echo "⚠️  SSH key already uploaded to GitHub (fingerprint: $KEY_FINGERPRINT)"
+  else
+    echo "Uploading SSH key to GitHub..."
+    gh ssh-key add "$HOME/.ssh/github.pub" --title "MacBook-$(date +%Y%m%d)"
+  fi
+
+  echo "Testing SSH connection..."
+  ssh -T git@github.com -i "$HOME/.ssh/github" 2>&1 || echo "SSH test completed (expected authentication message)"
+
+  echo "✅ SSH key setup complete"
+else
+  echo "✅ SSH key already exists at ~/.ssh/github"
+fi
+echo ""
+
+########### SUDO CREDENTIALS ################
+
+echo "🔐 Requesting administrator access for system configuration..."
+sudo -v
+
+# Keep sudo alive in the background
+while true; do sudo -n true; sleep 60; done 2>/dev/null &
+SUDO_KEEPALIVE_PID=$!
+
+# Trap to kill keep-alive on script exit
+trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
+
+echo ""
+echo "🚀 Unattended phase starting — you can walk away now"
+echo ""
+
+########### UNATTENDED PHASE ################
+# No further user interaction required
 
 echo "Updating Homebrew..."
 brew update
@@ -150,54 +223,6 @@ for cmd in gh go git; do
   fi
 done
 echo "✅ All required dependencies found."
-
-# Collect user input upfront
-echo "📝 Collecting user information..."
-while true; do
-  read -rp "Enter your GitHub email: " GITHUB_EMAIL
-  [ -n "$GITHUB_EMAIL" ] && break
-  echo "⚠️  Email cannot be empty. Please try again."
-done
-
-while true; do
-  read -rp "Enter your full name for Git: " GIT_NAME
-  [ -n "$GIT_NAME" ] && break
-  echo "⚠️  Name cannot be empty. Please try again."
-done
-
-########### SSH KEY SETUP ################
-
-if [ ! -f "$HOME/.ssh/github" ]; then
-  echo "🔑 Generating SSH key..."
-  mkdir -p "$HOME/.ssh"
-  ssh-keygen -t ed25519 -C "$GITHUB_EMAIL" -f "$HOME/.ssh/github" -N ""
-
-  echo "Starting SSH agent..."
-  eval "$(ssh-agent -s)"
-
-  echo "Adding SSH key to agent..."
-  ssh-add "$HOME/.ssh/github"
-
-  echo "Authenticating with GitHub..."
-  gh auth login --git-protocol ssh --web
-
-  echo "Checking for existing SSH key on GitHub..."
-  KEY_FINGERPRINT=$(ssh-keygen -lf "$HOME/.ssh/github.pub" | awk '{print $2}')
-  if gh ssh-key list | grep -q "$KEY_FINGERPRINT"; then
-    echo "⚠️  SSH key already uploaded to GitHub (fingerprint: $KEY_FINGERPRINT)"
-  else
-    echo "Uploading SSH key to GitHub..."
-    gh ssh-key add "$HOME/.ssh/github.pub" --title "MacBook-$(date +%Y%m%d)"
-  fi
-
-  echo "Testing SSH connection..."
-  ssh -T git@github.com -i "$HOME/.ssh/github" 2>&1 || echo "SSH test completed (expected authentication message)"
-
-  echo "✅ SSH key setup complete"
-else
-  echo "✅ SSH key already exists at ~/.ssh/github"
-fi
-echo ""
 
 ########### GIT CONFIGURATION SETUP ################
 
@@ -378,6 +403,9 @@ done
 echo ""
 
 ########### SUMMARY ################
+
+# Kill sudo keep-alive — no longer needed
+kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
 
 echo ""
 echo "=== Setup Summary ==="

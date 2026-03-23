@@ -7,6 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Restructured `macos/new-mac.sh` into two distinct phases: interactive (Xcode, Homebrew, user input, SSH keys, sudo credentials) followed by unattended (packages, config, Dock, repos, tools) with a "walk away" banner marking the transition
+- Added early `brew install gh` in the interactive phase so GitHub CLI is available for SSH key setup before full package installation
+- Added sudo keep-alive mechanism: `sudo -v` prompt during interactive phase with background `while true; do sudo -n true; sleep 60; done` loop, PID stored in `SUDO_KEEPALIVE_PID`, `trap EXIT` safety net, and explicit kill in summary section
+- Added v2 design decisions (D23–D30) to `specs/mac-env-setup/decision_log.md` covering script restructuring, sudo keep-alive, default browser via Swift/NSWorkspace, full Dock layout with SPACER sentinel, login items via osascript, power management values, scoped-out items, and Mac App Store via mas
+- Added v2 requirements and design documents for mac-env-setup covering Dock layout, system preferences, power management, default browser, login items, package reconciliation, and app-level settings
+
+### Fixed
+- Corrected Dock app name from `iTerm` to `iTerm2` in `macos/new-mac.sh` to match the actual application name
+
 - Added VS Code keyboard shortcut reference files for macOS: `vsc-shortcuts-gem.md` (concise AI-focused cheat sheet), `vsc-shortcuts-gpt.md` (comprehensive guide with Claude Code and Copilot shortcuts), `vsc-shortcuts-gpt52.md` (extended guide including vim-style shortcuts and focus recipes), and `vsc-shortcuts-msft.pdf` (Microsoft official reference)
 
 ### Fixed

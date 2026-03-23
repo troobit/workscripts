@@ -87,3 +87,43 @@
 ## D22: Compose file volume separation
 - **Decision:** Compose file mounts `./src` (project subdirectory) not `~/repos` directly
 - **Rationale:** User specified that network drives should not be mapped to ~/repos but rather a subdirectory. Each project gets its own compose file with its own mount context.
+
+---
+
+## v2 Decisions
+
+## D23: Script restructuring — interactive/unattended phases
+- **Decision:** Restructure `new-mac.sh` into two distinct phases: interactive (Xcode, Homebrew install, user input, SSH keys, sudo credentials) followed by unattended (everything else)
+- **Rationale:** User wants to log in, answer a few prompts, then walk away. Moving all interactive steps before package installation creates a clean boundary. A "walk away" banner marks the transition.
+
+## D24: Sudo keep-alive mechanism
+- **Decision:** Use `sudo -v` during interactive phase with a background `while true; do sudo -n true; sleep 60; done` keep-alive loop, killed on script exit via `trap EXIT`
+- **Rationale:** `pmset` requires `sudo`. Without keep-alive, the sudo credential cache (default 5 minutes) would expire during long package installs, causing the power management section to fail or prompt mid-unattended phase.
+
+## D25: Default browser via Swift/NSWorkspace — replacing defaultbrowser CLI
+- **Decision:** Set Brave as default browser using a Swift heredoc that calls `NSWorkspace.shared.setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https`. Use background AppleScript to auto-dismiss the system confirmation dialog.
+- **Rationale:** The `defaultbrowser` CLI (kerma/defaultbrowser) is being deprecated. Swift/NSWorkspace is built into macOS 12+ (no extra dependency), uses the modern API (`LSSetDefaultHandlerForURLScheme` was removed in macOS 12), and Swift is available after Xcode CLI tools are installed.
+
+## D26: Full Dock layout with SPACER sentinel pattern
+- **Decision:** Expand Dock from 4 apps to 16 apps + 2 spacers + Downloads folder. Use `SPACER` as a sentinel value in `DOCK_NAMES` array to trigger `dockutil --add '' --type spacer` during the loop.
+- **Rationale:** The current 4-app Dock doesn't match the user's actual 16-app layout. The SPACER sentinel keeps the single-loop pattern (bash 3.2 compatible) and avoids post-loop position-based insertion which would be fragile.
+
+## D27: Login items via osascript
+- **Decision:** Use `osascript -e 'tell application "System Events" to make login item at end with properties {path:"...", hidden:false}'` to add login items. Check existing items via `osascript` query before adding.
+- **Rationale:** AppleScript is the supported way to manage login items programmatically. macOS Ventura+ may show a notification, but this is unavoidable — documented as a known limitation.
+
+## D28: Power management values
+- **Decision:** AC: displaysleep=0, sleep=0 (never). Battery: displaysleep=10, sleep=1.
+- **Rationale:** Captured from current environment via `pmset -g custom`. AC never-sleep prevents long-running tasks from being interrupted. Battery values are conservative for portable use.
+
+## D29: Scoped out items
+- **Decision:** VS Code extensions, desktop wallpaper, and computer name are out of scope.
+- **Rationale:** VS Code extensions are managed by the logged-in user (Settings Sync). Desktop wallpaper/background and data collection are out of scope per user decision. Computer name prompt is out of scope.
+
+## D30: Mac App Store via mas — Magnet only
+- **Decision:** Install `mas` via Homebrew, use `mas install 441258766` for Magnet. No other App Store apps needed.
+- **Rationale:** Magnet is the only currently-installed app that is only available via the Mac App Store. All other apps are available via Homebrew casks. `mas` requires prior App Store authentication — script warns and continues if not signed in.
+
+## D18: Drop NVM — SUPERSEDED
+- **Decision:** ~~NVM is not installed by the setup script~~ → NVM is now included in `home_packages`
+- **Rationale:** NVM is currently installed via Homebrew on the existing environment. v2 aims for complete environment reproduction, so NVM is included. (Overrides v1 D18 which excluded NVM.)
