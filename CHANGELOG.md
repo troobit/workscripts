@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Added system preferences section to `macos/new-mac.sh`: hot corner (bottom-right Quick Note), accent color (Pink), highlight color (Green), Mission Control settings (group by app, disable auto-rearrange spaces), Finder column view default, with `killall Finder || true` to apply changes
+- Updated Dock configuration in `macos/new-mac.sh` from 4 apps to full 16-app layout with 2 spacer tiles using `SPACER` sentinel pattern in indexed arrays; added Downloads folder to persistent-others section; added Dock preferences (`tilesize 44`, `magnification true`, `largesize 128`, `autohide true`)
+- Added power management section to `macos/new-mac.sh`: AC power never-sleep (`displaysleep 0`, `sleep 0`), battery conservative sleep (`displaysleep 10`, `sleep 1`) via `sudo pmset` with `|| echo` guards
+- Added default browser section to `macos/new-mac.sh`: sets Brave Browser as default via Swift/NSWorkspace API (`setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https`), background AppleScript auto-dismisses CoreServicesUIAgent confirmation dialog, guarded by app existence check
+- Added login items section to `macos/new-mac.sh`: defines 6 utility apps (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast), queries existing login items once via `osascript`, adds missing items with `[ -d ]` existence checks and `grep -qi` deduplication
+
 ### Changed
 - Replaced `default_packages` array in `macos/new-mac.sh` with 26 packages: 12 formulae (`bat`, `fzf`, `gh`, `git`, `htop`, `jq`, `rename`, `tmux`, `tree`, `wget`, `yq`, `go`) and 14 casks (`bluesnooze`, `brave-browser`, `caffeine`, `claude-code`, `dockutil`, `firefox`, `gimp`, `google-chrome`, `iterm2`, `nordvpn`, `notunes`, `raycast`, `visual-studio-code`, `whatsapp`); added inline `# Formulae` / `# Casks` comments
 - Replaced `home_packages` array in `macos/new-mac.sh` with 29 packages: 11 formulae (`awscli`, `azure-cli`, `cloudflared`, `lychee`, `mas`, `nvm`, `opentofu`, `podman`, `podman-compose`, `uv`, `ykman`) and 18 casks (`anydesk`, `audacity`, `bitwarden`, `codelayer`, `dropbox`, `gcloud-cli`, `github`, `google-drive`, `inkscape`, `logi-options+`, `postman`, `spotify`, `stremio`, `tailscale-app`, `transmission`, `vlc`, `wireshark`, `yubico-authenticator`); added inline comments

@@ -1,0 +1,32 @@
+Orbit Session Log - Phase 1
+========================================
+
+Session ID: ce175530-a5eb-4c77-9a7a-7ba7c401a1b0
+Started:    2026-03-23T18:51:32+11:00
+Ended:      2026-03-23T18:56:33+11:00
+Duration:   4m58.967s
+Cost:       $1.3719
+Turns:      28
+Error:      false
+
+Output:
+----------------------------------------
+Phase A complete and committed. Here's what was done:
+
+**Phase A: Script Restructuring** (tasks 1.1–1.6)
+
+Restructured `macos/new-mac.sh` into two distinct phases:
+
+1. **Interactive phase** — Xcode CLI tools, Homebrew install, early `gh` install, user input collection (name/email), SSH key setup + GitHub auth, sudo credentials with background keep-alive loop
+2. **Unattended phase** — brew update, packages, Oh-My-Zsh, config downloads, shell config, Dock, dependency verification, Git config, repos, Claude skills, Go tools, summary (with keep-alive cleanup)
+
+The key changes:
+- Moved user input + SSH setup **before** package installation
+- Added `brew install gh` early so it's available for SSH/GitHub auth
+- Added `sudo -v` + background keep-alive loop (`SUDO_KEEPALIVE_PID`) with `trap EXIT`
+- Added walk-away banner between phases
+- Kill keep-alive in summary section
+
+Stderr:
+----------------------------------------
+

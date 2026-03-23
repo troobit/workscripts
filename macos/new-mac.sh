@@ -205,17 +205,58 @@ else
   echo "✅ aliases.zsh already sourced in .zshrc"
 fi
 
+########### SYSTEM PREFERENCES ################
+
+echo "⚙️  Configuring system preferences..."
+
+# Hot corners — bottom-right: Quick Note (14)
+defaults write com.apple.dock wvous-br-corner -int 14
+defaults write com.apple.dock wvous-br-modifier -int 0
+
+# Appearance — accent color: Pink (6), highlight color: Green
+defaults write NSGlobalDomain AppleAccentColor -int 6
+defaults write NSGlobalDomain AppleHighlightColor -string "0.752941 0.964706 0.678431 Green"
+
+# Mission Control — group by app, don't auto-rearrange spaces
+defaults write com.apple.dock expose-group-apps -bool true
+defaults write com.apple.dock mru-spaces -bool false
+
+# Finder — column view as default
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+killall Finder || true
+
+echo "✅ System preferences configured"
+
 ########### DOCK CONFIGURATION ################
 
 echo "🖥️  Configuring Dock..."
 
-# Define desired Dock apps — two parallel indexed arrays (bash 3.2 compatible)
-DOCK_NAMES=("Brave Browser" "WhatsApp" "iTerm2" "Calendar")
+# Define desired Dock apps — parallel indexed arrays (bash 3.2 compatible)
+# "SPACER" entries in DOCK_NAMES trigger spacer tile insertion
+DOCK_NAMES=(
+  "iTerm" "Notes" "SPACER"
+  "WhatsApp" "SPACER"
+  "Transmission" "VLC" "Calendar" "System Settings"
+  "Stremio" "TV" "Brave Browser" "iPhone Mirroring"
+  "Audacity" "Visual Studio Code" "Simulator"
+)
 DOCK_PATHS=(
-  "/Applications/Brave Browser.app"
-  "/Applications/WhatsApp.app"
   "/Applications/iTerm.app"
+  "/System/Applications/Notes.app"
+  ""
+  "/Applications/WhatsApp.app"
+  ""
+  "/Applications/Transmission.app"
+  "/Applications/VLC.app"
   "/System/Applications/Calendar.app"
+  "/System/Applications/System Settings.app"
+  "/Applications/Stremio.app"
+  "/System/Applications/TV.app"
+  "/Applications/Brave Browser.app"
+  "/System/Applications/iPhone Mirroring.app"
+  "/Applications/Audacity.app"
+  "/Applications/Visual Studio Code.app"
+  "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
 )
 
 if command -v dockutil &>/dev/null; then
@@ -226,26 +267,139 @@ if command -v dockutil &>/dev/null; then
   # Remove all existing Dock items (Finder preserved by macOS)
   dockutil --remove all --no-restart || echo "⚠️  dockutil remove failed"
 
-  # Add each app in order
+  # Add each app/spacer in order
   for i in "${!DOCK_NAMES[@]}"; do
     app_name="${DOCK_NAMES[$i]}"
     app_path="${DOCK_PATHS[$i]}"
-    if [ -d "$app_path" ]; then
-      dockutil --add "$app_path" --no-restart || echo "⚠️  Could not add $app_name to Dock"
+
+    if [ "$app_name" = "SPACER" ]; then
+      dockutil --add '' --type spacer --section apps --no-restart \
+        || echo "⚠️  Could not add spacer"
+    elif [ -d "$app_path" ]; then
+      dockutil --add "$app_path" --no-restart \
+        || echo "⚠️  Could not add $app_name to Dock"
     else
-      echo "⚠️  $app_name not found at $app_path — skipping Dock add"
+      echo "⚠️  $app_name not found at $app_path — skipping"
     fi
   done
 
-  # Disable recent apps in Dock
-  defaults write com.apple.dock show-recents -bool false
+  # Add Downloads folder to persistent-others section
+  dockutil --add "$HOME/Downloads" --section others --no-restart \
+    || echo "⚠️  Could not add Downloads folder to Dock"
 
-  # Restart Dock to apply all changes
+  # Dock preferences
+  defaults write com.apple.dock show-recents -bool false
+  defaults write com.apple.dock tilesize -int 44
+  defaults write com.apple.dock magnification -bool true
+  defaults write com.apple.dock largesize -int 128
+  defaults write com.apple.dock autohide -bool true
+
+  # Single Dock restart to apply all changes
   killall Dock || true
   echo "✅ Dock configured"
 else
   echo "⚠️  dockutil not found — skipping Dock configuration"
 fi
+
+########### POWER MANAGEMENT ################
+
+echo "⚡ Configuring power management..."
+
+# AC Power — never sleep
+sudo pmset -c displaysleep 0 || echo "⚠️  Could not set AC display sleep"
+sudo pmset -c sleep 0 || echo "⚠️  Could not set AC system sleep"
+
+# Battery — conservative sleep
+sudo pmset -b displaysleep 10 || echo "⚠️  Could not set battery display sleep"
+sudo pmset -b sleep 1 || echo "⚠️  Could not set battery system sleep"
+
+echo "✅ Power management configured"
+
+########### DEFAULT BROWSER ################
+
+echo "🌐 Setting default browser..."
+
+if [ -d "/Applications/Brave Browser.app" ]; then
+  # Start AppleScript to auto-dismiss the confirmation dialog
+  osascript <<'APPLESCRIPT' &
+    tell application "System Events"
+      repeat 30 times
+        try
+          tell process "CoreServicesUIAgent"
+            click button 2 of window 1
+          end tell
+          exit repeat
+        end try
+        delay 0.5
+      end repeat
+    end tell
+APPLESCRIPT
+  DIALOG_PID=$!
+
+  # Set default browser via NSWorkspace API (macOS 12+)
+  swift << 'SWIFT' || echo "⚠️  Could not set default browser"
+    import AppKit
+    let ws = NSWorkspace.shared
+    guard let url = ws.urlForApplication(withBundleIdentifier: "com.brave.Browser") else {
+      fputs("Brave Browser not found\n", stderr)
+      exit(1)
+    }
+    let sem = DispatchSemaphore(value: 0)
+    var exitCode: Int32 = 0
+    ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "http") { error in
+      if let error = error { fputs("http: \(error)\n", stderr); exitCode = 1 }
+      ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "https") { error in
+        if let error = error { fputs("https: \(error)\n", stderr); exitCode = 1 }
+        sem.signal()
+      }
+    }
+    sem.wait()
+    exit(exitCode)
+SWIFT
+
+  # Clean up dialog handler
+  kill "$DIALOG_PID" 2>/dev/null
+  wait "$DIALOG_PID" 2>/dev/null
+
+  echo "✅ Default browser set to Brave"
+else
+  echo "⚠️  Brave Browser not installed — skipping default browser"
+fi
+
+########### LOGIN ITEMS ################
+
+echo "🔑 Configuring login items..."
+
+LOGIN_APPS=(
+  "/Applications/Caffeine.app"
+  "/Applications/noTunes.app"
+  "/Applications/Magnet.app"
+  "/Applications/Bluesnooze.app"
+  "/Applications/Google Drive.app"
+  "/Applications/Raycast.app"
+)
+
+# Get current login items
+CURRENT_LOGIN_ITEMS=$(osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null || echo "")
+
+for app_path in "${LOGIN_APPS[@]}"; do
+  app_name=$(basename "$app_path" .app)
+
+  if [ ! -d "$app_path" ]; then
+    echo "⚠️  $app_name not installed — skipping login item"
+    continue
+  fi
+
+  if echo "$CURRENT_LOGIN_ITEMS" | grep -qi "$app_name"; then
+    echo "✅ $app_name already a login item"
+  else
+    osascript -e "tell application \"System Events\" to make login item at end with properties {path:\"$app_path\", hidden:false}" \
+      || echo "⚠️  Could not add $app_name as login item"
+    echo "✅ Added $app_name as login item"
+  fi
+done
+
+echo "✅ Login items configured"
 
 # Verify required dependencies are available
 echo "🔍 Verifying required dependencies..."

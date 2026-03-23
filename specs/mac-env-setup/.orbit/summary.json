@@ -2,12 +2,12 @@
   "started_at": "2026-03-16T12:23:32.927459+11:00",
   "completed_at": "2026-03-16T12:32:40.085949+11:00",
   "status": "running",
-  "phases_completed": 1,
-  "total_cost_usd": 3.99906365,
+  "phases_completed": 2,
+  "total_cost_usd": 4.90060915,
   "cost_totals": {
-    "usd": 3.99906365
+    "usd": 4.90060915
   },
-  "total_duration_ms": 838613,
+  "total_duration_ms": 1021435,
   "sessions": [
     {
       "phase": 1,
@@ -78,12 +78,26 @@
       "run_number": 2,
       "agent_alias": "claude-code",
       "agent_type": "claude-code"
+    },
+    {
+      "phase": 2,
+      "session_id": "c58f16b3-a647-4926-9068-6c66e180fa84",
+      "duration_ms": 182822,
+      "cost_usd": 0.9015455000000001,
+      "cost_value": 0.9015455000000001,
+      "cost_unit": "USD",
+      "num_turns": 28,
+      "started_at": "2026-03-23T18:56:33.592969+11:00",
+      "ended_at": "2026-03-23T18:59:37.666771+11:00",
+      "run_number": 2,
+      "agent_alias": "claude-code",
+      "agent_type": "claude-code"
     }
   ],
   "current_phase": {
-    "phase": 2,
-    "session_id": "c58f16b3-a647-4926-9068-6c66e180fa84",
-    "started_at": "2026-03-23T18:56:33.612069+11:00"
+    "phase": 3,
+    "session_id": "70117e74-52c7-436a-8070-cbb2279dd063",
+    "started_at": "2026-03-23T18:59:37.961287+11:00"
   },
   "run_number": 2,
   "branch_name": "feature/mac-env-setup"

@@ -38,50 +38,50 @@ references:
 
 ## Phase C: System Configuration
 
-- [ ] 4. Add system preferences section <!-- id:1a0004 -->
+- [x] 4. Add system preferences section <!-- id:1a0004 -->
   - Blocked-by: 1a0001
   - Stream: 2
   - Requirements: [5.1](requirements.md#5.1), [5.2](requirements.md#5.2), [5.3](requirements.md#5.3), [5.4](requirements.md#5.4), [5.5](requirements.md#5.5), [5.6](requirements.md#5.6)
-  - [ ] 4.1. Add `defaults write com.apple.dock wvous-br-corner -int 14` and `wvous-br-modifier -int 0`
-  - [ ] 4.2. Add `defaults write NSGlobalDomain AppleAccentColor -int 6`
-  - [ ] 4.3. Add `defaults write NSGlobalDomain AppleHighlightColor -string "0.752941 0.964706 0.678431 Green"`
-  - [ ] 4.4. Add `defaults write com.apple.dock expose-group-apps -bool true` and `mru-spaces -bool false`
-  - [ ] 4.5. Add `defaults write com.apple.finder FXPreferredViewStyle -string "clmv"`
-  - [ ] 4.6. Add `killall Finder || true`
+  - [x] 4.1. Add `defaults write com.apple.dock wvous-br-corner -int 14` and `wvous-br-modifier -int 0`
+  - [x] 4.2. Add `defaults write NSGlobalDomain AppleAccentColor -int 6`
+  - [x] 4.3. Add `defaults write NSGlobalDomain AppleHighlightColor -string "0.752941 0.964706 0.678431 Green"`
+  - [x] 4.4. Add `defaults write com.apple.dock expose-group-apps -bool true` and `mru-spaces -bool false`
+  - [x] 4.5. Add `defaults write com.apple.finder FXPreferredViewStyle -string "clmv"`
+  - [x] 4.6. Add `killall Finder || true`
 
-- [ ] 5. Update Dock configuration with full app layout, spacers, and preferences <!-- id:1a0005 -->
+- [x] 5. Update Dock configuration with full app layout, spacers, and preferences <!-- id:1a0005 -->
   - Blocked-by: 1a0001
   - Stream: 2
   - Requirements: [1.2](requirements.md#1.2), [1.3](requirements.md#1.3), [1.4](requirements.md#1.4), [1.5](requirements.md#1.5), [1.6](requirements.md#1.6), [1.7](requirements.md#1.7), [1.8](requirements.md#1.8), [2.1](requirements.md#2.1), [2.2](requirements.md#2.2), [2.3](requirements.md#2.3), [2.4](requirements.md#2.4), [2.5](requirements.md#2.5)
-  - [ ] 5.1. Replace `DOCK_NAMES` and `DOCK_PATHS` arrays with full 16-app list including `SPACER` sentinel entries at positions 3 and 5
-  - [ ] 5.2. Update loop to handle `SPACER` entries: `dockutil --add '' --type spacer --section apps --no-restart`
-  - [ ] 5.3. Add `dockutil --add "$HOME/Downloads" --section others --no-restart` after app loop
-  - [ ] 5.4. Add Dock preference writes: `tilesize -int 44`, `magnification -bool true`, `largesize -int 128`, `autohide -bool true`
-  - [ ] 5.5. Ensure `killall Dock` remains as the final step after all Dock changes
+  - [x] 5.1. Replace `DOCK_NAMES` and `DOCK_PATHS` arrays with full 16-app list including `SPACER` sentinel entries at positions 3 and 5
+  - [x] 5.2. Update loop to handle `SPACER` entries: `dockutil --add '' --type spacer --section apps --no-restart`
+  - [x] 5.3. Add `dockutil --add "$HOME/Downloads" --section others --no-restart` after app loop
+  - [x] 5.4. Add Dock preference writes: `tilesize -int 44`, `magnification -bool true`, `largesize -int 128`, `autohide -bool true`
+  - [x] 5.5. Ensure `killall Dock` remains as the final step after all Dock changes
 
-- [ ] 6. Add power management section <!-- id:1a0006 -->
+- [x] 6. Add power management section <!-- id:1a0006 -->
   - Blocked-by: 1a0001
   - Stream: 2
   - Requirements: [6.1](requirements.md#6.1), [6.2](requirements.md#6.2), [6.3](requirements.md#6.3), [6.4](requirements.md#6.4)
-  - [ ] 6.1. Add `sudo pmset -c displaysleep 0` and `sudo pmset -c sleep 0` with `|| echo` guards
-  - [ ] 6.2. Add `sudo pmset -b displaysleep 10` and `sudo pmset -b sleep 1` with `|| echo` guards
+  - [x] 6.1. Add `sudo pmset -c displaysleep 0` and `sudo pmset -c sleep 0` with `|| echo` guards
+  - [x] 6.2. Add `sudo pmset -b displaysleep 10` and `sudo pmset -b sleep 1` with `|| echo` guards
 
-- [ ] 7. Add default browser section <!-- id:1a0007 -->
+- [x] 7. Add default browser section <!-- id:1a0007 -->
   - Blocked-by: 1a0002
   - Stream: 2
   - Requirements: [4.1](requirements.md#4.1), [4.2](requirements.md#4.2), [4.3](requirements.md#4.3), [4.4](requirements.md#4.4)
-  - [ ] 7.1. Add `[ -d "/Applications/Brave Browser.app" ]` guard
-  - [ ] 7.2. Add background AppleScript to auto-dismiss CoreServicesUIAgent confirmation dialog
-  - [ ] 7.3. Add Swift heredoc using `NSWorkspace.shared.setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https` with bundle ID `com.brave.Browser`
-  - [ ] 7.4. Add cleanup: `kill $DIALOG_PID` and `wait`
+  - [x] 7.1. Add `[ -d "/Applications/Brave Browser.app" ]` guard
+  - [x] 7.2. Add background AppleScript to auto-dismiss CoreServicesUIAgent confirmation dialog
+  - [x] 7.3. Add Swift heredoc using `NSWorkspace.shared.setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https` with bundle ID `com.brave.Browser`
+  - [x] 7.4. Add cleanup: `kill $DIALOG_PID` and `wait`
 
-- [ ] 8. Add login items section <!-- id:1a0008 -->
+- [x] 8. Add login items section <!-- id:1a0008 -->
   - Blocked-by: 1a0002
   - Stream: 2
   - Requirements: [7.1](requirements.md#7.1), [7.2](requirements.md#7.2), [7.3](requirements.md#7.3), [7.4](requirements.md#7.4)
-  - [ ] 8.1. Define `LOGIN_APPS` array with paths to Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast
-  - [ ] 8.2. Query current login items once via `osascript` and cache result
-  - [ ] 8.3. Loop: check app exists (`[ -d ]`), check not already in login items (`grep -qi`), add via `osascript` with `|| echo` guard
+  - [x] 8.1. Define `LOGIN_APPS` array with paths to Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast
+  - [x] 8.2. Query current login items once via `osascript` and cache result
+  - [x] 8.3. Loop: check app exists (`[ -d ]`), check not already in login items (`grep -qi`), add via `osascript` with `|| echo` guard
 
 ## Phase D: Verification & Documentation
 
