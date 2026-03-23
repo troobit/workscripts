@@ -20,21 +20,21 @@ references:
 
 ## Phase B: Package Management
 
-- [ ] 2. Update Homebrew package arrays to match current environment <!-- id:1a0002 -->
+- [x] 2. Update Homebrew package arrays to match current environment <!-- id:1a0002 -->
   - Stream: 1
   - Requirements: [3.1](requirements.md#3.1), [3.2](requirements.md#3.2), [3.3](requirements.md#3.3), [3.4](requirements.md#3.4), [3.6](requirements.md#3.6), [3.7](requirements.md#3.7)
-  - [ ] 2.1. Replace `default_packages` array with: `bat`, `fzf`, `gh`, `git`, `htop`, `jq`, `rename`, `tmux`, `tree`, `wget`, `yq`, `go`, `bluesnooze`, `brave-browser`, `caffeine`, `claude-code`, `dockutil`, `firefox`, `gimp`, `google-chrome`, `iterm2`, `nordvpn`, `notunes`, `raycast`, `visual-studio-code`, `whatsapp`
-  - [ ] 2.2. Replace `home_packages` array with: `awscli`, `azure-cli`, `cloudflared`, `lychee`, `mas`, `nvm`, `opentofu`, `podman`, `podman-compose`, `uv`, `ykman`, `anydesk`, `audacity`, `bitwarden`, `codelayer`, `dropbox`, `gcloud-cli`, `github`, `google-drive`, `inkscape`, `logi-options+`, `postman`, `spotify`, `stremio`, `tailscale-app`, `transmission`, `vlc`, `wireshark`, `yubico-authenticator`
-  - [ ] 2.3. Keep `work_packages` unchanged and ensure it is NOT included in `all_packages`
-  - [ ] 2.4. Add inline comments grouping formulae and casks within each array
+  - [x] 2.1. Replace `default_packages` array with: `bat`, `fzf`, `gh`, `git`, `htop`, `jq`, `rename`, `tmux`, `tree`, `wget`, `yq`, `go`, `bluesnooze`, `brave-browser`, `caffeine`, `claude-code`, `dockutil`, `firefox`, `gimp`, `google-chrome`, `iterm2`, `nordvpn`, `notunes`, `raycast`, `visual-studio-code`, `whatsapp`
+  - [x] 2.2. Replace `home_packages` array with: `awscli`, `azure-cli`, `cloudflared`, `lychee`, `mas`, `nvm`, `opentofu`, `podman`, `podman-compose`, `uv`, `ykman`, `anydesk`, `audacity`, `bitwarden`, `codelayer`, `dropbox`, `gcloud-cli`, `github`, `google-drive`, `inkscape`, `logi-options+`, `postman`, `spotify`, `stremio`, `tailscale-app`, `transmission`, `vlc`, `wireshark`, `yubico-authenticator`
+  - [x] 2.3. Keep `work_packages` unchanged and ensure it is NOT included in `all_packages`
+  - [x] 2.4. Add inline comments grouping formulae and casks within each array
 
-- [ ] 3. Add Mac App Store installation section <!-- id:1a0003 -->
+- [x] 3. Add Mac App Store installation section <!-- id:1a0003 -->
   - Blocked-by: 1a0002
   - Stream: 1
   - Requirements: [3.5](requirements.md#3.5)
-  - [ ] 3.1. Add section after `brew install` that checks `command -v mas`
-  - [ ] 3.2. Check if Magnet already installed via `mas list | grep -q "441258766"`
-  - [ ] 3.3. Run `mas install 441258766` with `|| echo` guard and App Store sign-in warning
+  - [x] 3.1. Add section after `brew install` that checks `command -v mas`
+  - [x] 3.2. Check if Magnet already installed via `mas list | grep -q "441258766"`
+  - [x] 3.3. Run `mas install 441258766` with `|| echo` guard and App Store sign-in warning
 
 ## Phase C: System Configuration
 

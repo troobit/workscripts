@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Replaced `default_packages` array in `macos/new-mac.sh` with 26 packages: 12 formulae (`bat`, `fzf`, `gh`, `git`, `htop`, `jq`, `rename`, `tmux`, `tree`, `wget`, `yq`, `go`) and 14 casks (`bluesnooze`, `brave-browser`, `caffeine`, `claude-code`, `dockutil`, `firefox`, `gimp`, `google-chrome`, `iterm2`, `nordvpn`, `notunes`, `raycast`, `visual-studio-code`, `whatsapp`); added inline `# Formulae` / `# Casks` comments
+- Replaced `home_packages` array in `macos/new-mac.sh` with 29 packages: 11 formulae (`awscli`, `azure-cli`, `cloudflared`, `lychee`, `mas`, `nvm`, `opentofu`, `podman`, `podman-compose`, `uv`, `ykman`) and 18 casks (`anydesk`, `audacity`, `bitwarden`, `codelayer`, `dropbox`, `gcloud-cli`, `github`, `google-drive`, `inkscape`, `logi-options+`, `postman`, `spotify`, `stremio`, `tailscale-app`, `transmission`, `vlc`, `wireshark`, `yubico-authenticator`); added inline comments
+- Updated `all_packages` comment to clarify `work_packages` are excluded by design
+
+### Added
+- Added Mac App Store installation section after `brew install` in `macos/new-mac.sh`: checks for `mas` availability via `command -v`, verifies Magnet (ID 441258766) not already installed via `mas list | grep -q`, installs with `|| echo` guard and App Store sign-in warning
+
 ### Added
 - Restructured `macos/new-mac.sh` into two distinct phases: interactive (Xcode, Homebrew, user input, SSH keys, sudo credentials) followed by unattended (packages, config, Dock, repos, tools) with a "walk away" banner marking the transition
 - Added early `brew install gh` in the interactive phase so GitHub CLI is available for SSH key setup before full package installation

@@ -124,16 +124,49 @@ fi
 
 
 ########### BREW PACKAGE LIST ################
-default_packages=("rename" "git" "jq" "notunes" "bluesnooze" "firefox" "gimp" "google-chrome" "iterm2" "logitech-options" "nordvpn" "raycast" "session-manager-plugin" "visual-studio-code" "wireshark" "gh" "go" "brave-browser" "whatsapp" "dockutil")
+
+default_packages=(
+  # Formulae
+  "bat" "fzf" "gh" "git" "htop" "jq" "rename" "tmux" "tree" "wget" "yq" "go"
+  # Casks
+  "bluesnooze" "brave-browser" "caffeine" "claude-code" "dockutil" "firefox"
+  "gimp" "google-chrome" "iterm2" "nordvpn" "notunes" "raycast"
+  "visual-studio-code" "whatsapp"
+)
+
 work_packages=("slack" "microsoft-teams" "terraform")
-home_packages=("transmission" "vlc" "awscli" "azure-cli" "podman" "podman-compose")
 
-# Combine all packages into one list
+home_packages=(
+  # Formulae
+  "awscli" "azure-cli" "cloudflared" "lychee" "mas" "nvm" "opentofu"
+  "podman" "podman-compose" "uv" "ykman"
+  # Casks
+  "anydesk" "audacity" "bitwarden" "codelayer" "dropbox" "gcloud-cli"
+  "github" "google-drive" "inkscape" "logi-options+" "postman" "spotify"
+  "stremio" "tailscale-app" "transmission" "vlc" "wireshark"
+  "yubico-authenticator"
+)
+
+# Combine default + home (work_packages only when explicitly selected)
 all_packages=("${default_packages[@]}" "${home_packages[@]}")
-
 
 echo "Installing brew packages..."
 brew install "${all_packages[@]}" || echo "Could not install some packages. They might already be installed or are not available."
+
+########### MAC APP STORE ################
+
+if command -v mas &>/dev/null; then
+  echo "📦 Installing Mac App Store apps..."
+
+  # Magnet (window manager) — App Store ID: 441258766
+  if mas list | grep -q "441258766"; then
+    echo "✅ Magnet already installed"
+  else
+    mas install 441258766 || echo "⚠️  Could not install Magnet — ensure App Store is signed in"
+  fi
+else
+  echo "⚠️  mas not found — skipping Mac App Store apps"
+fi
 
 # Download config files, but check if they exist first to avoid duplication
 if [ ! -f "$HOME/.vimrc" ]; then
