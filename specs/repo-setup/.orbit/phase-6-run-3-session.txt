@@ -1,0 +1,24 @@
+Orbit Session Log - Phase 6
+========================================
+
+Session ID: 6a242807-803e-43ad-869c-5653c9e120b5
+Started:    2026-03-10T12:11:51+11:00
+Ended:      2026-03-10T12:13:40+11:00
+Duration:   1m47.449s
+Cost:       $0.7738
+Turns:      29
+Error:      false
+
+Output:
+----------------------------------------
+Committed. Here's a summary of what was implemented:
+
+**Tasks 16–18: Claude Code Skills Symlink** (`macos/new-mac.sh:233–264`)
+
+- **Task 16:** `mkdir -p "$HOME/.claude"` — creates the directory idempotently
+- **Task 17:** Three-state symlink check — correct target (skip + log), wrong target (warn stderr), not a symlink but exists (warn stderr)
+- **Task 18:** `ln -s` creation with `|| echo` error handling; entire section skipped if `agentic-coding` wasn't cloned
+
+Stderr:
+----------------------------------------
+

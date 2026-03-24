@@ -1,0 +1,3335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2 Session Transcript</title>
+    <style>
+/* Transcript CSS - shared between standalone HTML and web interface */
+
+/* CSS Variables for theming */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-code: #f4f4f4;
+    --bg-user: #e7f1ff;
+    --bg-assistant: #f3e8ff;
+    --bg-thinking: #fff8e6;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --user-accent: #0d6efd;
+    --assistant-accent: #6f42c1;
+    --thinking-accent: #d97706;
+    --success-color: #198754;
+    --error-color: #dc3545;
+    --tool-accent: #fd7e14;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-code: #2d2d2d;
+        --bg-user: #1e3a5f;
+        --bg-assistant: #2d1f3d;
+        --bg-thinking: #3d2e1a;
+        --text-primary: #e9ecef;
+        --text-secondary: #adb5bd;
+        --border-color: #495057;
+    }
+}
+
+/* Message blocks */
+.message {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.message.user {
+    border-left-color: var(--user-accent);
+    background-color: var(--bg-user);
+}
+
+.message.assistant {
+    border-left-color: var(--assistant-accent);
+    background-color: var(--bg-assistant);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.message-header .icon {
+    font-size: 1.2rem;
+}
+
+.message-content {
+    word-wrap: break-word;
+}
+
+.message-content p {
+    margin: 0 0 0.5rem 0;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Thinking blocks */
+.thinking-block {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background-color: var(--bg-thinking);
+    border-left: 3px solid var(--thinking-accent);
+    border-radius: 4px;
+}
+
+.thinking-block .thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.thinking-block .thinking-content {
+    color: var(--text-primary);
+}
+
+/* Tool use blocks */
+.tool-use {
+    margin: 0.25rem 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.tool-use-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bg-code);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.tool-use-header .icon {
+    color: var(--tool-accent);
+}
+
+.tool-use-header code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    background-color: var(--bg-secondary);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+.tool-input {
+    padding: 0.75rem;
+}
+
+.tool-input pre {
+    margin: 0;
+    overflow-x: auto;
+}
+
+.tool-input code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Tool result blocks */
+.tool-result {
+    margin: 0.25rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.tool-result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.tool-result-header.success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: var(--success-color);
+}
+
+.tool-result-header.error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--error-color);
+}
+
+.tool-result-content {
+    padding: 0.75rem;
+    background-color: var(--bg-code);
+}
+
+.tool-result-content pre {
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.tool-result-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.truncated {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Collapsible tool details */
+details.tool-collapsible {
+    margin: 0.25rem 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+details.tool-collapsible summary {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bg-code);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+details.tool-collapsible summary .icon {
+    color: var(--tool-accent);
+}
+
+details.tool-collapsible.error summary .icon {
+    color: var(--error-color);
+}
+
+details.tool-collapsible .tool-content {
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+details.tool-collapsible .tool-content pre {
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+details.tool-collapsible .tool-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Read item details */
+details.read-item {
+    margin: 2px 0;
+}
+
+details.read-item:first-child {
+    margin-top: 0;
+}
+
+details.read-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Tool input/result sections */
+.tool-input-section,
+.tool-result-section {
+    margin-bottom: 0.5rem;
+}
+
+.tool-input-section:last-child,
+.tool-result-section:last-child {
+    margin-bottom: 0;
+}
+
+.tool-input-section strong,
+.tool-result-section strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
+}
+
+/* Markdown content */
+.markdown-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.5rem; }
+.markdown-content h2 { font-size: 1.3rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+.markdown-content h4 { font-size: 1rem; }
+
+.markdown-content p {
+    margin: 0.5rem 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.markdown-content li {
+    margin: 0.25rem 0;
+}
+
+.markdown-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    background-color: var(--bg-code);
+    padding: 0.15rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.markdown-content pre {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background-color: var(--bg-code);
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.markdown-content blockquote {
+    margin: 0.5rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 3px solid var(--border-color);
+    background-color: var(--bg-code);
+}
+
+.markdown-content a {
+    color: var(--user-accent);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+.markdown-content strong {
+    font-weight: 600;
+}
+
+.markdown-content em {
+    font-style: italic;
+}
+
+/* Todo list */
+.todo-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.9rem;
+}
+
+.todo-list li {
+    margin: 0.25rem 0;
+}
+
+/* Patch/diff content */
+.patch-content {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    background-color: var(--bg-code);
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.patch-line {
+    display: block;
+    white-space: pre;
+}
+
+.patch-line.addition {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.patch-line.deletion {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.patch-line.context {
+    color: var(--text-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+    .patch-line.addition {
+        background-color: rgba(40, 167, 69, 0.3);
+        color: #5fd068;
+    }
+
+    .patch-line.deletion {
+        background-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+}
+
+/* Navigation */
+.transcript-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    gap: 1rem;
+}
+
+.transcript-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    min-width: 44px;
+    text-decoration: none;
+    color: var(--user-accent);
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.transcript-nav a:hover {
+    background-color: var(--bg-code);
+    text-decoration: underline;
+}
+
+.nav-prev::before {
+    content: "← ";
+}
+
+.nav-next::after {
+    content: " →";
+}
+
+.nav-back {
+    font-size: 0.9rem;
+}
+
+.nav-spacer {
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .transcript-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-spacer {
+        display: none;
+    }
+
+    .transcript-nav a {
+        flex: 1 1 auto;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+}
+
+.session-id,
+.session-cost {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.session-id code {
+    background-color: var(--bg-code);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Phase 2 Session Transcript</h1>
+        <p class="session-id">Session ID: <code>d8332a50-dbd7-4949-a3f8-9967f4ff68e6</code></p>
+    </header>
+    <main>
+        <section class="message user">
+            <div class="message-header">
+                <span class="icon">👤</span>
+                <span>User</span>
+            </div>
+            <div class="message-content">
+                <p>Run /next-task --phase and when complete run /commit</p>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>The user wants me to run the <code>/next-task</code> skill with <code>--phase</code> argument, and then run <code>/commit</code> when complete. Let me invoke the skill.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">🔧</span> Skill: next-task</summary>
+                    <div class="tool-content">
+                        <div class="markdown-content">
+<p>Base directory for this skill: /Users/ronan/.claude/skills/next-task</p>
+<h3>4. Next task</h3>
+<p>Implement the next unfinished group of tasks from the tasks list. A group of tasks is a set of tasks that start with the same number like 1.1, 1.2, but NOT 2.1.</p>
+<p><strong>Constraints:</strong></p>
+<p><strong>Task Retrieval:</strong></p>
+<ul>
+<li>The model MUST use the rune skill to retrieve the next task(s) to work on</li>
+<li>Use <code>rune next --format json</code> to get the next incomplete task. This command will indicate when all tasks are complete</li>
+<li>If the user asks for the entire phase, use <code>rune next --phase --format json</code></li>
+<li>If the retrieved result contains only a single top-level task (without subtasks like &quot;1&quot; instead of &quot;1.1&quot;), rerun with <code>rune next --phase --format json</code> to retrieve the full phase of tasks</li>
+</ul>
+<p><strong>Stream Detection for Parallel Execution:</strong></p>
+<ul>
+<li>When retrieving a phase, the model MUST check for multiple work streams using <code>rune streams --available --json</code></li>
+<li>If multiple streams have ready tasks, parallel execution is possible</li>
+<li>If only one stream has ready tasks, sequential execution within that stream is used</li>
+</ul>
+<p><strong>Task Execution:</strong></p>
+<ul>
+<li>The model MUST read all files referenced in the front_matter_references</li>
+<li>The selected tasks MUST be added to the internal TODO list for tracking and implemented in the order specified</li>
+<li>The model MUST implement all of the selected tasks, including all subtasks</li>
+<li>Once a subtask or task is completed, use the rune skill to mark it complete (e.g., <code>rune complete 1.1</code>)</li>
+<li>The model MUST NOT proceed past the selected task. Once a task is done, it needs to be put up for review by the user</li>
+<li>Use tools and skills as appropriate while implementing the task. For example, if you need to know the capabilities of a library, use context7, and if you want to verify your code is efficient, use the efficiency-optimizer skill</li>
+</ul>
+<p><strong>Parallel Execution with Multiple Streams:</strong>
+When a phase is pulled in and multiple streams have ready tasks:</p>
+<ol>
+<li>The model MUST use <code>rune streams --available --json</code> to identify streams with ready work</li>
+<li>If there are 2 or more streams with ready tasks:
+<ul>
+<li>The model SHOULD spawn subagents (using the Task tool) to handle each stream in parallel</li>
+<li>Each subagent receives instructions to:
+<ul>
+<li>Retrieve all phase tasks for their stream using <code>rune next --phase --stream N --format json</code></li>
+<li>Read all referenced files from front_matter_references</li>
+<li>Implement the tasks in dependency order</li>
+<li>Mark tasks complete as they finish using <code>rune complete &lt;task-id&gt;</code></li>
+<li>Report back when all tasks in the stream are done or blocked</li>
+</ul>
+</li>
+<li>The main agent coordinates by:
+<ul>
+<li>Monitoring subagent progress</li>
+<li>Handling any cross-stream dependencies that become unblocked</li>
+<li>Aggregating results for user review</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>If there is only 1 stream with ready tasks:
+<ul>
+<li>Execute tasks sequentially within that stream as normal</li>
+<li>No subagents are needed</li>
+</ul>
+</li>
+</ol>
+<p><strong>Subagent Instructions Template:</strong>
+When spawning a subagent for a stream, provide these instructions:</p>
+<ul>
+<li>Stream number to work on</li>
+<li>Path to the tasks file</li>
+<li>List of front_matter_references to read</li>
+<li>Instruction to use <code>rune next --phase --stream N --format json</code> to retrieve all tasks for the stream</li>
+<li>Instruction to mark tasks complete using <code>rune complete &lt;task-id&gt;</code></li>
+<li>Instruction to stop when all tasks in the stream are complete or blocked by tasks in other streams</li>
+</ul>
+<p><strong>Cross-Stream Coordination:</strong></p>
+<ul>
+<li>When a subagent completes a task that unblocks tasks in another stream, that stream's agent will pick up the newly unblocked work on their next <code>rune next --phase --stream N</code> call</li>
+<li>If all streams become blocked waiting on each other, this indicates a circular dependency problem that should be reported to the user</li>
+<li>The main agent should periodically check <code>rune streams --json</code> to monitor overall progress</li>
+</ul>
+<p>ARGUMENTS: --phase</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>The user wants me to run the next-task skill with --phase argument. Let me start by using rune to get the next phase of tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">🔧</span> Skill: rune</summary>
+                    <div class="tool-content">
+                        <div class="markdown-content">
+<p>Base directory for this skill: /Users/ronan/.claude/skills/rune</p>
+<h1>Rune Task Management Skill</h1>
+<p>You are a specialized assistant for managing hierarchical task lists using the <code>rune</code> CLI tool.</p>
+<h2>Your Capabilities</h2>
+<p>You excel at:</p>
+<ul>
+<li>Creating new task files with proper structure</li>
+<li>Adding tasks and subtasks with appropriate hierarchy</li>
+<li>Organizing tasks into phases for logical grouping</li>
+<li>Tracking task status (pending, in-progress, completed)</li>
+<li>Finding and querying tasks efficiently</li>
+<li>Using batch operations for atomic multi-task updates</li>
+<li>Managing task dependencies and references</li>
+<li>Coordinating multi-agent parallel execution with work streams</li>
+<li>Managing task dependencies (blocked-by relationships)</li>
+<li>Claiming and releasing task ownership for agents</li>
+</ul>
+<h2>Rune Command Reference</h2>
+<h3>Core Commands</h3>
+<p><strong>Creating and Listing:</strong></p>
+<ul>
+<li><code>rune create [file] --title &quot;Title&quot;</code> - Initialize a new task file (title is required)</li>
+<li><code>rune create [file] --title &quot;Title&quot; --reference &quot;file.md&quot;</code> - Create with top-level references (repeatable flag)</li>
+<li><code>rune list [file]</code> - Display all tasks (supports --filter for status, --format for output)</li>
+<li><code>rune list [file] --stream 2</code> - Filter to tasks in stream 2</li>
+<li><code>rune list [file] --owner &quot;agent-1&quot;</code> - Filter to tasks owned by agent-1</li>
+<li><code>rune list [file] --owner &quot;&quot;</code> - Filter to unowned tasks</li>
+<li><code>rune next [file]</code> - Get the next incomplete task</li>
+<li><code>rune next [file] --stream 2</code> - Get next ready task in stream 2</li>
+<li><code>rune next [file] --claim &quot;agent-1&quot;</code> - Claim and start the next ready task</li>
+<li><code>rune next [file] --stream 2 --claim &quot;agent-1&quot;</code> - Claim all ready tasks in stream 2</li>
+<li><code>rune next [file] --phase</code> - Get all tasks from the next phase</li>
+<li><code>rune streams [file]</code> - Show status of all work streams</li>
+<li><code>rune streams [file] --available</code> - Show only streams with ready tasks</li>
+<li><code>rune streams [file] --json</code> - Output stream status as JSON</li>
+</ul>
+<p><strong>Task Management:</strong></p>
+<ul>
+<li><code>rune add [file] --title &quot;Task name&quot;</code> - Add a top-level task</li>
+<li><code>rune add [file] --title &quot;Subtask&quot; --parent &quot;1.2&quot;</code> - Add a subtask</li>
+<li><code>rune add [file] --title &quot;Task&quot; --phase &quot;Phase Name&quot;</code> - Add task to a phase</li>
+<li><code>rune add [file] --title &quot;Task&quot; --stream 2</code> - Add task to stream 2</li>
+<li><code>rune add [file] --title &quot;Task&quot; --blocked-by &quot;1,2&quot;</code> - Add task blocked by tasks 1 and 2</li>
+<li><code>rune add [file] --title &quot;Task&quot; --owner &quot;agent-1&quot;</code> - Add task owned by agent-1</li>
+<li><code>rune complete [file] [task-id]</code> - Mark task as completed (task-id is positional, e.g., <code>rune complete tasks.md 1.2</code>)</li>
+<li><code>rune progress [file] [task-id]</code> - Mark task as in-progress (task-id is positional)</li>
+<li><code>rune uncomplete [file] [task-id]</code> - Mark task as pending (task-id is positional)</li>
+<li><code>rune update [file] [task-id] --title &quot;New title&quot;</code> - Update task title (task-id is positional)</li>
+<li><code>rune update [file] [task-id] --details &quot;Details&quot;</code> - Add/update task details</li>
+<li><code>rune update [file] [task-id] --stream 2</code> - Assign task to stream 2</li>
+<li><code>rune update [file] [task-id] --blocked-by &quot;1,2&quot;</code> - Set task dependencies</li>
+<li><code>rune update [file] [task-id] --owner &quot;agent-1&quot;</code> - Claim task for agent</li>
+<li><code>rune update [file] [task-id] --release</code> - Release task ownership</li>
+<li><code>rune remove [file] [task-id]</code> - Remove task and subtasks (task-id is positional)</li>
+</ul>
+<p><strong>Organization:</strong></p>
+<ul>
+<li><code>rune add-phase [file] &quot;Phase Name&quot;</code> - Add a new phase (name is positional)</li>
+<li><code>rune has-phases [file]</code> - Check if file uses phases</li>
+<li><code>rune find [file] --pattern &quot;search term&quot;</code> - Search tasks</li>
+<li><code>rune renumber [file]</code> - Recalculate all task IDs to sequential numbering (creates backup)</li>
+</ul>
+<p><strong>Front Matter:</strong></p>
+<ul>
+<li><code>rune add-frontmatter [file] --reference &quot;file.md&quot;</code> - Add references to existing file (repeatable flag)</li>
+<li><code>rune add-frontmatter [file] --meta &quot;key:value&quot;</code> - Add metadata to front matter (repeatable flag)</li>
+</ul>
+<p><strong>Batch Operations:</strong></p>
+<ul>
+<li><code>rune batch [file] --input '{&quot;file&quot;:&quot;tasks.md&quot;,&quot;operations&quot;:[...]}'</code> - Execute multiple operations atomically</li>
+</ul>
+<h3>Batch Operation Format</h3>
+<p>Batch operations use JSON input with the following structure:</p>
+<pre><code class="language-json">{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {
+      &quot;type&quot;: &quot;add-phase&quot;,
+      &quot;phase&quot;: &quot;Implementation&quot;
+    },
+    {
+      &quot;type&quot;: &quot;add&quot;,
+      &quot;title&quot;: &quot;Task title&quot;,
+      &quot;parent&quot;: &quot;1.2&quot;,
+      &quot;phase&quot;: &quot;Phase Name&quot;,
+      &quot;requirements&quot;: [&quot;1.1&quot;, &quot;1.2&quot;],
+      &quot;requirements_file&quot;: &quot;requirements.md&quot;,
+      &quot;stream&quot;: 1,
+      &quot;blocked_by&quot;: [&quot;1&quot;, &quot;2&quot;],
+      &quot;owner&quot;: &quot;agent-1&quot;
+    },
+    {
+      &quot;type&quot;: &quot;update&quot;,
+      &quot;id&quot;: &quot;2.1&quot;,
+      &quot;title&quot;: &quot;Updated title&quot;,
+      &quot;status&quot;: 2,
+      &quot;details&quot;: &quot;Additional details&quot;,
+      &quot;references&quot;: [&quot;ref1&quot;, &quot;ref2&quot;],
+      &quot;stream&quot;: 2,
+      &quot;blocked_by&quot;: [&quot;1&quot;],
+      &quot;owner&quot;: &quot;agent-2&quot;
+    },
+    {
+      &quot;type&quot;: &quot;update&quot;,
+      &quot;id&quot;: &quot;3.1&quot;,
+      &quot;release&quot;: true
+    },
+    {
+      &quot;type&quot;: &quot;remove&quot;,
+      &quot;id&quot;: &quot;3&quot;
+    }
+  ],
+  &quot;dry_run&quot;: false
+}
+</code></pre>
+<p><strong>Operation Types:</strong></p>
+<ul>
+<li><code>add</code> - Add a new task
+<ul>
+<li>Required: <code>title</code></li>
+<li>Optional: <code>parent</code>, <code>phase</code>, <code>requirements</code> (array of task IDs), <code>requirements_file</code>, <code>stream</code> (integer), <code>blocked_by</code> (array of task IDs), <code>owner</code> (string)</li>
+</ul>
+</li>
+<li><code>add-phase</code> - Create a new phase header
+<ul>
+<li>Required: <code>phase</code> (name of the phase to create)</li>
+<li>Note: Phase is created at the end of the document</li>
+</ul>
+</li>
+<li><code>update</code> - Update an existing task
+<ul>
+<li>Required: <code>id</code></li>
+<li>Optional: <code>title</code>, <code>status</code> (0=pending, 1=in-progress, 2=completed), <code>details</code>, <code>references</code> (array of file paths), <code>stream</code> (integer), <code>blocked_by</code> (array of task IDs), <code>owner</code> (string), <code>release</code> (boolean, clears owner)</li>
+</ul>
+</li>
+<li><code>remove</code> - Remove a task and all its subtasks
+<ul>
+<li>Required: <code>id</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Important</strong>: In batch operations, <code>references</code>, <code>requirements</code>, and <code>blocked_by</code> must be arrays, not comma-separated strings:</p>
+<ul>
+<li>Correct: <code>&quot;references&quot;: [&quot;file1.md&quot;, &quot;file2.md&quot;]</code></li>
+<li>Correct: <code>&quot;blocked_by&quot;: [&quot;1&quot;, &quot;2&quot;]</code></li>
+<li>Incorrect: <code>&quot;references&quot;: &quot;file1.md,file2.md&quot;</code></li>
+<li>Incorrect: <code>&quot;blocked_by&quot;: &quot;1,2&quot;</code></li>
+</ul>
+<p><strong>Status Values:</strong></p>
+<ul>
+<li><code>0</code> - Pending</li>
+<li><code>1</code> - In-progress</li>
+<li><code>2</code> - Completed</li>
+</ul>
+<p>All operations in a batch are atomic - either all succeed or none are applied.</p>
+<h3>Task Status Types</h3>
+<ul>
+<li><code>[ ]</code> - Pending (not started)</li>
+<li><code>[-]</code> - In-progress (currently working on)</li>
+<li><code>[x]</code> - Completed (finished)</li>
+</ul>
+<h3>Phases</h3>
+<p>Phases are H2 headers (<code>## Phase Name</code>) that group tasks. Tasks are numbered globally across phases.</p>
+<ul>
+<li><code>rune add-phase [file] &quot;Phase Name&quot;</code> - Adds H2 header at end of file</li>
+<li><code>rune add [file] --title &quot;Task&quot; --phase &quot;Phase Name&quot;</code> - Adds task under specified phase</li>
+</ul>
+<h3>Renumbering</h3>
+<p><code>rune renumber [file]</code> recalculates task IDs to sequential numbering.</p>
+<ul>
+<li>Creates .bak backup before changes</li>
+<li>Preserves hierarchy, statuses, and phase markers</li>
+<li>Does NOT update requirement links in task details</li>
+<li>Use <code>--dry-run</code> to preview</li>
+<li>Stable IDs (used for dependencies) survive renumbering</li>
+</ul>
+<h3>Task Dependencies (Blocked-by)</h3>
+<p>Tasks can declare dependencies on other tasks using the <code>--blocked-by</code> flag. A task is &quot;ready&quot; only when all its blocking tasks are completed.</p>
+<ul>
+<li><code>rune add [file] --title &quot;Task&quot; --blocked-by &quot;1,2&quot;</code> - Task blocked by tasks 1 and 2</li>
+<li><code>rune update [file] [task-id] --blocked-by &quot;1,2&quot;</code> - Set/update dependencies</li>
+<li>Dependencies are stored as stable IDs (7-character alphanumeric) internally</li>
+<li>Circular dependencies are detected and rejected</li>
+<li>Deleting a task automatically removes it from dependent tasks' blocked-by lists</li>
+</ul>
+<p><strong>Stable IDs</strong>: Tasks have persistent stable IDs (hidden in markdown as HTML comments) that survive renumbering. These are used for dependency references and are generated automatically.</p>
+<h3>Work Streams</h3>
+<p>Streams partition tasks for parallel agent execution. Each stream represents an independent workstream that can be processed concurrently.</p>
+<ul>
+<li><code>rune streams [file]</code> - Show all streams with ready/blocked/active task counts</li>
+<li><code>rune streams [file] --available</code> - Show only streams with ready tasks</li>
+<li><code>rune streams [file] --json</code> - Machine-readable stream status</li>
+<li>Default stream is 1 for tasks without explicit assignment</li>
+<li>Streams are derived from task assignments (no upfront definition needed)</li>
+</ul>
+<p><strong>Stream Status Output:</strong></p>
+<pre><code>Stream 1: 2 ready, 3 blocked, 1 active
+Stream 2: 0 ready, 2 blocked, 0 active
+</code></pre>
+<h3>Task Ownership</h3>
+<p>Agents can claim tasks by setting an owner. This prevents multiple agents from working on the same task.</p>
+<ul>
+<li><code>rune next [file] --claim &quot;agent-1&quot;</code> - Claim next ready task (sets owner and status to in-progress)</li>
+<li><code>rune next [file] --stream 2 --claim &quot;agent-1&quot;</code> - Claim all ready tasks in stream 2</li>
+<li><code>rune update [file] [task-id] --owner &quot;agent-1&quot;</code> - Manually claim a task</li>
+<li><code>rune update [file] [task-id] --release</code> - Release ownership</li>
+<li><code>rune list [file] --owner &quot;agent-1&quot;</code> - Filter to tasks owned by agent</li>
+<li><code>rune list [file] --owner &quot;&quot;</code> - Filter to unowned tasks</li>
+</ul>
+<h3>Git Integration</h3>
+<p>When git discovery is enabled in rune's config, you can omit the filename and rune will auto-discover based on the current branch.</p>
+<h2>Workflow Guidelines</h2>
+<h3>When Creating Tasks</h3>
+<ol>
+<li>Check if a task file exists for the current context (use <code>rune list</code> or check git branch)</li>
+<li>Create phases for logical grouping when tasks span multiple areas</li>
+<li>Use clear, actionable task titles</li>
+<li>Break complex tasks into subtasks with proper parent references</li>
+<li>Link requirements when tasks relate to specification documents</li>
+</ol>
+<h3>When Managing Tasks</h3>
+<ol>
+<li>Use <code>rune list --filter pending</code> to see what needs to be done</li>
+<li>Use <code>rune next</code> to identify the next task to work on</li>
+<li>Mark tasks as in-progress when starting work</li>
+<li>Complete tasks immediately when finished</li>
+<li>Use batch operations when making multiple related changes</li>
+</ol>
+<h3>Multi-Agent Parallel Execution</h3>
+<ol>
+<li>Use <code>rune streams</code> to see available work streams</li>
+<li>Assign agents to streams: <code>rune next --stream N --claim &quot;agent-id&quot;</code></li>
+<li>Each agent works independently within its claimed stream</li>
+<li>Use <code>rune list --owner &quot;agent-id&quot;</code> to see an agent's tasks</li>
+<li>Complete tasks to unblock dependent tasks in other streams</li>
+<li>Use <code>--release</code> when an agent needs to give up a task</li>
+</ol>
+<h3>When Organizing</h3>
+<ol>
+<li>Group related tasks under phases (e.g., &quot;Planning&quot;, &quot;Development&quot;, &quot;Testing&quot;)</li>
+<li>Use subtasks for breaking down complex work</li>
+<li>Keep task hierarchy shallow (avoid deeply nested structures)</li>
+<li>Use descriptive phase names that reflect workflow stages</li>
+</ol>
+<h3>Output Formats</h3>
+<ul>
+<li>Use <code>--format table</code> (default) for human-readable display</li>
+<li>Use <code>--format json</code> when you need to parse task data</li>
+<li>Use <code>--format markdown</code> for documentation or reports</li>
+</ul>
+<h2>Best Practices</h2>
+<ol>
+<li><strong>Atomic Operations</strong>: Use <code>rune batch</code> for related changes to ensure all-or-nothing updates</li>
+<li><strong>Status Tracking</strong>: Keep task status current - mark in-progress when starting, completed when done</li>
+<li><strong>Hierarchy</strong>: Use parent-child relationships to show task structure</li>
+<li><strong>Dependencies</strong>: Use <code>--blocked-by</code> to define execution order between tasks</li>
+<li><strong>Streams</strong>: Partition independent work into streams for parallel agent execution</li>
+<li><strong>Phases</strong>: Organize tasks by workflow stage or feature area</li>
+<li><strong>Dry Run</strong>: Use <code>--dry-run</code> flag to preview changes before applying them</li>
+<li><strong>Git Integration</strong>: Leverage branch-based file discovery for feature-specific task lists</li>
+<li><strong>Batch for Multiple Updates</strong>: When marking multiple tasks complete or updating status, use batch operations instead of individual commands for efficiency</li>
+<li><strong>Auto-completion</strong>: When all subtasks of a parent task are completed, the parent task is automatically marked as completed</li>
+<li><strong>Filtering</strong>: Use <code>--filter pending|in-progress|completed</code> with <code>rune list</code> to focus on tasks in specific states</li>
+<li><strong>Search</strong>: Use <code>rune find</code> to quickly locate tasks by keyword across titles and details</li>
+<li><strong>Claiming Tasks</strong>: Use <code>rune next --claim</code> to atomically claim and start tasks</li>
+<li><strong>Stream Discovery</strong>: Use <code>rune streams --available</code> to find streams with ready work</li>
+</ol>
+<h2>Common Patterns</h2>
+<h3>Creating a New Task File</h3>
+<pre><code class="language-bash">rune create tasks.md --title &quot;Project Name or Description&quot;
+</code></pre>
+<h3>Creating a Feature Task File with References</h3>
+<pre><code class="language-bash">rune create specs/${feature_name}/tasks.md --title &quot;Project Tasks&quot; \
+  --reference specs/${feature_name}/requirements.md \
+  --reference specs/${feature_name}/design.md \
+  --reference specs/${feature_name}/decision_log.md
+</code></pre>
+<h3>Creating a Phase and Adding Tasks to It</h3>
+<p>Use batch operations to create a phase and add tasks in one atomic operation:</p>
+<pre><code class="language-bash">rune batch tasks.md --input '{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {&quot;type&quot;: &quot;add-phase&quot;, &quot;phase&quot;: &quot;Implementation&quot;},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Build core feature&quot;, &quot;phase&quot;: &quot;Implementation&quot;},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Add error handling&quot;, &quot;phase&quot;: &quot;Implementation&quot;}
+  ]
+}'
+</code></pre>
+<h3>Adding Multiple Related Tasks</h3>
+<p>Use batch operations to add a group of related tasks atomically:</p>
+<pre><code class="language-bash">rune batch tasks.md --input '{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Parent Task&quot;, &quot;phase&quot;: &quot;Phase Name&quot;},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Subtask 1&quot;, &quot;parent&quot;: &quot;1&quot;},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Subtask 2&quot;, &quot;parent&quot;: &quot;1&quot;}
+  ]
+}'
+</code></pre>
+<h3>Marking Multiple Tasks Complete</h3>
+<pre><code class="language-bash">rune batch tasks.md --input '{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {&quot;type&quot;: &quot;update&quot;, &quot;id&quot;: &quot;1.1&quot;, &quot;status&quot;: 2},
+    {&quot;type&quot;: &quot;update&quot;, &quot;id&quot;: &quot;1.2&quot;, &quot;status&quot;: 2},
+    {&quot;type&quot;: &quot;update&quot;, &quot;id&quot;: &quot;2.1&quot;, &quot;status&quot;: 2}
+  ]
+}'
+</code></pre>
+<h3>Adding References and Requirements</h3>
+<pre><code class="language-bash">rune batch tasks.md --input '{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {
+      &quot;type&quot;: &quot;update&quot;,
+      &quot;id&quot;: &quot;2.1&quot;,
+      &quot;references&quot;: [&quot;docs/api-spec.md&quot;, &quot;examples/usage.md&quot;]
+    },
+    {
+      &quot;type&quot;: &quot;add&quot;,
+      &quot;title&quot;: &quot;Integration tests&quot;,
+      &quot;requirements&quot;: [&quot;1.2&quot;, &quot;1.3&quot;]
+    }
+  ]
+}'
+</code></pre>
+<h3>Setting Up Tasks with Dependencies and Streams</h3>
+<pre><code class="language-bash">rune batch tasks.md --input '{
+  &quot;file&quot;: &quot;tasks.md&quot;,
+  &quot;operations&quot;: [
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Initialize project&quot;, &quot;stream&quot;: 1},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Configure database&quot;, &quot;stream&quot;: 1, &quot;blocked_by&quot;: [&quot;1&quot;]},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Build API&quot;, &quot;stream&quot;: 1, &quot;blocked_by&quot;: [&quot;2&quot;]},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Build UI&quot;, &quot;stream&quot;: 2, &quot;blocked_by&quot;: [&quot;1&quot;]},
+    {&quot;type&quot;: &quot;add&quot;, &quot;title&quot;: &quot;Write tests&quot;, &quot;stream&quot;: 2, &quot;blocked_by&quot;: [&quot;3&quot;, &quot;4&quot;]}
+  ]
+}'
+</code></pre>
+<h3>Multi-Agent Task Claiming</h3>
+<pre><code class="language-bash"># Agent 1 claims all ready tasks in stream 1
+rune next tasks.md --stream 1 --claim &quot;agent-backend&quot;
+
+# Agent 2 claims all ready tasks in stream 2
+rune next tasks.md --stream 2 --claim &quot;agent-frontend&quot;
+
+# Check stream status
+rune streams tasks.md
+
+# Agent releases a task it can't complete
+rune update tasks.md 3 --release
+</code></pre>
+<h3>Checking Available Work</h3>
+<pre><code class="language-bash"># See which streams have ready tasks
+rune streams tasks.md --available
+
+# See all unowned pending tasks
+rune list tasks.md --filter pending --owner &quot;&quot;
+
+# Get JSON for programmatic processing
+rune streams tasks.md --json
+</code></pre>
+<h2>Key Command Syntax Notes</h2>
+<h3>Positional vs Flag Arguments</h3>
+<p>Many rune commands use <strong>positional arguments</strong> for task IDs, not flags:</p>
+<p><strong>Correct:</strong></p>
+<ul>
+<li><code>rune complete tasks.md 1.2</code></li>
+<li><code>rune progress tasks.md 3.1</code></li>
+<li><code>rune update tasks.md 2.3 --title &quot;New title&quot;</code></li>
+<li><code>rune remove tasks.md 4</code></li>
+</ul>
+<p><strong>Incorrect:</strong></p>
+<ul>
+<li><code>rune complete tasks.md --id 1.2</code> ❌</li>
+<li><code>rune progress tasks.md --id 3.1</code> ❌</li>
+</ul>
+<h3>Array Fields in Batch Operations</h3>
+<p>When using batch operations, <code>references</code> and <code>requirements</code> <strong>must be arrays</strong>:</p>
+<p><strong>Correct:</strong></p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;update&quot;,
+  &quot;id&quot;: &quot;1.1&quot;,
+  &quot;references&quot;: [&quot;file1.md&quot;, &quot;file2.md&quot;],
+  &quot;requirements&quot;: [&quot;2.1&quot;, &quot;2.2&quot;]
+}
+</code></pre>
+<p><strong>Incorrect:</strong></p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;update&quot;,
+  &quot;id&quot;: &quot;1.1&quot;,
+  &quot;references&quot;: &quot;file1.md,file2.md&quot;,
+  &quot;requirements&quot;: &quot;2.1,2.2&quot;
+}
+</code></pre>
+<h3>Output Formats</h3>
+<p>The <code>--format</code> flag supports three output modes:</p>
+<ul>
+<li><code>table</code> - Default, human-readable table view</li>
+<li><code>markdown</code> - Markdown checklist format with <code>[ ]</code>, <code>[-]</code>, <code>[x]</code> checkboxes</li>
+<li><code>json</code> - Machine-readable JSON for parsing</li>
+</ul>
+<h3>Task Filtering</h3>
+<p>The <code>--filter</code> flag with <code>rune list</code> accepts:</p>
+<ul>
+<li><code>pending</code> - Show only incomplete tasks</li>
+<li><code>in-progress</code> - Show only tasks currently being worked on</li>
+<li><code>completed</code> - Show only finished tasks</li>
+</ul>
+<p>Additional filters for multi-agent workflows:</p>
+<ul>
+<li><code>--stream N</code> - Filter to tasks in stream N</li>
+<li><code>--owner &quot;agent-id&quot;</code> - Filter to tasks owned by agent-id</li>
+<li><code>--owner &quot;&quot;</code> - Filter to unowned tasks</li>
+</ul>
+<h3>Markdown Storage Format for Dependencies/Streams</h3>
+<p>Tasks with dependencies, streams, or owners are stored with metadata as list items:</p>
+<pre><code class="language-markdown">- [ ] 1. Initialize project &lt;!-- id:abc1234 --&gt;
+  - Details about initialization
+  - Stream: 1
+
+- [ ] 2. Configure database &lt;!-- id:def5678 --&gt;
+  - Blocked-by: abc1234 (Initialize project)
+  - Stream: 1
+
+- [-] 3. Build API &lt;!-- id:ghi9012 --&gt;
+  - Blocked-by: def5678 (Configure database)
+  - Stream: 1
+  - Owner: agent-backend
+</code></pre>
+<ul>
+<li><strong>Stable IDs</strong>: Hidden as HTML comments after the title (system-managed)</li>
+<li><strong>Blocked-by, Stream, Owner</strong>: Visible list items under the task (user-editable)</li>
+<li><strong>Title hints</strong>: Dependency references include task titles for readability</li>
+</ul>
+<h2>Response Format</h2>
+<p>When managing tasks:</p>
+<ol>
+<li>Explain what operations you'll perform</li>
+<li>Execute the rune commands</li>
+<li>Show the results (list updated tasks if relevant)</li>
+<li>Confirm what was accomplished</li>
+</ol>
+<p>Remember: Rune is designed for AI agents, so use it efficiently with batch operations when appropriate and always maintain clean, hierarchical task structures.</p>
+<p>ARGUMENTS: next --phase --format json</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Let me run the rune next --phase --format json command to get the next phase of tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible error">
+                    <summary><span class="icon">❌</span> 🔧 Bash: Get next phase of tasks in JSON format</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune next --phase --format json</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Exit code 1
+Error: no filename specified and git discovery failed or disabled
+Usage:
+  rune next [file] [flags]
+
+Flags:
+  -c, --claim string   claim task(s) with agent ID
+  -h, --help           help for next
+  -1, --one            show only first incomplete subtask at each level
+      --phase          get all tasks from next phase
+  -s, --stream int     filter to specific stream
+
+Global Flags:
+      --dry-run         preview changes without applying them
+  -f, --format string   output format (table, markdown, json) (default &#34;table&#34;)
+  -v, --verbose         verbose output</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Glob</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Pattern:</strong> <code>**/*.md</code>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>/Users/ronan/repos/workscripts/README.md
+/Users/ronan/repos/workscripts/.github/agents/janitor.agent.md
+/Users/ronan/repos/workscripts/.github/agents/prompt-engineer.agent.md
+/Users/ronan/repos/workscripts/.github/instructions/plan_and_log_format.instructions.md
+/Users/ronan/repos/workscripts/.github/prompts/readme.prompt.md
+/Users/ronan/repos/workscripts/macos/vsc-shortcuts.md
+/Users/ronan/repos/workscripts/.github/agents/agent-yolo.agent.md
+/Users/ronan/repos/workscripts/.github/agents/orchestrator.agent.md
+/Users/ronan/repos/workscripts/.github/agents/planner.agent.md
+/Users/ronan/repos/workscripts/.github/agents/reviewer.agent.md
+/Users/ronan/repos/workscripts/.github/agents/worker.agent.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/index.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-1-run-2-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-1-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-1-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-2-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-3-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-4-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-5-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-6-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-7-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-8-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/phase-9-run-3-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/.orbit/post-completion-run-3-session-transcript.md
+/Users/ronan/repos/workscripts/specs/repo-setup/decision_log.md
+/Users/ronan/repos/workscripts/specs/repo-setup/design.md
+/Users/ronan/repos/workscripts/specs/repo-setup/requirements.md
+/Users/ronan/repos/workscripts/specs/repo-setup/tasks.md
+/Users/ronan/repos/workscripts/macos/vsc-shortcuts-gem.md
+/Users/ronan/repos/workscripts/macos/vsc-shortcuts-gpt.md
+/Users/ronan/repos/workscripts/macos/vsc-shortcuts-gpt52.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-1-run-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-1-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-2-run-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-3-run-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-3-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/phase-4-run-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/post-completion-run-2-session-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/post-completion-session-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/decision_log.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/design.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/requirements.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/tasks.md
+/Users/ronan/repos/workscripts/docs/new-mac-guide.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/post-completion-run-3-session-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/.orbit/index.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/.orbit/phase-1-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/.orbit/phase-2-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/.orbit/phase-3-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/.orbit/post-completion-session-transcript.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/smolspec.md
+/Users/ronan/repos/workscripts/specs/mac-setup-guide/tasks.md
+/Users/ronan/repos/workscripts/CHANGELOG.md
+/Users/ronan/repos/workscripts/specs/mac-env-setup/.orbit/index.md
+/Users/ronan/repos/workscripts/specs/new-mac-idempotency/smolspec.md
+/Users/ronan/repos/workscripts/specs/new-mac-idempotency/tasks.md</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>I can see there's a <code>specs/new-mac-idempotency/tasks.md</code> file that looks like the most recent task file. Let me check this one.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Get next phase of tasks from new-mac-idempotency tasks file</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune next specs/new-mac-idempotency/tasks.md --phase --format json</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>{
+  &#34;success&#34;: true,
+  &#34;count&#34;: 4,
+  &#34;phase_name&#34;: &#34;Implementation&#34;,
+  &#34;tasks&#34;: [
+    {
+      &#34;id&#34;: &#34;4&#34;,
+      &#34;title&#34;: &#34;Audit non-standard package names for Homebrew validity&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: false,
+      &#34;details&#34;: [
+        &#34;Run brew info --cask or brew info --formula for: logi-options+, gcloud-cli, lychee, anydesk&#34;,
+        &#34;Remove or replace any that are not valid Homebrew names&#34;,
+        &#34;Update packages_formulae and packages_casks arrays in the PACKAGE CONFIGURATION block (lines 6-27 of new-mac.sh)&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;5&#34;,
+      &#34;title&#34;: &#34;Implement install_packages resilient helper function&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;4&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Add install_packages() bash function before the BREW PACKAGE INSTALL section&#34;,
+        &#34;Signature: install_packages \u003cflag\u003e \u003cpkg...\u003e where flag is --formula or --cask&#34;,
+        &#34;Attempt batch install first for speed; on failure retry each package individually&#34;,
+        &#34;Append failed package names to global FAILED_PACKAGES array&#34;,
+        &#34;Pattern mirrors clone_repo helper (lines 475-492 of new-mac.sh)&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;6&#34;,
+      &#34;title&#34;: &#34;Replace direct brew install calls with install_packages helper&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;5&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Replace brew install --formula ... || echo with: install_packages --formula \&#34;${packages_formulae[@]}\&#34;&#34;,
+        &#34;Replace brew install --cask ... || echo with: install_packages --cask \&#34;${packages_casks[@]}\&#34;&#34;,
+        &#34;Remove the now-redundant || echo fallbacks — the helper handles per-package errors internally&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;7&#34;,
+      &#34;title&#34;: &#34;Add FAILED_PACKAGES summary to Summary section&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;5&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Initialise FAILED_PACKAGES=() array at start of unattended phase alongside REPOS_CLONED and TOOLS_INSTALLED&#34;,
+        &#34;In the Summary section, print list of failed package names if non-empty&#34;,
+        &#34;Include a note to run brew info \u003cname\u003e to diagnose and re-run the script&#34;,
+        &#34;Format consistently with existing REPOS_CLONED/TOOLS_INSTALLED summary output&#34;
+      ]
+    }
+  ],
+  &#34;streams_summary&#34;: [
+    {
+      &#34;id&#34;: 1,
+      &#34;ready&#34;: [
+        &#34;4&#34;
+      ],
+      &#34;blocked&#34;: [
+        &#34;5&#34;,
+        &#34;6&#34;,
+        &#34;7&#34;
+      ],
+      &#34;active&#34;: [],
+      &#34;available&#34;: true
+    }
+  ],
+  &#34;front_matter_references&#34;: [
+    &#34;specs/new-mac-idempotency/smolspec.md&#34;
+  ]
+}</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>I can see the next phase of tasks. There's only one stream (stream 1), and the first ready task is task 4. Let me read the referenced files and understand the context better.</p>
+<p>Tasks:</p>
+<ul>
+<li>Task 4: Audit non-standard package names for Homebrew validity (READY)</li>
+<li>Task 5: Implement install_packages resilient helper function (blocked by 4)</li>
+<li>Task 6: Replace direct brew install calls with install_packages helper (blocked by 5)</li>
+<li>Task 7: Add FAILED_PACKAGES summary to Summary section (blocked by 5)</li>
+</ul>
+<p>Only one stream, so I'll execute sequentially.</p>
+<p>Now I'm looking at the smolspec and the new-mac.sh script to understand what packages are being installed and which ones might have non-standard names.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Only one stream, so sequential execution. Let me read the referenced files first.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>specs/new-mac-idempotency/smolspec.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# new-mac.sh Idempotency
+     2→
+     3→## Overview
+     4→`new-mac.sh` failed on first run because `codelayer` is not a valid Homebrew package. Since `brew install` resolves all packages before installing any, the invalid name caused the **entire package batch to fail**, leaving nothing installed. The script continued past this silent failure, skipping all dependent sections (Dock, default browser, login items, Go tools), and eventually exited when `go` was not found. This spec fixes the immediate cause, restructures the package list for maintainability, and makes the install resilient so a single bad package does not block all others.
+     5→
+     6→## Requirements
+     7→- The system MUST define all packages in a single, clearly labelled `PACKAGE CONFIGURATION` block at the top of the script (before the interactive phase), so technical users can edit the list before running
+     8→- The system MUST separate packages into `packages_formulae` and `packages_casks` arrays (no home/work/default distinction) and install each with the appropriate flag (`brew install --formula` / `brew install --cask`)
+     9→- The system MUST remove `codelayer` (not a valid Homebrew package) and `tailscale-app` (invalid name) from the package list
+    10→- The system MUST include `python` (latest Homebrew version) in `packages_formulae`
+    11→- The system MUST ensure `python3` resolves to the Homebrew-installed version rather than the macOS system Python, by appending `export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;` to `~/.zshrc` (idempotent — only added once)
+    12→- The system MUST install formulae and casks as separate `brew install` calls so a cask failure cannot abort formula installation and vice versa
+    13→- The system MUST be safely re-runnable: re-running after a partial failure MUST retry any packages not yet installed without re-executing already-completed sections
+    14→- The system SHOULD report a clear, actionable warning when any package group fails to install, identifying which group failed and prompting the user to check names before re-running
+    15→
+    16→## Implementation Approach
+    17→**File to modify:** `/Users/ronan/repos/workscripts/macos/new-mac.sh`
+    18→
+    19→**Changes already applied:**
+    20→1. **Package configuration block** moved to top of script (after `set -e`, before interactive phase) as `packages_formulae` and `packages_casks` arrays
+    21→2. **Removed** `codelayer` and `tailscale-app`; **added** `python` to `packages_formulae`; merged `mas` into main formulae list
+    22→3. **Replaced** single `brew install &#34;${all_packages[@]}&#34; || echo ...` with two typed calls:
+    23→   - `brew install --formula &#34;${packages_formulae[@]}&#34; || echo &#34;⚠️ ...&#34;`
+    24→   - `brew install --cask &#34;${packages_casks[@]}&#34; || echo &#34;⚠️ ...&#34;`
+    25→4. **Added python3 PATH** — appends `export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;` to `~/.zshrc` with idempotency guard in the shell configuration section
+    26→
+    27→**Remaining implementation work (tasks):**
+    28→5. **Resilient install helper** — current `|| echo` still silently continues on failure; replace with batch-then-individual retry: attempt full group first for speed, fall back to per-package on failure, collect `FAILED_PACKAGES` array
+    29→6. **Failure summary** — extend Summary section to print `FAILED_PACKAGES` if non-empty
+    30→7. **Audit remaining non-standard package names** — verify `logi-options+`, `gcloud-cli`, `lychee`, `anydesk`, etc. are valid Homebrew names
+    31→
+    32→**Existing patterns leveraged:**
+    33→- `REPOS_CLONED` / `TOOLS_INSTALLED` counters → extend with `FAILED_PACKAGES` array
+    34→- `clone_repo` helper error-capture pattern → same approach for `install_packages` helper
+    35→- Existing `command -v dockutil` / `[ -d &#34;/Applications/Brave Browser.app&#34; ]` guards — already idempotent, no change needed
+    36→
+    37→**Dependencies:** No new dependencies.
+    38→
+    39→**Out of Scope:**
+    40→- Switching to Brewfile / `brew bundle`
+    41→- Changes to `verify-setup.sh`
+    42→- Persistent checkpoint files to skip completed sections
+    43→- Adding a `--unattended` flag to skip the interactive phase
+    44→
+    45→## Risks and Assumptions
+    46→- Risk: Other package names in the list may also be invalid | Mitigation: implementer audits all non-standard names (`logi-options+`, `gcloud-cli`, `lychee`, `anydesk`) with `brew search` before finalising
+    47→- Risk: `brew install --formula` will reject cask names placed in the formulae array | Mitigation: arrays are now strictly typed; implementer must not mix types
+    48→- Risk: `$(brew --prefix python)` in `.zshrc` evaluates to a path that changes if Python major version is upgraded by Homebrew | Mitigation: `brew --prefix python` resolves the current installed version&#39;s prefix; acceptable for personal setup scripts
+    49→- Assumption: Re-runs start from the top of the script; existing section guards handle idempotency for all sections except the package install (which `brew install` handles natively)
+    50→- Assumption: All other package names are valid — the two confirmed-invalid ones (`codelayer`, `tailscale-app`) have been removed
+    51→- Prerequisite: Homebrew must be installed and in PATH before package arrays are used (enforced by lines 20-31 of interactive phase)
+    52→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→#!/bin/bash
+     2→
+     3→# Exit immediately if a command exits with a non-zero status.
+     4→set -e
+     5→
+     6→########### PACKAGE CONFIGURATION ################
+     7→# Edit this section before running to customise what gets installed.
+     8→# Run `brew search &lt;name&gt;` to verify the correct Homebrew package name.
+     9→# Formulae = CLI tools / libraries | Casks = GUI applications
+    10→
+    11→packages_formulae=(
+    12→  &#34;bat&#34; &#34;fzf&#34; &#34;gh&#34; &#34;git&#34; &#34;go&#34; &#34;htop&#34; &#34;jq&#34; &#34;mas&#34; &#34;python&#34; &#34;rename&#34;
+    13→  &#34;tmux&#34; &#34;tree&#34; &#34;wget&#34; &#34;yq&#34;
+    14→  &#34;awscli&#34; &#34;azure-cli&#34; &#34;cloudflared&#34; &#34;lychee&#34; &#34;nvm&#34; &#34;opentofu&#34;
+    15→  &#34;podman&#34; &#34;podman-compose&#34; &#34;uv&#34; &#34;ykman&#34;
+    16→)
+    17→
+    18→packages_casks=(
+    19→  &#34;anydesk&#34; &#34;audacity&#34; &#34;bitwarden&#34; &#34;bluesnooze&#34; &#34;brave-browser&#34;
+    20→  &#34;caffeine&#34; &#34;claude-code&#34; &#34;dockutil&#34; &#34;dropbox&#34; &#34;firefox&#34;
+    21→  &#34;gcloud-cli&#34; &#34;gimp&#34; &#34;github&#34; &#34;google-chrome&#34; &#34;google-drive&#34;
+    22→  &#34;inkscape&#34; &#34;iterm2&#34; &#34;logi-options+&#34; &#34;nordvpn&#34; &#34;notunes&#34;
+    23→  &#34;postman&#34; &#34;raycast&#34; &#34;spotify&#34; &#34;stremio&#34; &#34;transmission&#34;
+    24→  &#34;visual-studio-code&#34; &#34;vlc&#34; &#34;whatsapp&#34; &#34;wireshark&#34; &#34;yubico-authenticator&#34;
+    25→)
+    26→
+    27→########### END PACKAGE CONFIGURATION ################
+    28→
+    29→echo &#34;🚀 Starting new Mac setup...&#34;
+    30→
+    31→########### INTERACTIVE PHASE ################
+    32→# User must be present for this section
+    33→
+    34→# Install Xcode command line tools if they aren&#39;t already installed
+    35→if ! xcode-select -p &amp;&gt;/dev/null; then
+    36→  echo &#34;Installing Xcode Command Line Tools...&#34;
+    37→  xcode-select --install
+    38→else
+    39→  echo &#34;Xcode Command Line Tools already installed.&#34;
+    40→fi
+    41→
+    42→# Install Homebrew if it isn&#39;t already installed
+    43→if ! command -v brew &amp;&gt;/dev/null; then
+    44→  echo &#34;Installing Homebrew...&#34;
+    45→  /bin/bash -c &#34;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&#34;
+    46→else
+    47→  echo &#34;Homebrew already installed.&#34;
+    48→fi
+    49→
+    50→# IMPORTANT: Add Homebrew to the current shell session&#39;s PATH
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>    50→# IMPORTANT: Add Homebrew to the current shell session&#39;s PATH
+    51→# This is crucial for Apple Silicon Macs
+    52→if [ -f /opt/homebrew/bin/brew ]; then
+    53→    eval &#34;$(/opt/homebrew/bin/brew shellenv)&#34;
+    54→fi
+    55→
+    56→# Install gh early — needed for SSH/GitHub auth in interactive phase
+    57→brew install gh 2&gt;/dev/null || true
+    58→
+    59→# Collect user input upfront
+    60→echo &#34;📝 Collecting user information...&#34;
+    61→while true; do
+    62→  read -rp &#34;Enter your GitHub email: &#34; GITHUB_EMAIL
+    63→  [ -n &#34;$GITHUB_EMAIL&#34; ] &amp;&amp; break
+    64→  echo &#34;⚠️  Email cannot be empty. Please try again.&#34;
+    65→done
+    66→
+    67→while true; do
+    68→  read -rp &#34;Enter your full name for Git: &#34; GIT_NAME
+    69→  [ -n &#34;$GIT_NAME&#34; ] &amp;&amp; break
+    70→  echo &#34;⚠️  Name cannot be empty. Please try again.&#34;
+    71→done
+    72→
+    73→########### SSH KEY SETUP ################
+    74→
+    75→if [ ! -f &#34;$HOME/.ssh/github&#34; ]; then
+    76→  echo &#34;🔑 Generating SSH key...&#34;
+    77→  mkdir -p &#34;$HOME/.ssh&#34;
+    78→  ssh-keygen -t ed25519 -C &#34;$GITHUB_EMAIL&#34; -f &#34;$HOME/.ssh/github&#34; -N &#34;&#34;
+    79→
+    80→  echo &#34;Starting SSH agent...&#34;
+    81→  eval &#34;$(ssh-agent -s)&#34;
+    82→
+    83→  echo &#34;Adding SSH key to agent...&#34;
+    84→  ssh-add &#34;$HOME/.ssh/github&#34;
+    85→
+    86→  echo &#34;Authenticating with GitHub...&#34;
+    87→  gh auth login --git-protocol ssh --web
+    88→
+    89→  echo &#34;Checking for existing SSH key on GitHub...&#34;
+    90→  KEY_FINGERPRINT=$(ssh-keygen -lf &#34;$HOME/.ssh/github.pub&#34; | awk &#39;{print $2}&#39;)
+    91→  if gh ssh-key list | grep -q &#34;$KEY_FINGERPRINT&#34;; then
+    92→    echo &#34;⚠️  SSH key already uploaded to GitHub (fingerprint: $KEY_FINGERPRINT)&#34;
+    93→  else
+    94→    echo &#34;Uploading SSH key to GitHub...&#34;
+    95→    gh ssh-key add &#34;$HOME/.ssh/github.pub&#34; --title &#34;MacBook-$(date +%Y%m%d)&#34;
+    96→  fi
+    97→
+    98→  echo &#34;Testing SSH connection...&#34;
+    99→  ssh -T git@github.com -i &#34;$HOME/.ssh/github&#34; 2&gt;&amp;1 || echo &#34;SSH test completed (expected authentication message)&#34;
+   100→
+   101→  echo &#34;✅ SSH key setup complete&#34;
+   102→else
+   103→  echo &#34;✅ SSH key already exists at ~/.ssh/github&#34;
+   104→fi
+   105→echo &#34;&#34;
+   106→
+   107→########### SUDO CREDENTIALS ################
+   108→
+   109→echo &#34;🔐 Requesting administrator access for system configuration...&#34;
+   110→sudo -v
+   111→
+   112→# Keep sudo alive in the background
+   113→while true; do sudo -n true; sleep 60; done 2&gt;/dev/null &amp;
+   114→SUDO_KEEPALIVE_PID=$!
+   115→
+   116→# Trap to kill keep-alive on script exit
+   117→trap &#39;kill $SUDO_KEEPALIVE_PID 2&gt;/dev/null&#39; EXIT
+   118→
+   119→echo &#34;&#34;
+   120→echo &#34;🚀 Unattended phase starting — you can walk away now&#34;
+   121→echo &#34;&#34;
+   122→
+   123→########### UNATTENDED PHASE ################
+   124→# No further user interaction required
+   125→
+   126→# Initialize logging — capture all unattended operations
+   127→SETUP_LOG=&#34;$HOME/SETUP.log&#34;
+   128→exec &gt; &gt;(tee -a &#34;$SETUP_LOG&#34;) 2&gt;&amp;1
+   129→echo &#34;=== Setup started at $(date) ===&#34;
+   130→
+   131→echo &#34;Updating Homebrew...&#34;
+   132→brew update
+   133→
+   134→brew install --cask font-droid-sans-mono-nerd-font || echo &#34;Nerd font already installed or failed.&#34;
+   135→
+   136→# Install Oh-My-Zsh if it isn&#39;t installed
+   137→if [ ! -d &#34;$HOME/.oh-my-zsh&#34; ]; then
+   138→  echo &#34;Installing Oh-My-Zsh...&#34;
+   139→  /bin/sh -c &#34;$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&#34; &#34;&#34; --unattended
+   140→else
+   141→  echo &#34;Oh My Zsh already installed.&#34;
+   142→fi
+   143→
+   144→# Clone Zsh plugins only if they don&#39;t exist
+   145→ZSH_PLUGINS_DIR=&#34;${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins&#34;
+   146→if [ ! -d &#34;$ZSH_PLUGINS_DIR/zsh-autosuggestions&#34; ]; then
+   147→  echo &#34;Cloning zsh-autosuggestions...&#34;
+   148→  git clone https://github.com/zsh-users/zsh-autosuggestions &#34;$ZSH_PLUGINS_DIR/zsh-autosuggestions&#34;
+   149→else
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   150→  echo &#34;zsh-autosuggestions plugin already exists.&#34;
+   151→fi
+   152→
+   153→
+   154→########### BREW PACKAGE INSTALL ################
+   155→
+   156→echo &#34;Installing brew formulae...&#34;
+   157→brew install --formula &#34;${packages_formulae[@]}&#34; || echo &#34;⚠️  Could not install some formulae — check names above and re-run.&#34;
+   158→
+   159→echo &#34;Installing brew casks...&#34;
+   160→brew install --cask &#34;${packages_casks[@]}&#34; || echo &#34;⚠️  Could not install some casks — check names above and re-run.&#34;
+   161→
+   162→########### MAC APP STORE ################
+   163→
+   164→if command -v mas &amp;&gt;/dev/null; then
+   165→  echo &#34;📦 Installing Mac App Store apps...&#34;
+   166→
+   167→  # Magnet (window manager) — App Store ID: 441258766
+   168→  if mas list | grep -q &#34;441258766&#34;; then
+   169→    echo &#34;✅ Magnet already installed&#34;
+   170→  else
+   171→    mas install 441258766 || echo &#34;⚠️  Could not install Magnet — ensure App Store is signed in&#34;
+   172→  fi
+   173→else
+   174→  echo &#34;⚠️  mas not found — skipping Mac App Store apps&#34;
+   175→fi
+   176→
+   177→# Download config files, but check if they exist first to avoid duplication
+   178→if [ ! -f &#34;$HOME/.vimrc&#34; ]; then
+   179→    echo &#34;Downloading .vimrc...&#34;
+   180→    curl -o &#34;$HOME/.vimrc&#34; https://raw.githubusercontent.com/troobit/workscripts/main/macos/vimrc
+   181→fi
+   182→
+   183→if ! grep -q &#34;troobit/workscripts&#34; &#34;$HOME/.zshrc&#34;; then
+   184→    echo &#34;Appending custom .zshrc settings...&#34;
+   185→    # Add a comment to prevent re-adding in the future
+   186→    echo &#34;\n# Added from troobit/workscripts setup script&#34; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   187→    curl https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc &gt;&gt; &#34;$HOME/.zshrc&#34;
+   188→fi
+   189→
+   190→########### SHELL CONFIGURATION ################
+   191→
+   192→echo &#34;🔧 Deploying shell configuration...&#34;
+   193→
+   194→# Download aliases.zsh (overwrite — repo-managed)
+   195→curl -fsSL -o &#34;$HOME/.aliases.zsh&#34; \
+   196→  https://raw.githubusercontent.com/troobit/workscripts/main/macos/aliases.zsh \
+   197→  || echo &#34;⚠️  Could not download aliases.zsh&#34;
+   198→
+   199→# Source from .zshrc if not already present
+   200→if ! grep -q &#34;source.*\.aliases\.zsh&#34; &#34;$HOME/.zshrc&#34; 2&gt;/dev/null; then
+   201→  echo &#39;[ -f &#34;$HOME/.aliases.zsh&#34; ] &amp;&amp; source &#34;$HOME/.aliases.zsh&#34;&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   202→  echo &#34;✅ Added aliases.zsh sourcing to .zshrc&#34;
+   203→else
+   204→  echo &#34;✅ aliases.zsh already sourced in .zshrc&#34;
+   205→fi
+   206→
+   207→# Ensure Homebrew Python takes precedence over macOS system Python
+   208→if ! grep -q &#34;brew --prefix python&#34; &#34;$HOME/.zshrc&#34; 2&gt;/dev/null; then
+   209→  echo &#39;# Prefer Homebrew Python over system Python&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   210→  echo &#39;export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   211→  echo &#34;✅ Added Homebrew Python PATH preference to .zshrc&#34;
+   212→else
+   213→  echo &#34;✅ Homebrew Python PATH already in .zshrc&#34;
+   214→fi
+   215→
+   216→########### SYSTEM PREFERENCES ################
+   217→
+   218→echo &#34;⚙️  Configuring system preferences...&#34;
+   219→
+   220→# Hot corners — bottom-right: Quick Note (14)
+   221→defaults write com.apple.dock wvous-br-corner -int 14
+   222→defaults write com.apple.dock wvous-br-modifier -int 0
+   223→
+   224→# Appearance — accent color: Pink (6), highlight color: Green
+   225→defaults write NSGlobalDomain AppleAccentColor -int 6
+   226→defaults write NSGlobalDomain AppleHighlightColor -string &#34;0.752941 0.964706 0.678431 Green&#34;
+   227→
+   228→# Mission Control — group by app, don&#39;t auto-rearrange spaces
+   229→defaults write com.apple.dock expose-group-apps -bool true
+   230→defaults write com.apple.dock mru-spaces -bool false
+   231→
+   232→# Finder — column view as default
+   233→defaults write com.apple.finder FXPreferredViewStyle -string &#34;clmv&#34;
+   234→killall Finder || true
+   235→
+   236→echo &#34;✅ System preferences configured&#34;
+   237→
+   238→########### DOCK CONFIGURATION ################
+   239→
+   240→echo &#34;🖥️  Configuring Dock...&#34;
+   241→
+   242→# Define desired Dock apps — parallel indexed arrays (bash 3.2 compatible)
+   243→# &#34;SPACER&#34; entries in DOCK_NAMES trigger spacer tile insertion
+   244→DOCK_NAMES=(
+   245→  &#34;iTerm&#34; &#34;Notes&#34; &#34;SPACER&#34;
+   246→  &#34;WhatsApp&#34; &#34;SPACER&#34;
+   247→  &#34;Transmission&#34; &#34;VLC&#34; &#34;Calendar&#34; &#34;System Settings&#34;
+   248→  &#34;Stremio&#34; &#34;TV&#34; &#34;Brave Browser&#34; &#34;iPhone Mirroring&#34;
+   249→  &#34;Audacity&#34; &#34;Visual Studio Code&#34; &#34;Simulator&#34;
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   250→)
+   251→DOCK_PATHS=(
+   252→  &#34;/Applications/iTerm.app&#34;
+   253→  &#34;/System/Applications/Notes.app&#34;
+   254→  &#34;&#34;
+   255→  &#34;/Applications/WhatsApp.app&#34;
+   256→  &#34;&#34;
+   257→  &#34;/Applications/Transmission.app&#34;
+   258→  &#34;/Applications/VLC.app&#34;
+   259→  &#34;/System/Applications/Calendar.app&#34;
+   260→  &#34;/System/Applications/System Settings.app&#34;
+   261→  &#34;/Applications/Stremio.app&#34;
+   262→  &#34;/System/Applications/TV.app&#34;
+   263→  &#34;/Applications/Brave Browser.app&#34;
+   264→  &#34;/System/Applications/iPhone Mirroring.app&#34;
+   265→  &#34;/Applications/Audacity.app&#34;
+   266→  &#34;/Applications/Visual Studio Code.app&#34;
+   267→  &#34;/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app&#34;
+   268→)
+   269→
+   270→if command -v dockutil &amp;&gt;/dev/null; then
+   271→  # Snapshot current Dock state for recovery reference
+   272→  echo &#34;Current Dock state:&#34;
+   273→  dockutil --list || true
+   274→
+   275→  # Remove all existing Dock items (Finder preserved by macOS)
+   276→  dockutil --remove all --no-restart || echo &#34;⚠️  dockutil remove failed&#34;
+   277→
+   278→  # Add each app/spacer in order
+   279→  for i in &#34;${!DOCK_NAMES[@]}&#34;; do
+   280→    app_name=&#34;${DOCK_NAMES[$i]}&#34;
+   281→    app_path=&#34;${DOCK_PATHS[$i]}&#34;
+   282→
+   283→    if [ &#34;$app_name&#34; = &#34;SPACER&#34; ]; then
+   284→      dockutil --add &#39;&#39; --type spacer --section apps --no-restart \
+   285→        || echo &#34;⚠️  Could not add spacer&#34;
+   286→    elif [ -d &#34;$app_path&#34; ]; then
+   287→      dockutil --add &#34;$app_path&#34; --no-restart \
+   288→        || echo &#34;⚠️  Could not add $app_name to Dock&#34;
+   289→    else
+   290→      echo &#34;⚠️  $app_name not found at $app_path — skipping&#34;
+   291→    fi
+   292→  done
+   293→
+   294→  # Add Downloads folder to persistent-others section
+   295→  dockutil --add &#34;$HOME/Downloads&#34; --section others --no-restart \
+   296→    || echo &#34;⚠️  Could not add Downloads folder to Dock&#34;
+   297→
+   298→  # Dock preferences
+   299→  defaults write com.apple.dock show-recents -bool false
+   300→  defaults write com.apple.dock tilesize -int 44
+   301→  defaults write com.apple.dock magnification -bool true
+   302→  defaults write com.apple.dock largesize -int 128
+   303→  defaults write com.apple.dock autohide -bool true
+   304→
+   305→  # Single Dock restart to apply all changes
+   306→  killall Dock || true
+   307→  echo &#34;✅ Dock configured&#34;
+   308→else
+   309→  echo &#34;⚠️  dockutil not found — skipping Dock configuration&#34;
+   310→fi
+   311→
+   312→########### POWER MANAGEMENT ################
+   313→
+   314→echo &#34;⚡ Configuring power management...&#34;
+   315→
+   316→# AC Power — never sleep
+   317→sudo pmset -c displaysleep 0 || echo &#34;⚠️  Could not set AC display sleep&#34;
+   318→sudo pmset -c sleep 0 || echo &#34;⚠️  Could not set AC system sleep&#34;
+   319→
+   320→# Battery — conservative sleep
+   321→sudo pmset -b displaysleep 10 || echo &#34;⚠️  Could not set battery display sleep&#34;
+   322→sudo pmset -b sleep 1 || echo &#34;⚠️  Could not set battery system sleep&#34;
+   323→
+   324→echo &#34;✅ Power management configured&#34;
+   325→
+   326→########### DEFAULT BROWSER ################
+   327→
+   328→echo &#34;🌐 Setting default browser...&#34;
+   329→
+   330→if [ -d &#34;/Applications/Brave Browser.app&#34; ]; then
+   331→  # Start AppleScript to auto-dismiss the confirmation dialog
+   332→  osascript &lt;&lt;&#39;APPLESCRIPT&#39; &amp;
+   333→    tell application &#34;System Events&#34;
+   334→      repeat 30 times
+   335→        try
+   336→          tell process &#34;CoreServicesUIAgent&#34;
+   337→            click button 2 of window 1
+   338→          end tell
+   339→          exit repeat
+   340→        end try
+   341→        delay 0.5
+   342→      end repeat
+   343→    end tell
+   344→APPLESCRIPT
+   345→  DIALOG_PID=$!
+   346→
+   347→  # Set default browser via NSWorkspace API (macOS 12+)
+   348→  swift &lt;&lt; &#39;SWIFT&#39; || echo &#34;⚠️  Could not set default browser&#34;
+   349→    import AppKit
+   350→    let ws = NSWorkspace.shared
+   351→    guard let url = ws.urlForApplication(withBundleIdentifier: &#34;com.brave.Browser&#34;) else {
+   352→      fputs(&#34;Brave Browser not found\n&#34;, stderr)
+   353→      exit(1)
+   354→    }
+   355→    let sem = DispatchSemaphore(value: 0)
+   356→    var exitCode: Int32 = 0
+   357→    ws.setDefaultApplication(at: url, toOpenURLsWithScheme: &#34;http&#34;) { error in
+   358→      if let error = error { fputs(&#34;http: \(error)\n&#34;, stderr); exitCode = 1 }
+   359→      ws.setDefaultApplication(at: url, toOpenURLsWithScheme: &#34;https&#34;) { error in
+   360→        if let error = error { fputs(&#34;https: \(error)\n&#34;, stderr); exitCode = 1 }
+   361→        sem.signal()
+   362→      }
+   363→    }
+   364→    sem.wait()
+   365→    exit(exitCode)
+   366→SWIFT
+   367→
+   368→  # Clean up dialog handler
+   369→  kill &#34;$DIALOG_PID&#34; 2&gt;/dev/null
+   370→  wait &#34;$DIALOG_PID&#34; 2&gt;/dev/null
+   371→
+   372→  echo &#34;✅ Default browser set to Brave&#34;
+   373→else
+   374→  echo &#34;⚠️  Brave Browser not installed — skipping default browser&#34;
+   375→fi
+   376→
+   377→########### LOGIN ITEMS ################
+   378→
+   379→echo &#34;🔑 Configuring login items...&#34;
+   380→
+   381→LOGIN_APPS=(
+   382→  &#34;/Applications/Caffeine.app&#34;
+   383→  &#34;/Applications/noTunes.app&#34;
+   384→  &#34;/Applications/Magnet.app&#34;
+   385→  &#34;/Applications/Bluesnooze.app&#34;
+   386→  &#34;/Applications/Google Drive.app&#34;
+   387→  &#34;/Applications/Raycast.app&#34;
+   388→)
+   389→
+   390→# Get current login items
+   391→CURRENT_LOGIN_ITEMS=$(osascript -e &#39;tell application &#34;System Events&#34; to get the name of every login item&#39; 2&gt;/dev/null || echo &#34;&#34;)
+   392→
+   393→for app_path in &#34;${LOGIN_APPS[@]}&#34;; do
+   394→  app_name=$(basename &#34;$app_path&#34; .app)
+   395→
+   396→  if [ ! -d &#34;$app_path&#34; ]; then
+   397→    echo &#34;⚠️  $app_name not installed — skipping login item&#34;
+   398→    continue
+   399→  fi
+   400→
+   401→  if echo &#34;$CURRENT_LOGIN_ITEMS&#34; | grep -qi &#34;$app_name&#34;; then
+   402→    echo &#34;✅ $app_name already a login item&#34;
+   403→  else
+   404→    osascript -e &#34;tell application \&#34;System Events\&#34; to make login item at end with properties {path:\&#34;$app_path\&#34;, hidden:false}&#34; \
+   405→      || echo &#34;⚠️  Could not add $app_name as login item&#34;
+   406→    echo &#34;✅ Added $app_name as login item&#34;
+   407→  fi
+   408→done
+   409→
+   410→echo &#34;✅ Login items configured&#34;
+   411→
+   412→# Verify required dependencies are available
+   413→echo &#34;🔍 Verifying required dependencies...&#34;
+   414→for cmd in gh go git; do
+   415→  if ! command -v &#34;$cmd&#34; &amp;&gt;/dev/null; then
+   416→    echo &#34;❌ Required dependency &#39;$cmd&#39; not found. Ensure it was installed by Homebrew above.&#34;
+   417→    exit 1
+   418→  fi
+   419→done
+   420→echo &#34;✅ All required dependencies found.&#34;
+   421→
+   422→########### GIT CONFIGURATION SETUP ################
+   423→
+   424→if [ ! -f &#34;$HOME/.gitconfig&#34; ]; then
+   425→  echo &#34;⚙️  Setting up Git configuration...&#34;
+   426→  cat &gt; &#34;$HOME/.gitconfig&#34; &lt;&lt;EOF
+   427→[user]
+   428→	name = $GIT_NAME
+   429→	email = $GITHUB_EMAIL
+   430→
+   431→[core]
+   432→	sshCommand = ssh -i ~/.ssh/github
+   433→
+   434→; include for all repositories inside \$HOME/Repos/SPECIFIC_FOLDER/
+   435→[includeIf &#34;gitdir:~/Repos/SPECIFIC_FOLDER/&#34;]
+   436→	path = ~/.gc/specific_config_file
+   437→
+   438→; include for all repositories inside \$HOME/repos/another_specific_folder/
+   439→[includeIf &#34;gitdir:~/repos/another_specific_folder/&#34;]
+   440→	path = ~/.gc/another_conf_file
+   441→
+   442→[push]
+   443→	autoSetupRemote = true
+   444→
+   445→[pull]
+   446→	rebase = true
+   447→
+   448→[init]
+   449→	defaultBranch = main
+   450→
+   451→[pager]
+   452→	branch = false
+   453→	log = false
+   454→
+   455→[filter &#34;lfs&#34;]
+   456→	clean = git-lfs clean -- %f
+   457→	smudge = git-lfs smudge -- %f
+   458→	process = git-lfs filter-process
+   459→	required = true
+   460→EOF
+   461→  echo &#34;✅ Git configuration created&#34;
+   462→else
+   463→  echo &#34;✅ Git configuration already exists at ~/.gitconfig&#34;
+   464→fi
+   465→echo &#34;&#34;
+   466→
+   467→########### REPOSITORY SETUP ################
+   468→
+   469→# Create repos directory
+   470→if [ ! -d &#34;$HOME/repos&#34; ]; then
+   471→  echo &#34;📁 Creating ~/repos/ directory...&#34;
+   472→  mkdir -p &#34;$HOME/repos&#34;
+   473→  echo &#34;✅ ~/repos/ directory created&#34;
+   474→else
+   475→  echo &#34;✅ ~/repos/ directory already exists&#34;
+   476→fi
+   477→echo &#34;&#34;
+   478→
+   479→# Clone repositories
+   480→echo &#34;📦 Cloning repositories...&#34;
+   481→
+   482→REPOS_CLONED=0
+   483→REPOS_TOTAL=4
+   484→
+   485→clone_repo() {
+   486→  local org=$1
+   487→  local repo=$2
+   488→  local target=&#34;$HOME/repos/$repo&#34;
+   489→
+   490→  if [ -d &#34;$target/.git&#34; ]; then
+   491→    echo &#34;✅ $org/$repo already cloned&#34;
+   492→    REPOS_CLONED=$((REPOS_CLONED + 1))
+   493→  else
+   494→    echo &#34;Cloning $org/$repo...&#34;
+   495→    if git clone &#34;git@github.com:$org/$repo.git&#34; &#34;$target&#34; 2&gt;&amp;1; then
+   496→      echo &#34;✅ $org/$repo cloned successfully&#34;
+   497→      REPOS_CLONED=$((REPOS_CLONED + 1))
+   498→    else
+   499→      echo &#34;❌ Failed to clone $org/$repo&#34; &gt;&amp;2
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   500→    fi
+   501→  fi
+   502→}
+   503→
+   504→clone_repo &#34;troobit&#34; &#34;workscripts&#34;
+   505→clone_repo &#34;ArjenSchwarz&#34; &#34;rune&#34;
+   506→clone_repo &#34;ArjenSchwarz&#34; &#34;orbit&#34;
+   507→clone_repo &#34;ArjenSchwarz&#34; &#34;agentic-coding&#34;
+   508→
+   509→echo &#34;✅ Repository cloning complete ($REPOS_CLONED/$REPOS_TOTAL repositories available)&#34;
+   510→echo &#34;&#34;
+   511→
+   512→########### CLAUDE CODE SKILLS SYMLINK ################
+   513→
+   514→SYMLINK_SETUP=0
+   515→
+   516→if [ -d &#34;$HOME/repos/agentic-coding/claude/skills&#34; ]; then
+   517→  echo &#34;🔗 Setting up Claude Code skills symlink...&#34;
+   518→
+   519→  # Task 16: Create ~/.claude directory if it doesn&#39;t exist
+   520→  mkdir -p &#34;$HOME/.claude&#34;
+   521→
+   522→  TARGET=&#34;$HOME/repos/agentic-coding/claude/skills&#34;
+   523→  LINK=&#34;$HOME/.claude/skills&#34;
+   524→
+   525→  # Task 17: Check symlink existence and validate
+   526→  if [ -L &#34;$LINK&#34; ]; then
+   527→    CURRENT_TARGET=$(readlink &#34;$LINK&#34;)
+   528→    if [ &#34;$CURRENT_TARGET&#34; = &#34;$TARGET&#34; ]; then
+   529→      echo &#34;✅ Claude Code skills symlink already points to correct location&#34;
+   530→      SYMLINK_SETUP=1
+   531→    else
+   532→      echo &#34;⚠️  Warning: ~/.claude/skills points to $CURRENT_TARGET (expected $TARGET)&#34; &gt;&amp;2
+   533→    fi
+   534→  elif [ -e &#34;$LINK&#34; ]; then
+   535→    # Task 18: Something exists but is not a symlink - warn, don&#39;t overwrite
+   536→    echo &#34;⚠️  Warning: ~/.claude/skills exists but is not a symlink&#34; &gt;&amp;2
+   537→  else
+   538→    # Task 18: Create symlink
+   539→    if ln -s &#34;$TARGET&#34; &#34;$LINK&#34;; then
+   540→      echo &#34;✅ Claude Code skills symlink created&#34;
+   541→      SYMLINK_SETUP=1
+   542→    else
+   543→      echo &#34;❌ Failed to create Claude Code skills symlink&#34; &gt;&amp;2
+   544→    fi
+   545→  fi
+   546→else
+   547→  echo &#34;⚠️  Skipping Claude Code skills symlink - agentic-coding repository not available&#34; &gt;&amp;2
+   548→fi
+   549→echo &#34;&#34;
+   550→
+   551→########### GO TOOL INSTALLATION ################
+   552→
+   553→echo &#34;🔧 Installing Go tools...&#34;
+   554→
+   555→TOOLS_INSTALLED=0
+   556→TOOLS_TOTAL=2
+   557→
+   558→install_tool() {
+   559→  local repo_name=$1
+   560→  local repo_path=&#34;$HOME/repos/$repo_name&#34;
+   561→
+   562→  if [ ! -d &#34;$repo_path/.git&#34; ]; then
+   563→    echo &#34;⚠️  Skipping $repo_name - repository not available&#34; &gt;&amp;2
+   564→    return
+   565→  fi
+   566→
+   567→  echo &#34;Installing $repo_name...&#34;
+   568→  if (cd &#34;$repo_path&#34; &amp;&amp; [ -f &#34;Makefile&#34; ] &amp;&amp; make install 2&gt;&amp;1); then
+   569→    echo &#34;✅ $repo_name installed via make install&#34;
+   570→    TOOLS_INSTALLED=$((TOOLS_INSTALLED + 1))
+   571→  elif (cd &#34;$repo_path&#34; &amp;&amp; go install ./... 2&gt;&amp;1); then
+   572→    echo &#34;✅ $repo_name installed via go install&#34;
+   573→    TOOLS_INSTALLED=$((TOOLS_INSTALLED + 1))
+   574→  else
+   575→    echo &#34;❌ Failed to install $repo_name&#34; &gt;&amp;2
+   576→  fi
+   577→}
+   578→
+   579→install_tool &#34;rune&#34;
+   580→install_tool &#34;orbit&#34;
+   581→
+   582→echo &#34;✅ Tool installation complete ($TOOLS_INSTALLED/$TOOLS_TOTAL tools installed)&#34;
+   583→
+   584→# Verify PATH includes ~/go/bin
+   585→if [[ &#34;:$PATH:&#34; != *&#34;:$HOME/go/bin:&#34;* ]]; then
+   586→  echo &#34;⚠️  Warning: ~/go/bin not in PATH. Add to your shell config:&#34; &gt;&amp;2
+   587→  echo &#34;    export PATH=\&#34;\$HOME/go/bin:\$PATH\&#34;&#34; &gt;&amp;2
+   588→fi
+   589→
+   590→# Verify tools are accessible
+   591→for tool in rune orbit; do
+   592→  if command -v &#34;$tool&#34; &amp;&gt;/dev/null; then
+   593→    echo &#34;✅ $tool available: $(command -v &#34;$tool&#34;)&#34;
+   594→  else
+   595→    echo &#34;⚠️  $tool not found in PATH after installation&#34;
+   596→  fi
+   597→done
+   598→echo &#34;&#34;
+   599→
+   600→########### APP-LEVEL SETTINGS (STRETCH) ################
+   601→
+   602→# iTerm2 preferences import
+   603→SCRIPT_DIR=&#34;$(cd &#34;$(dirname &#34;$0&#34;)&#34; &amp;&amp; pwd)&#34;
+   604→ITERM_PLIST=&#34;$SCRIPT_DIR/iterm2-prefs.plist&#34;
+   605→if [ -f &#34;$ITERM_PLIST&#34; ] &amp;&amp; [ -d &#34;/Applications/iTerm.app&#34; ]; then
+   606→  echo &#34;Importing iTerm2 preferences...&#34;
+   607→  defaults import com.googlecode.iterm2 &#34;$ITERM_PLIST&#34; \
+   608→    || echo &#34;Could not import iTerm2 preferences&#34;
+   609→  echo &#34;iTerm2 preferences imported&#34;
+   610→else
+   611→  if [ ! -d &#34;/Applications/iTerm.app&#34; ]; then
+   612→    echo &#34;iTerm2 not installed — skipping preferences import&#34;
+   613→  elif [ ! -f &#34;$ITERM_PLIST&#34; ]; then
+   614→    echo &#34;iterm2-prefs.plist not found — skipping preferences import&#34;
+   615→  fi
+   616→fi
+   617→
+   618→########### SUMMARY ################
+   619→
+   620→# Kill sudo keep-alive — no longer needed
+   621→kill &#34;$SUDO_KEEPALIVE_PID&#34; 2&gt;/dev/null || true
+   622→
+   623→echo &#34;&#34;
+   624→echo &#34;=== Setup Summary ===&#34;
+   625→echo &#34;Repositories: $REPOS_CLONED/$REPOS_TOTAL available&#34;
+   626→echo &#34;Go tools:     $TOOLS_INSTALLED/$TOOLS_TOTAL installed&#34;
+   627→echo &#34;&#34;
+   628→
+   629→if [ &#34;$REPOS_CLONED&#34; -gt 0 ] || [ &#34;$TOOLS_INSTALLED&#34; -gt 0 ] || [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   630→  if [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   631→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories, symlink, and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   632→  else
+   633→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   634→  fi
+   635→else
+   636→  echo &#34;⚠️  Setup completed with issues. Check ~/SETUP.log for details.&#34;
+   637→fi
+   638→
+   639→echo &#34;Restart your terminal to apply all changes.&#34;
+   640→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Now I have a good understanding of the script. Let me add the tasks to a TodoWrite list and then implement them.</p>
+<p>Tasks to implement:</p>
+<ol>
+<li>
+<p>Task 4: Audit non-standard package names for Homebrew validity</p>
+<ul>
+<li>Verify: logi-options+, gcloud-cli, lychee, anydesk</li>
+<li>Remove or replace invalid ones</li>
+<li>Update packages_formulae and packages_casks arrays (lines 6-27)</li>
+</ul>
+</li>
+<li>
+<p>Task 5: Implement install_packages resilient helper function</p>
+<ul>
+<li>Add before BREW PACKAGE INSTALL section</li>
+<li>Create a function that takes a flag and package names, attempts a batch install first, then retries failed packages individually</li>
+<li>Track any packages that still fail in a global FAILED_PACKAGES array, following the same pattern as the existing clone_repo helper</li>
+</ul>
+</li>
+<li>
+<p>Task 6: Replace direct brew install calls with install_packages helper</p>
+<ul>
+<li>Swap out the brew install commands with calls to the new helper function, passing the appropriate flag and package arrays</li>
+<li>Remove the fallback error handling since the helper will manage failures</li>
+</ul>
+</li>
+<li>
+<p>Task 7: Add FAILED_PACKAGES summary to Summary section</p>
+<ul>
+<li>Set up the FAILED_PACKAGES array at the start of the unattended phase alongside the other tracking arrays</li>
+<li>Display any failed packages in the summary with instructions to diagnose using brew info and re-run</li>
+</ul>
+</li>
+</ol>
+<p>Now I'm verifying the actual Homebrew package names for the audit task—checking whether logi-options+, gcloud-cli, lychee, and anydesk are the correct cask or formula names.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible error" open>
+                    <summary><span class="icon">❌</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 ToolSearch</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Input:</strong>
+                            <pre><code>{
+  &#34;max_results&#34;: 1,
+  &#34;query&#34;: &#34;select:TodoWrite&#34;
+}</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>[{&#34;tool_name&#34;:&#34;TodoWrite&#34;,&#34;type&#34;:&#34;tool_reference&#34;}]</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Now let me set up the todo list and start working on the tasks.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[-] Audit non-standard package names for Homebrew validity</li>
+                                <li>[ ] Implement install_packages resilient helper function</li>
+                                <li>[ ] Replace direct brew install calls with install_packages helper</li>
+                                <li>[ ] Add FAILED_PACKAGES summary to Summary section</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Check Homebrew validity of logi-options+, gcloud-cli, lychee, anydesk</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>brew info --cask logi-options+ 2&gt;&amp;1 | head -5; echo &#34;---&#34;; brew info --cask gcloud-cli 2&gt;&amp;1 | head -5; echo &#34;---&#34;; brew info --formula lychee 2&gt;&amp;1 | head -5; echo &#34;---&#34;; brew info --cask lychee 2&gt;&amp;1 | head -5; echo &#34;---&#34;; brew info --cask anydesk 2&gt;&amp;1 | head -5</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>==&gt; logi-options+: 2.0.848900 (auto_updates)
+https://www.logitech.com/en-us/software/logi-options-plus.html
+Installed
+/usr/local/Caskroom/logi-options+/2.0.848900 (47.7MB)
+  Installed using the formulae.brew.sh API on 2026-01-08 at 21:56:19
+---
+==&gt; gcloud-cli: 561.0.0 (auto_updates)
+https://cloud.google.com/cli/
+Installed
+/usr/local/Caskroom/gcloud-cli/561.0.0 (375.8MB)
+  Installed on 2025-12-11 at 00:04:18
+---
+==&gt; lychee: stable 0.23.0 (bottled), HEAD
+Fast, async, resource-friendly link checker
+https://lychee.cli.rs/
+Installed
+/usr/local/Cellar/lychee/0.23.0 (9 files, 23.4MB) *
+---
+Error: Cask &#39;lychee&#39; is unavailable: No Cask with this name exists.
+---
+==&gt; anydesk: 9.6.4
+https://anydesk.com/
+Installed
+/usr/local/Caskroom/anydesk/9.6.4 (65.7MB)
+  Installed using the formulae.brew.sh API on 2026-01-22 at 18:36:49</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>All four package names are valid:</p>
+<ul>
+<li><code>logi-options+</code> - Valid cask ✅</li>
+<li><code>gcloud-cli</code> - Valid cask ✅</li>
+<li><code>lychee</code> - Valid formula (not cask) ✅ - it's already in packages_formulae</li>
+<li><code>anydesk</code> - Valid cask ✅</li>
+</ul>
+<p>Now let me check the current script to confirm lychee is in the formulae array (it is, line 14). All four are valid. No changes needed to the package arrays.</p>
+<p>Now I can mark task 4 as complete and move to task 5.</p>
+<p>Now I'm implementing the install_packages helper function that will go before the BREW PACKAGE INSTALL section. It needs to accept a flag (--formula or --cask) and package names, attempt a batch install first, then retry failed packages individually while tracking them in the FAILED_PACKAGES array, following the same pattern as the clone_repo helper.</p>
+<p>Writing the helper function... to be initialized before the brew install calls at lines 154-160. So I'll place FAILED_PACKAGES=() right at line 123 where the unattended phase begins, then use it in the install_packages helper and reference it in the summary section around line 624. I need to initialize FAILED_PACKAGES=() right before the install_packages helper function definition, which should align with how REPOS_CLONED and TOOLS_INSTALLED are positioned in the script. Still writing the install function... I'm finishing up the summary section by adding a check for failed packages — if any installations failed, I'll display them in the output alongside the success message, and remind users to restart their terminal to apply all changes.</p>
+<p>Now I'm thinking through how to handle the <code>set -e</code> behavior in the install_packages helper. Since <code>set -e</code> is enabled at the top of the script, I need to be careful that failed brew install commands don't cause the entire script to exit prematurely. Using an <code>if</code> construct around the brew install calls is the right approach — it lets me catch failures gracefully without triggering the exit-on-error behavior, similar to how the clone_repo function already handles git clone failures.</p>
+<p>I'm also considering that brew is idempotent, so if the batch install partially succeeds and then I retry individual packages, the already-installed ones will just return a success status with a warning message, which is fine.</p>
+<p>For the FAILED_PACKAGES array initialization, I need to set it up at the start of the unattended phase alongside the other tracking arrays, probably in the brew package install section right before defining the helper function.</p>
+<p>In the summary section, I'll add the failed packages output after the existing conditions that check for repos cloned, tools installed, and symlink setup, keeping the formatting consistent with what's already there.</p>
+<p>Now I'm ready to make these edits.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>All four package names are valid. <code>lychee</code> is already correctly placed in <code>packages_formulae</code>. No changes needed to the package arrays.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark task 4 as complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete specs/new-mac-idempotency/tasks.md 4</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 4: Audit non-standard package names for Homebrew validity</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Audit non-standard package names for Homebrew validity</li>
+                                <li>[-] Implement install_packages resilient helper function</li>
+                                <li>[ ] Replace direct brew install calls with install_packages helper</li>
+                                <li>[ ] Add FAILED_PACKAGES summary to Summary section</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Now implementing tasks 5, 6, and 7 together since they're tightly coupled. I'll replace the BREW PACKAGE INSTALL section:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> ########### BREW PACKAGE INSTALL ################</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line addition">+FAILED_PACKAGES=()</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+install_packages() {</span>
+                            <span class="patch-line addition">+  local flag=$1</span>
+                            <span class="patch-line addition">+  shift</span>
+                            <span class="patch-line addition">+  local pkgs=(&#34;$@&#34;)</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+  echo &#34;Attempting batch install (${flag})...&#34;</span>
+                            <span class="patch-line addition">+  if brew install &#34;$flag&#34; &#34;${pkgs[@]}&#34;; then</span>
+                            <span class="patch-line addition">+    return 0</span>
+                            <span class="patch-line addition">+  fi</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+  echo &#34;⚠️  Batch install failed — retrying packages individually...&#34;</span>
+                            <span class="patch-line addition">+  for pkg in &#34;${pkgs[@]}&#34;; do</span>
+                            <span class="patch-line addition">+    if brew install &#34;$flag&#34; &#34;$pkg&#34;; then</span>
+                            <span class="patch-line addition">+      echo &#34;✅ $pkg installed&#34;</span>
+                            <span class="patch-line addition">+    else</span>
+                            <span class="patch-line addition">+      echo &#34;❌ Failed to install: $pkg&#34;</span>
+                            <span class="patch-line addition">+      FAILED_PACKAGES+=(&#34;$pkg&#34;)</span>
+                            <span class="patch-line addition">+    fi</span>
+                            <span class="patch-line addition">+  done</span>
+                            <span class="patch-line addition">+}</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line context"> echo &#34;Installing brew formulae...&#34;</span>
+                            <span class="patch-line deletion">-brew install --formula &#34;${packages_formulae[@]}&#34; || echo &#34;⚠️  Could not install some formulae — check names above and re-run.&#34;</span>
+                            <span class="patch-line addition">+install_packages --formula &#34;${packages_formulae[@]}&#34;</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> echo &#34;Installing brew casks...&#34;</span>
+                            <span class="patch-line deletion">-brew install --cask &#34;${packages_casks[@]}&#34; || echo &#34;⚠️  Could not install some casks — check names above and re-run.&#34;</span>
+                            <span class="patch-line addition">+install_packages --cask &#34;${packages_casks[@]}&#34;</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> ########### MAC APP STORE ################</span>
+                            <span class="patch-line context"> </span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Now add the FAILED_PACKAGES summary to the Summary section:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> echo &#34;=== Setup Summary ===&#34;</span>
+                            <span class="patch-line context"> echo &#34;Repositories: $REPOS_CLONED/$REPOS_TOTAL available&#34;</span>
+                            <span class="patch-line context"> echo &#34;Go tools:     $TOOLS_INSTALLED/$TOOLS_TOTAL installed&#34;</span>
+                            <span class="patch-line addition">+if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then</span>
+                            <span class="patch-line addition">+  echo &#34;Failed pkgs:  ${FAILED_PACKAGES[*]}&#34;</span>
+                            <span class="patch-line addition">+fi</span>
+                            <span class="patch-line context"> echo &#34;&#34;</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> if [ &#34;$REPOS_CLONED&#34; -gt 0 ] || [ &#34;$TOOLS_INSTALLED&#34; -gt 0 ] || [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Now add the actionable note for failed packages after the existing completion message:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context">   echo &#34;⚠️  Setup completed with issues. Check ~/SETUP.log for details.&#34;</span>
+                            <span class="patch-line context"> fi</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line addition">+if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then</span>
+                            <span class="patch-line addition">+  echo &#34;&#34;</span>
+                            <span class="patch-line addition">+  echo &#34;⚠️  The following packages failed to install:&#34;</span>
+                            <span class="patch-line addition">+  for pkg in &#34;${FAILED_PACKAGES[@]}&#34;; do</span>
+                            <span class="patch-line addition">+    echo &#34;    - $pkg  (run: brew info $pkg)&#34;</span>
+                            <span class="patch-line addition">+  done</span>
+                            <span class="patch-line addition">+  echo &#34;Fix any invalid names in the PACKAGE CONFIGURATION block and re-run the script.&#34;</span>
+                            <span class="patch-line addition">+fi</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line context"> echo &#34;Restart your terminal to apply all changes.&#34;</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Let me verify the changes look correct:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   154→########### BREW PACKAGE INSTALL ################
+   155→
+   156→FAILED_PACKAGES=()
+   157→
+   158→install_packages() {
+   159→  local flag=$1
+   160→  shift
+   161→  local pkgs=(&#34;$@&#34;)
+   162→
+   163→  echo &#34;Attempting batch install (${flag})...&#34;
+   164→  if brew install &#34;$flag&#34; &#34;${pkgs[@]}&#34;; then
+   165→    return 0
+   166→  fi
+   167→
+   168→  echo &#34;⚠️  Batch install failed — retrying packages individually...&#34;
+   169→  for pkg in &#34;${pkgs[@]}&#34;; do
+   170→    if brew install &#34;$flag&#34; &#34;$pkg&#34;; then
+   171→      echo &#34;✅ $pkg installed&#34;
+   172→    else
+   173→      echo &#34;❌ Failed to install: $pkg&#34;
+   174→      FAILED_PACKAGES+=(&#34;$pkg&#34;)
+   175→    fi
+   176→  done
+   177→}
+   178→
+   179→echo &#34;Installing brew formulae...&#34;
+   180→install_packages --formula &#34;${packages_formulae[@]}&#34;
+   181→
+   182→echo &#34;Installing brew casks...&#34;
+   183→install_packages --cask &#34;${packages_casks[@]}&#34;
+   184→
+   185→########### MAC APP STORE ################
+   186→
+   187→if command -v mas &amp;&gt;/dev/null; then
+   188→  echo &#34;📦 Installing Mac App Store apps...&#34;
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   630→  defaults import com.googlecode.iterm2 &#34;$ITERM_PLIST&#34; \
+   631→    || echo &#34;Could not import iTerm2 preferences&#34;
+   632→  echo &#34;iTerm2 preferences imported&#34;
+   633→else
+   634→  if [ ! -d &#34;/Applications/iTerm.app&#34; ]; then
+   635→    echo &#34;iTerm2 not installed — skipping preferences import&#34;
+   636→  elif [ ! -f &#34;$ITERM_PLIST&#34; ]; then
+   637→    echo &#34;iterm2-prefs.plist not found — skipping preferences import&#34;
+   638→  fi
+   639→fi
+   640→
+   641→########### SUMMARY ################
+   642→
+   643→# Kill sudo keep-alive — no longer needed
+   644→kill &#34;$SUDO_KEEPALIVE_PID&#34; 2&gt;/dev/null || true
+   645→
+   646→echo &#34;&#34;
+   647→echo &#34;=== Setup Summary ===&#34;
+   648→echo &#34;Repositories: $REPOS_CLONED/$REPOS_TOTAL available&#34;
+   649→echo &#34;Go tools:     $TOOLS_INSTALLED/$TOOLS_TOTAL installed&#34;
+   650→if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then
+   651→  echo &#34;Failed pkgs:  ${FAILED_PACKAGES[*]}&#34;
+   652→fi
+   653→echo &#34;&#34;
+   654→
+   655→if [ &#34;$REPOS_CLONED&#34; -gt 0 ] || [ &#34;$TOOLS_INSTALLED&#34; -gt 0 ] || [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   656→  if [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   657→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories, symlink, and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   658→  else
+   659→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   658→  else
+   659→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   660→  fi
+   661→else
+   662→  echo &#34;⚠️  Setup completed with issues. Check ~/SETUP.log for details.&#34;
+   663→fi
+   664→
+   665→if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then
+   666→  echo &#34;&#34;
+   667→  echo &#34;⚠️  The following packages failed to install:&#34;
+   668→  for pkg in &#34;${FAILED_PACKAGES[@]}&#34;; do
+   669→    echo &#34;    - $pkg  (run: brew info $pkg)&#34;
+   670→  done
+   671→  echo &#34;Fix any invalid names in the PACKAGE CONFIGURATION block and re-run the script.&#34;
+   672→fi
+   673→
+   674→echo &#34;Restart your terminal to apply all changes.&#34;
+   675→
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>All changes look good. Now mark tasks 5, 6, and 7 complete:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark tasks 5, 6, 7 complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete specs/new-mac-idempotency/tasks.md 5 &amp;&amp; rune complete specs/new-mac-idempotency/tasks.md 6 &amp;&amp; rune complete specs/new-mac-idempotency/tasks.md 7</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 5: Implement install_packages resilient helper function
+Completed task 6: Replace direct brew install calls with install_packages helper
+Completed task 7: Add FAILED_PACKAGES summary to Summary section</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Audit non-standard package names for Homebrew validity</li>
+                                <li>[x] Implement install_packages resilient helper function</li>
+                                <li>[x] Replace direct brew install calls with install_packages helper</li>
+                                <li>[x] Add FAILED_PACKAGES summary to Summary section</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>All tasks done. Now running <code>/commit</code>:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">🔧</span> Skill: commit</summary>
+                    <div class="tool-content">
+                        <div class="markdown-content">
+<p>Base directory for this skill: /Users/ronan/.claude/skills/commit</p>
+<h1>Commits</h1>
+<ol>
+<li>Use the command line to get an overview of the staged git changes. If no changes are staged, stage all files.</li>
+<li>Determine if the changes include code files (not just documentation like .md files, comments, or config files). If code changes are present, run all formatting and test commands. If only documentation changes, skip tests and linting. If running the formatting resulted in unstaged changes to files, stage these as well. DO NOT revert code changes unless specifically asked to do so.</li>
+<li>Create a concise, well-documented summary of the changes in the format as defined at keepachangelog.com, excluding any changes to the changelog file itself. Use proper formatting and be specific about the changes. Ignore the marking of tasks as complete.</li>
+<li>Read the CHANGELOG.md file, if the file does not exist, create it.</li>
+<li>Verify if the summary is already present in the changelog, if not add it to the top of the file.</li>
+<li>Add the changelog to staged commits</li>
+<li>Verify the current git branch using the git command.</li>
+<li>Extract any ticket numbers from the branch, check for the below options based on what is likely.
+a. Extract the ticket number from the branch. The ticket number will be in the format ABC-123 and will be the combination of 1-5 letters or numbers, a -, and 1-5 numbers. This will be at the start of the branch name, possibly preceeded by something like feature/ or hotfix/.
+b. Check for a pure number, this would likely reflect a GitHub Issue.</li>
+<li>If a ticket number was found, use this as the commit message prefix, otherwise use [feat] / [bug] / [doc] as appropriate based on any prefixes in the branchname and/or the code changes</li>
+<li>Summarise the changes into a multi-line detailed commit message, prefixed with the commit message prefix and :. Do NOT include any co-authored-by information in the commit message.</li>
+<li>Commit the code</li>
+</ol>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Let me follow the commit skill steps.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Check staged changes and git status</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git diff --staged &amp;&amp; git status</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>On branch main
+Your branch is up to date with &#39;origin/main&#39;.
+
+Changes not staged for commit:
+  (use &#34;git add &lt;file&gt;...&#34; to update what will be committed)
+  (use &#34;git restore &lt;file&gt;...&#34; to discard changes in working directory)
+	modified:   macos/new-mac.sh
+
+Untracked files:
+  (use &#34;git add &lt;file&gt;...&#34; to include in what will be committed)
+	specs/new-mac-idempotency/
+
+no changes added to commit (use &#34;git add&#34; and/or &#34;git commit -a&#34;)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Stage changes and show diff</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git add macos/new-mac.sh specs/new-mac-idempotency/ &amp;&amp; git diff --staged</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>diff --git a/macos/new-mac.sh b/macos/new-mac.sh
+index 607cc05..90bccd0 100755
+--- a/macos/new-mac.sh
++++ b/macos/new-mac.sh
+@@ -3,6 +3,29 @@
+ # Exit immediately if a command exits with a non-zero status.
+ set -e
+ 
++########### PACKAGE CONFIGURATION ################
++# Edit this section before running to customise what gets installed.
++# Run `brew search &lt;name&gt;` to verify the correct Homebrew package name.
++# Formulae = CLI tools / libraries | Casks = GUI applications
++
++packages_formulae=(
++  &#34;bat&#34; &#34;fzf&#34; &#34;gh&#34; &#34;git&#34; &#34;go&#34; &#34;htop&#34; &#34;jq&#34; &#34;mas&#34; &#34;python&#34; &#34;rename&#34;
++  &#34;tmux&#34; &#34;tree&#34; &#34;wget&#34; &#34;yq&#34;
++  &#34;awscli&#34; &#34;azure-cli&#34; &#34;cloudflared&#34; &#34;lychee&#34; &#34;nvm&#34; &#34;opentofu&#34;
++  &#34;podman&#34; &#34;podman-compose&#34; &#34;uv&#34; &#34;ykman&#34;
++)
++
++packages_casks=(
++  &#34;anydesk&#34; &#34;audacity&#34; &#34;bitwarden&#34; &#34;bluesnooze&#34; &#34;brave-browser&#34;
++  &#34;caffeine&#34; &#34;claude-code&#34; &#34;dockutil&#34; &#34;dropbox&#34; &#34;firefox&#34;
++  &#34;gcloud-cli&#34; &#34;gimp&#34; &#34;github&#34; &#34;google-chrome&#34; &#34;google-drive&#34;
++  &#34;inkscape&#34; &#34;iterm2&#34; &#34;logi-options+&#34; &#34;nordvpn&#34; &#34;notunes&#34;
++  &#34;postman&#34; &#34;raycast&#34; &#34;spotify&#34; &#34;stremio&#34; &#34;transmission&#34;
++  &#34;visual-studio-code&#34; &#34;vlc&#34; &#34;whatsapp&#34; &#34;wireshark&#34; &#34;yubico-authenticator&#34;
++)
++
++########### END PACKAGE CONFIGURATION ################
++
+ echo &#34;🚀 Starting new Mac setup...&#34;
+ 
+ ########### INTERACTIVE PHASE ################
+@@ -128,35 +151,36 @@ else
+ fi
+ 
+ 
+-########### BREW PACKAGE LIST ################
++########### BREW PACKAGE INSTALL ################
+ 
+-default_packages=(
+-  # Formulae
+-  &#34;bat&#34; &#34;fzf&#34; &#34;gh&#34; &#34;git&#34; &#34;htop&#34; &#34;jq&#34; &#34;rename&#34; &#34;tmux&#34; &#34;tree&#34; &#34;wget&#34; &#34;yq&#34; &#34;go&#34;
+-  # Casks
+-  &#34;bluesnooze&#34; &#34;brave-browser&#34; &#34;caffeine&#34; &#34;claude-code&#34; &#34;dockutil&#34; &#34;firefox&#34;
+-  &#34;gimp&#34; &#34;google-chrome&#34; &#34;iterm2&#34; &#34;nordvpn&#34; &#34;notunes&#34; &#34;raycast&#34;
+-  &#34;visual-studio-code&#34; &#34;whatsapp&#34;
+-)
++FAILED_PACKAGES=()
+ 
+-work_packages=(&#34;slack&#34; &#34;microsoft-teams&#34; &#34;terraform&#34;)
++install_packages() {
++  local flag=$1
++  shift
++  local pkgs=(&#34;$@&#34;)
+ 
+-home_packages=(
+-  # Formulae
+-  &#34;awscli&#34; &#34;azure-cli&#34; &#34;cloudflared&#34; &#34;lychee&#34; &#34;mas&#34; &#34;nvm&#34; &#34;opentofu&#34;
+-  &#34;podman&#34; &#34;podman-compose&#34; &#34;uv&#34; &#34;ykman&#34;
+-  # Casks
+-  &#34;anydesk&#34; &#34;audacity&#34; &#34;bitwarden&#34; &#34;codelayer&#34; &#34;dropbox&#34; &#34;gcloud-cli&#34;
+-  &#34;github&#34; &#34;google-drive&#34; &#34;inkscape&#34; &#34;logi-options+&#34; &#34;postman&#34; &#34;spotify&#34;
+-  &#34;stremio&#34; &#34;tailscale-app&#34; &#34;transmission&#34; &#34;vlc&#34; &#34;wireshark&#34;
+-  &#34;yubico-authenticator&#34;
+-)
++  echo &#34;Attempting batch install (${flag})...&#34;
++  if brew install &#34;$flag&#34; &#34;${pkgs[@]}&#34;; then
++    return 0
++  fi
++
++  echo &#34;⚠️  Batch install failed — retrying packages individually...&#34;
++  for pkg in &#34;${pkgs[@]}&#34;; do
++    if brew install &#34;$flag&#34; &#34;$pkg&#34;; then
++      echo &#34;✅ $pkg installed&#34;
++    else
++      echo &#34;❌ Failed to install: $pkg&#34;
++      FAILED_PACKAGES+=(&#34;$pkg&#34;)
++    fi
++  done
++}
+ 
+-# Combine default + home (work_packages only when explicitly selected)
+-all_packages=(&#34;${default_packages[@]}&#34; &#34;${home_packages[@]}&#34;)
++echo &#34;Installing brew formulae...&#34;
++install_packages --formula &#34;${packages_formulae[@]}&#34;
+ 
+-echo &#34;Installing brew packages...&#34;
+-brew install &#34;${all_packages[@]}&#34; || echo &#34;Could not install some packages. They might already be installed or are not available.&#34;
++echo &#34;Installing brew casks...&#34;
++install_packages --cask &#34;${packages_casks[@]}&#34;
+ 
+ ########### MAC APP STORE ################
+ 
+@@ -203,6 +227,15 @@ else
+   echo &#34;✅ aliases.zsh already sourced in .zshrc&#34;
+ fi
+ 
++# Ensure Homebrew Python takes precedence over macOS system Python
++if ! grep -q &#34;brew --prefix python&#34; &#34;$HOME/.zshrc&#34; 2&gt;/dev/null; then
++  echo &#39;# Prefer Homebrew Python over system Python&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
++  echo &#39;export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
++  echo &#34;✅ Added Homebrew Python PATH preference to .zshrc&#34;
++else
++  echo &#34;✅ Homebrew Python PATH already in .zshrc&#34;
++fi
++
+ ########### SYSTEM PREFERENCES ################
+ 
+ echo &#34;⚙️  Configuring system preferences...&#34;
+@@ -614,6 +647,9 @@ echo &#34;&#34;
+ echo &#34;=== Setup Summary ===&#34;
+ echo &#34;Repositories: $REPOS_CLONED/$REPOS_TOTAL available&#34;
+ echo &#34;Go tools:     $TOOLS_INSTALLED/$TOOLS_TOTAL installed&#34;
++if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then
++  echo &#34;Failed pkgs:  ${FAILED_PACKAGES[*]}&#34;
++fi
+ echo &#34;&#34;
+ 
+ if [ &#34;$REPOS_CLONED&#34; -gt 0 ] || [ &#34;$TOOLS_INSTALLED&#34; -gt 0 ] || [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+@@ -626,4 +662,13 @@ else
+   echo &#34;⚠️  Setup completed with issues. Check ~/SETUP.log for details.&#34;
+ fi
+ 
++if [ &#34;${#FAILED_PACKAGES[@]}&#34; -gt 0 ]; then
++  echo &#34;&#34;
++  echo &#34;⚠️  The following packages failed to install:&#34;
++  for pkg in &#34;${FAILED_PACKAGES[@]}&#34;; do
++    echo &#34;    - $pkg  (run: brew info $pkg)&#34;
++  done
++  echo &#34;Fix any invalid names in the PACKAGE CONFIGURATION block and re-run the script.&#34;
++fi
++
+ echo &#34;Restart your terminal to apply all changes.&#34;
+diff --git a/specs/new-mac-idempotency/.orbit/summary.json b/specs/new-mac-idempotency/.orbit/summary.json
+new file mode 100644
+index 0000000..a69dbc6
+--- /dev/null
++++ b/specs/new-mac-idempotency/.orbit/summary.json
+@@ -0,0 +1,15 @@
++{
++  &#34;started_at&#34;: &#34;2026-03-24T16:31:08.861251+11:00&#34;,
++  &#34;status&#34;: &#34;running&#34;,
++  &#34;phases_completed&#34;: 0,
++  &#34;total_cost_usd&#34;: 0,
++  &#34;total_duration_ms&#34;: 0,
++  &#34;sessions&#34;: [],
++  &#34;current_phase&#34;: {
++    &#34;phase&#34;: 2,
++    &#34;session_id&#34;: &#34;d8332a50-dbd7-4949-a3f8-9967f4ff68e6&#34;,
++    &#34;started_at&#34;: &#34;2026-03-24T16:31:09.120042+11:00&#34;
++  },
++  &#34;run_number&#34;: 1,
++  &#34;branch_name&#34;: &#34;main&#34;
++}
+\ No newline at end of file
+diff --git a/specs/new-mac-idempotency/smolspec.md b/specs/new-mac-idempotency/smolspec.md
+new file mode 100644
+index 0000000..8ab8bcd
+--- /dev/null
++++ b/specs/new-mac-idempotency/smolspec.md
+@@ -0,0 +1,51 @@
++# new-mac.sh Idempotency
++
++## Overview
++`new-mac.sh` failed on first run because `codelayer` is not a valid Homebrew package. Since `brew install` resolves all packages before installing any, the invalid name caused the **entire package batch to fail**, leaving nothing installed. The script continued past this silent failure, skipping all dependent sections (Dock, default browser, login items, Go tools), and eventually exited when `go` was not found. This spec fixes the immediate cause, restructures the package list for maintainability, and makes the install resilient so a single bad package does not block all others.
++
++## Requirements
++- The system MUST define all packages in a single, clearly labelled `PACKAGE CONFIGURATION` block at the top of the script (before the interactive phase), so technical users can edit the list before running
++- The system MUST separate packages into `packages_formulae` and `packages_casks` arrays (no home/work/default distinction) and install each with the appropriate flag (`brew install --formula` / `brew install --cask`)
++- The system MUST remove `codelayer` (not a valid Homebrew package) and `tailscale-app` (invalid name) from the package list
++- The system MUST include `python` (latest Homebrew version) in `packages_formulae`
++- The system MUST ensure `python3` resolves to the Homebrew-installed version rather than the macOS system Python, by appending `export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;` to `~/.zshrc` (idempotent — only added once)
++- The system MUST install formulae and casks as separate `brew install` calls so a cask failure cannot abort formula installation and vice versa
++- The system MUST be safely re-runnable: re-running after a partial failure MUST retry any packages not yet installed without re-executing already-completed sections
++- The system SHOULD report a clear, actionable warning when any package group fails to install, identifying which group failed and prompting the user to check names before re-running
++
++## Implementation Approach
++**File to modify:** `/Users/ronan/repos/workscripts/macos/new-mac.sh`
++
++**Changes already applied:**
++1. **Package configuration block** moved to top of script (after `set -e`, before interactive phase) as `packages_formulae` and `packages_casks` arrays
++2. **Removed** `codelayer` and `tailscale-app`; **added** `python` to `packages_formulae`; merged `mas` into main formulae list
++3. **Replaced** single `brew install &#34;${all_packages[@]}&#34; || echo ...` with two typed calls:
++   - `brew install --formula &#34;${packages_formulae[@]}&#34; || echo &#34;⚠️ ...&#34;`
++   - `brew install --cask &#34;${packages_casks[@]}&#34; || echo &#34;⚠️ ...&#34;`
++4. **Added python3 PATH** — appends `export PATH=&#34;$(brew --prefix python)/bin:$PATH&#34;` to `~/.zshrc` with idempotency guard in the shell configuration section
++
++**Remaining implementation work (tasks):**
++5. **Resilient install helper** — current `|| echo` still silently continues on failure; replace with batch-then-individual retry: attempt full group first for speed, fall back to per-package on failure, collect `FAILED_PACKAGES` array
++6. **Failure summary** — extend Summary section to print `FAILED_PACKAGES` if non-empty
++7. **Audit remaining non-standard package names** — verify `logi-options+`, `gcloud-cli`, `lychee`, `anydesk`, etc. are valid Homebrew names
++
++**Existing patterns leveraged:**
++- `REPOS_CLONED` / `TOOLS_INSTALLED` counters → extend with `FAILED_PACKAGES` array
++- `clone_repo` helper error-capture pattern → same approach for `install_packages` helper
++- Existing `command -v dockutil` / `[ -d &#34;/Applications/Brave Browser.app&#34; ]` guards — already idempotent, no change needed
++
++**Dependencies:** No new dependencies.
++
++**Out of Scope:**
++- Switching to Brewfile / `brew bundle`
++- Changes to `verify-setup.sh`
++- Persistent checkpoint files to skip completed sections
++- Adding a `--unattended` flag to skip the interactive phase
++
++## Risks and Assumptions
++- Risk: Other package names in the list may also be invalid | Mitigation: implementer audits all non-standard names (`logi-options+`, `gcloud-cli`, `lychee`, `anydesk`) with `brew search` before finalising
++- Risk: `brew install --formula` will reject cask names placed in the formulae array | Mitigation: arrays are now strictly typed; implementer must not mix types
++- Risk: `$(brew --prefix python)` in `.zshrc` evaluates to a path that changes if Python major version is upgraded by Homebrew | Mitigation: `brew --prefix python` resolves the current installed version&#39;s prefix; acceptable for personal setup scripts
++- Assumption: Re-runs start from the top of the script; existing section guards handle idempotency for all sections except the package install (which `brew install` handles natively)
++- Assumption: All other package names are valid — the two confirmed-invalid ones (`codelayer`, `tailscale-app`) have been removed
++- Prerequisite: Homebrew must be installed and in PATH before package arrays are used (enforced by lines 20-31 of interactive phase)
+diff --git a/specs/new-mac-idempotency/tasks.md b/specs/new-mac-idempotency/tasks.md
+new file mode 100644
+index 0000000..dc5316d
+--- /dev/null
++++ b/specs/new-mac-idempotency/tasks.md
+@@ -0,0 +1,57 @@
++---
++references:
++    - specs/new-mac-idempotency/smolspec.md
++---
++# new-mac.sh Idempotency Tasks
++
++## Completed
++
++- [x] 1. Remove invalid packages and restructure package configuration &lt;!-- id:krasqml --&gt;
++  - Removed codelayer (invalid Homebrew package) and tailscale-app (invalid cask name)
++  - Added python to packages_formulae; moved mas from home_packages into packages_formulae
++  - Merged default_packages and home_packages into two typed arrays: packages_formulae and packages_casks
++  - Placed single PACKAGE CONFIGURATION block at top of script (lines 6-27), before interactive phase
++  - Stream: 1
++
++- [x] 2. Separate brew install into typed --formula and --cask calls &lt;!-- id:krasqmm --&gt;
++  - Replaced single brew install with two calls: brew install --formula for packages_formulae and brew install --cask for packages_casks
++  - Each call has its own warning message identifying which group failed
++  - Prevents a cask failure from aborting formula installation and vice versa
++  - Stream: 1
++
++- [x] 3. Add python3 Homebrew PATH preference to .zshrc &lt;!-- id:krasqmn --&gt;
++  - Added idempotent guard: checks if brew --prefix python already in .zshrc before appending
++  - Appends export PATH=$(brew --prefix python)/bin:$PATH to ensure Homebrew python3 takes precedence over macOS system Python
++  - Stream: 1
++
++## Implementation
++
++- [x] 4. Audit non-standard package names for Homebrew validity &lt;!-- id:krasqmo --&gt;
++  - Run brew info --cask or brew info --formula for: logi-options+, gcloud-cli, lychee, anydesk
++  - Remove or replace any that are not valid Homebrew names
++  - Update packages_formulae and packages_casks arrays in the PACKAGE CONFIGURATION block (lines 6-27 of new-mac.sh)
++  - Stream: 1
++
++- [x] 5. Implement install_packages resilient helper function &lt;!-- id:krasqmp --&gt;
++  - Add install_packages() bash function before the BREW PACKAGE INSTALL section
++  - Signature: install_packages &lt;flag&gt; &lt;pkg...&gt; where flag is --formula or --cask
++  - Attempt batch install first for speed; on failure retry each package individually
++  - Append failed package names to global FAILED_PACKAGES array
++  - Pattern mirrors clone_repo helper (lines 475-492 of new-mac.sh)
++  - Blocked-by: krasqmo (Audit non-standard package names for Homebrew validity)
++  - Stream: 1
++
++- [x] 6. Replace direct brew install calls with install_packages helper &lt;!-- id:krasqmq --&gt;
++  - Replace brew install --formula ... || echo with: install_packages --formula &#34;${packages_formulae[@]}&#34;
++  - Replace brew install --cask ... || echo with: install_packages --cask &#34;${packages_casks[@]}&#34;
++  - Remove the now-redundant || echo fallbacks — the helper handles per-package errors internally
++  - Blocked-by: krasqmp (Implement install_packages resilient helper function)
++  - Stream: 1
++
++- [x] 7. Add FAILED_PACKAGES summary to Summary section &lt;!-- id:krasqmr --&gt;
++  - Initialise FAILED_PACKAGES=() array at start of unattended phase alongside REPOS_CLONED and TOOLS_INSTALLED
++  - In the Summary section, print list of failed package names if non-empty
++  - Include a note to run brew info &lt;name&gt; to diagnose and re-run the script
++  - Format consistently with existing REPOS_CLONED/TOOLS_INSTALLED summary output
++  - Blocked-by: krasqmp (Implement install_packages resilient helper function)
++  - Stream: 1</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>The diff shows changes to <code>macos/new-mac.sh</code> - these are code changes. I should check if there are any tests or formatting commands to run. This is a bash script, so I can check if there's a shellcheck or similar.</p>
+<p>Actually, looking at the repository, it seems like there might not be any formal test setup. Let me check for any Makefile or test configuration.</p>
+<p>Actually wait - looking at the diff more carefully, the staged diff shows a LOT of changes to <code>new-mac.sh</code> that seem to include changes that were already staged/committed (like the package configuration block).</p>
+<p>I'm wondering if the previous commits already had some of these changes, but since git status shows the file as modified and unstaged, I must have just staged it. Let me look for any formatting or test commands I should run.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>The changes include code (bash script). Let me check for any test or lint commands:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Check for test/lint configuration</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>ls Makefile 2&gt;/dev/null || true; which shellcheck 2&gt;/dev/null || true; cat .github/workflows/*.yml 2&gt;/dev/null | head -30 || true</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>shellcheck not found
+(eval):1: no matches found: .github/workflows/*.yml</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>No test tooling configured. Now read the CHANGELOG:</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>CHANGELOG.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# Changelog
+     2→
+     3→All notable changes to this project will be documented in this file.
+     4→
+     5→The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+     6→
+     7→## [Unreleased]
+     8→
+     9→### Added
+    10→- Added Verification section to `docs/new-mac-guide.md`: documents `bash macos/verify-setup.sh` command, lists all 9 check categories with descriptions, and explains pass/fail output format
+    11→- Added Customisation Points section to `docs/new-mac-guide.md`: 5-bullet guide to editing `default_packages`/`home_packages`, `work_packages`, `DOCK_NAMES`/`DOCK_PATHS`, `LOGIN_APPS`, and `clone_repo` calls with line references
+    12→- Added Troubleshooting section to `docs/new-mac-guide.md`: covers Homebrew PATH on Apple Silicon, `mas` requiring App Store sign-in, SSH key already exists, and `~/SETUP.log` for debugging
+    13→- Added Interactive Phase and Unattended Phase sections to `docs/new-mac-guide.md`: documents the two-phase script structure including all interactive prompts (GitHub noreply email, full name, SSH key, sudo), noreply email guidance with link, walk-away banner, and full list of unattended operations with `~/SETUP.log` reference
+    14→- Added Software Installed section to `docs/new-mac-guide.md`: complete inventory of all packages by category (default, home, work, Mac App Store) with descriptions for non-obvious tools (bluesnooze, noTunes, dockutil, lychee, cloudflared, ykman, codelayer, yubico-authenticator, uv, mas, raycast) and opt-in instructions for work_packages
+    15→- Added What Gets Configured summary table to `docs/new-mac-guide.md`: maps 13 categories (Dock, system preferences, power, browser, login items, shell, Git, Vim, repositories, Go tools, Claude Code, iTerm2, containers) to script actions and source file paths
+    16→- Added Post-Setup Manual Steps section to `docs/new-mac-guide.md`: checklist covering terminal restart, App Store sign-in, Magnet licensing, app logins (NordVPN, Bitwarden, Tailscale, Dropbox, Spotify, Google Drive), configuration syncs (VS Code Settings Sync, Raycast, Logi Options+), `.gitconfig` placeholder editing, and optional full Xcode installation
+    17→- Created `docs/new-mac-guide.md` with Quick Start (curl commands), Prerequisites (macOS 15+, Apple ID, internet), and Getting Started sections documenting the HTTPS bootstrap problem and SSH key generation flow
+    18→- Added `specs/mac-setup-guide/` smolspec and task list for the new Mac setup guide
+    19→
+    20→### Added
+    21→- Expanded `macos/verify-setup.sh` with comprehensive verification: Dock app checks for all 16 apps via `dockutil --find`, Dock preference checks (tilesize, magnification, largesize, autohide, show-recents), system preference checks (hot corner, accent color, Mission Control, Finder view), power management checks via `pmset -g custom` parsing, default browser check via LaunchServices plist, login items checks via `osascript` query, and expanded Homebrew package spot-checks (bat, fzf, tmux, mas, dockutil)
+    22→- Added iTerm2 preferences export (`macos/iterm2-prefs.plist`) and import section in `macos/new-mac.sh`: checks for plist file and iTerm2 installation, imports via `defaults import com.googlecode.iterm2` with `|| echo` guard
+    23→- Added D31 to `specs/mac-env-setup/decision_log.md` documenting app-level settings automation limitations (Magnet license verification, Raycast encryption, NordVPN/Bitwarden interactive login, VS Code Settings Sync)
+    24→
+    25→### Added
+    26→- Added system preferences section to `macos/new-mac.sh`: hot corner (bottom-right Quick Note), accent color (Pink), highlight color (Green), Mission Control settings (group by app, disable auto-rearrange spaces), Finder column view default, with `killall Finder || true` to apply changes
+    27→- Updated Dock configuration in `macos/new-mac.sh` from 4 apps to full 16-app layout with 2 spacer tiles using `SPACER` sentinel pattern in indexed arrays; added Downloads folder to persistent-others section; added Dock preferences (`tilesize 44`, `magnification true`, `largesize 128`, `autohide true`)
+    28→- Added power management section to `macos/new-mac.sh`: AC power never-sleep (`displaysleep 0`, `sleep 0`), battery conservative sleep (`displaysleep 10`, `sleep 1`) via `sudo pmset` with `|| echo` guards
+    29→- Added default browser section to `macos/new-mac.sh`: sets Brave Browser as default via Swift/NSWorkspace API (`setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https`), background AppleScript auto-dismisses CoreServicesUIAgent confirmation dialog, guarded by app existence check
+    30→- Added login items section to `macos/new-mac.sh`: defines 6 utility apps (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast), queries existing login items once via `osascript`, adds missing items with `[ -d ]` existence checks and `grep -qi` deduplication
+
+&lt;system-reminder&gt;
+Whenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.
+&lt;/system-reminder&gt;
+</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>CHANGELOG.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> ## [Unreleased]</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> ### Added</span>
+                            <span class="patch-line addition">+- Added `install_packages` resilient helper to `macos/new-mac.sh`: attempts batch install first for speed, falls back to per-package retry on failure, collects failed names in `FAILED_PACKAGES` array</span>
+                            <span class="patch-line addition">+- Added `FAILED_PACKAGES` summary to Setup Summary section in `macos/new-mac.sh`: lists failed package names with `brew info &lt;name&gt;` diagnostic hint and re-run instructions</span>
+                            <span class="patch-line addition">+- Added `specs/new-mac-idempotency/` smolspec and task list for the resilient package install feature</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Changed</span>
+                            <span class="patch-line addition">+- Replaced direct `brew install --formula ... || echo` and `brew install --cask ... || echo` calls in `macos/new-mac.sh` with `install_packages` helper that provides per-package retry and failure tracking</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Added</span>
+                            <span class="patch-line context"> - Added Verification section to `docs/new-mac-guide.md`: documents `bash macos/verify-setup.sh` command, lists all 9 check categories with descriptions, and explains pass/fail output format</span>
+                            <span class="patch-line context"> - Added Customisation Points section to `docs/new-mac-guide.md`: 5-bullet guide to editing `default_packages`/`home_packages`, `work_packages`, `DOCK_NAMES`/`DOCK_PATHS`, `LOGIN_APPS`, and `clone_repo` calls with line references</span>
+                            <span class="patch-line context"> - Added Troubleshooting section to `docs/new-mac-guide.md`: covers Homebrew PATH on Apple Silicon, `mas` requiring App Store sign-in, SSH key already exists, and `~/SETUP.log` for debugging</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Stage changelog and check current branch</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git add CHANGELOG.md &amp;&amp; git branch --show-current</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>main</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Branch is <code>main</code> — no ticket number. Changes are a feature addition, so prefix is <code>[feat]</code>.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Commit all staged changes</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git commit -m &#34;$(cat &lt;&lt;&#39;EOF&#39;
+[feat]: resilient brew package install with per-package retry and failure tracking
+
+- Add install_packages() helper to new-mac.sh: attempts batch brew install
+  for speed, falls back to individual retries on failure, collects names
+  in FAILED_PACKAGES array (mirrors clone_repo error-capture pattern)
+- Replace both brew install --formula and --cask calls with install_packages
+  helper, removing the now-redundant || echo fallbacks
+- Initialise FAILED_PACKAGES=() alongside the install section; extend
+  Summary to print failed names with brew info &lt;name&gt; diagnostic hint
+- Verify logi-options+, gcloud-cli, lychee, anydesk are all valid
+  Homebrew names (no removals needed)
+- Add specs/new-mac-idempotency/ smolspec and completed task list
+EOF
+)&#34;</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>[main cba5842] [feat]: resilient brew package install with per-package retry and failure tracking
+ 5 files changed, 200 insertions(+), 24 deletions(-)
+ create mode 100644 specs/new-mac-idempotency/.orbit/summary.json
+ create mode 100644 specs/new-mac-idempotency/smolspec.md
+ create mode 100644 specs/new-mac-idempotency/tasks.md</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>All done. Here's a summary of what was implemented:</p>
+<p><strong>Task 4</strong> — Audited <code>logi-options+</code>, <code>gcloud-cli</code>, <code>lychee</code>, <code>anydesk</code>: all valid Homebrew names, no changes needed.</p>
+<p><strong>Tasks 5 &amp; 6</strong> — Added <code>install_packages()</code> helper before the brew install block. It attempts a batch install first (fast path), then retries packages individually on failure, appending each failure to <code>FAILED_PACKAGES</code>. The two <code>brew install ... || echo</code> calls are replaced with <code>install_packages --formula</code> and <code>install_packages --cask</code>.</p>
+<p><strong>Task 7</strong> — Initialised <code>FAILED_PACKAGES=()</code> at the top of the install section. The Summary section now prints the failed package count inline, plus a detailed list at the end with per-package <code>brew info &lt;name&gt;</code> hints and a re-run instruction.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

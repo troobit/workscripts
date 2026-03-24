@@ -1,0 +1,23 @@
+Orbit Session Log - Phase 1
+========================================
+
+Session ID: 099c0a13-7097-4fed-8afb-2813a99ee102
+Started:    2026-03-24T15:17:25+11:00
+Ended:      2026-03-24T15:19:30+11:00
+Duration:   2m2.803s
+Cost:       $0.7851
+Turns:      33
+Error:      false
+
+Output:
+----------------------------------------
+Phase A complete and committed. Two tasks done:
+
+1. **Task 1** — Created `docs/` directory and `docs/new-mac-guide.md` with Quick Start (curl commands), Prerequisites (macOS 15+, Apple ID, internet), and Getting Started section header
+2. **Task 2** — Documented the HTTPS bootstrap problem (no SSH keys on a fresh Mac), provided the exact `curl` download commands, and explained that SSH key generation is the first interactive step after automated bootstrap
+
+Committed as `feee643` on branch `mac-setup-guide`.
+
+Stderr:
+----------------------------------------
+

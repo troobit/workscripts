@@ -1,0 +1,3361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2 Session Transcript</title>
+    <style>
+/* Transcript CSS - shared between standalone HTML and web interface */
+
+/* CSS Variables for theming */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-code: #f4f4f4;
+    --bg-user: #e7f1ff;
+    --bg-assistant: #f3e8ff;
+    --bg-thinking: #fff8e6;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --user-accent: #0d6efd;
+    --assistant-accent: #6f42c1;
+    --thinking-accent: #d97706;
+    --success-color: #198754;
+    --error-color: #dc3545;
+    --tool-accent: #fd7e14;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-code: #2d2d2d;
+        --bg-user: #1e3a5f;
+        --bg-assistant: #2d1f3d;
+        --bg-thinking: #3d2e1a;
+        --text-primary: #e9ecef;
+        --text-secondary: #adb5bd;
+        --border-color: #495057;
+    }
+}
+
+/* Message blocks */
+.message {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.message.user {
+    border-left-color: var(--user-accent);
+    background-color: var(--bg-user);
+}
+
+.message.assistant {
+    border-left-color: var(--assistant-accent);
+    background-color: var(--bg-assistant);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.message-header .icon {
+    font-size: 1.2rem;
+}
+
+.message-content {
+    word-wrap: break-word;
+}
+
+.message-content p {
+    margin: 0 0 0.5rem 0;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Thinking blocks */
+.thinking-block {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background-color: var(--bg-thinking);
+    border-left: 3px solid var(--thinking-accent);
+    border-radius: 4px;
+}
+
+.thinking-block .thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.thinking-block .thinking-content {
+    color: var(--text-primary);
+}
+
+/* Tool use blocks */
+.tool-use {
+    margin: 0.25rem 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.tool-use-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bg-code);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.tool-use-header .icon {
+    color: var(--tool-accent);
+}
+
+.tool-use-header code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    background-color: var(--bg-secondary);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+}
+
+.tool-input {
+    padding: 0.75rem;
+}
+
+.tool-input pre {
+    margin: 0;
+    overflow-x: auto;
+}
+
+.tool-input code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Tool result blocks */
+.tool-result {
+    margin: 0.25rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.tool-result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.tool-result-header.success {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: var(--success-color);
+}
+
+.tool-result-header.error {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--error-color);
+}
+
+.tool-result-content {
+    padding: 0.75rem;
+    background-color: var(--bg-code);
+}
+
+.tool-result-content pre {
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.tool-result-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.truncated {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Collapsible tool details */
+details.tool-collapsible {
+    margin: 0.25rem 0;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+details.tool-collapsible summary {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bg-code);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+details.tool-collapsible summary .icon {
+    color: var(--tool-accent);
+}
+
+details.tool-collapsible.error summary .icon {
+    color: var(--error-color);
+}
+
+details.tool-collapsible .tool-content {
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+details.tool-collapsible .tool-content pre {
+    margin: 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+details.tool-collapsible .tool-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Read item details */
+details.read-item {
+    margin: 2px 0;
+}
+
+details.read-item:first-child {
+    margin-top: 0;
+}
+
+details.read-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Tool input/result sections */
+.tool-input-section,
+.tool-result-section {
+    margin-bottom: 0.5rem;
+}
+
+.tool-input-section:last-child,
+.tool-result-section:last-child {
+    margin-bottom: 0;
+}
+
+.tool-input-section strong,
+.tool-result-section strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
+}
+
+/* Markdown content */
+.markdown-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.5rem; }
+.markdown-content h2 { font-size: 1.3rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+.markdown-content h4 { font-size: 1rem; }
+
+.markdown-content p {
+    margin: 0.5rem 0;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.markdown-content li {
+    margin: 0.25rem 0;
+}
+
+.markdown-content code {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    background-color: var(--bg-code);
+    padding: 0.15rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.markdown-content pre {
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    background-color: var(--bg-code);
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.markdown-content blockquote {
+    margin: 0.5rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 3px solid var(--border-color);
+    background-color: var(--bg-code);
+}
+
+.markdown-content a {
+    color: var(--user-accent);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+.markdown-content strong {
+    font-weight: 600;
+}
+
+.markdown-content em {
+    font-style: italic;
+}
+
+/* Todo list */
+.todo-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.9rem;
+}
+
+.todo-list li {
+    margin: 0.25rem 0;
+}
+
+/* Patch/diff content */
+.patch-content {
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    background-color: var(--bg-code);
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.patch-line {
+    display: block;
+    white-space: pre;
+}
+
+.patch-line.addition {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.patch-line.deletion {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.patch-line.context {
+    color: var(--text-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+    .patch-line.addition {
+        background-color: rgba(40, 167, 69, 0.3);
+        color: #5fd068;
+    }
+
+    .patch-line.deletion {
+        background-color: rgba(220, 53, 69, 0.3);
+        color: #ff6b6b;
+    }
+}
+
+/* Navigation */
+.transcript-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    gap: 1rem;
+}
+
+.transcript-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+    min-width: 44px;
+    text-decoration: none;
+    color: var(--user-accent);
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.transcript-nav a:hover {
+    background-color: var(--bg-code);
+    text-decoration: underline;
+}
+
+.nav-prev::before {
+    content: "← ";
+}
+
+.nav-next::after {
+    content: " →";
+}
+
+.nav-back {
+    font-size: 0.9rem;
+}
+
+.nav-spacer {
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .transcript-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-spacer {
+        display: none;
+    }
+
+    .transcript-nav a {
+        flex: 1 1 auto;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+}
+
+.session-id,
+.session-cost {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.session-id code {
+    background-color: var(--bg-code);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Phase 2 Session Transcript</h1>
+        <p class="session-id">Session ID: <code>9bbbb364-8c3e-4410-ad50-1ab488bfe19e</code></p>
+    </header>
+    <main>
+        <section class="message user">
+            <div class="message-header">
+                <span class="icon">👤</span>
+                <span>User</span>
+            </div>
+            <div class="message-content">
+                <p>Run /next-task --phase and when complete run /commit</p>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>The user wants me to run the /next-task skill with --phase flag, and then when that's complete, run /commit.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">🔧</span> Skill: next-task</summary>
+                    <div class="tool-content">
+                        <div class="markdown-content">
+<p>Base directory for this skill: /Users/ronan/.claude/skills/next-task</p>
+<h3>4. Next task</h3>
+<p>Implement the next unfinished group of tasks from the tasks list. A group of tasks is a set of tasks that start with the same number like 1.1, 1.2, but NOT 2.1.</p>
+<p><strong>Constraints:</strong></p>
+<p><strong>Task Retrieval:</strong></p>
+<ul>
+<li>The model MUST use the rune skill to retrieve the next task(s) to work on</li>
+<li>Use <code>rune next --format json</code> to get the next incomplete task. This command will indicate when all tasks are complete</li>
+<li>If the user asks for the entire phase, use <code>rune next --phase --format json</code></li>
+<li>If the retrieved result contains only a single top-level task (without subtasks like &quot;1&quot; instead of &quot;1.1&quot;), rerun with <code>rune next --phase --format json</code> to retrieve the full phase of tasks</li>
+</ul>
+<p><strong>Stream Detection for Parallel Execution:</strong></p>
+<ul>
+<li>When retrieving a phase, the model MUST check for multiple work streams using <code>rune streams --available --json</code></li>
+<li>If multiple streams have ready tasks, parallel execution is possible</li>
+<li>If only one stream has ready tasks, sequential execution within that stream is used</li>
+</ul>
+<p><strong>Task Execution:</strong></p>
+<ul>
+<li>The model MUST read all files referenced in the front_matter_references</li>
+<li>The selected tasks MUST be added to the internal TODO list for tracking and implemented in the order specified</li>
+<li>The model MUST implement all of the selected tasks, including all subtasks</li>
+<li>Once a subtask or task is completed, use the rune skill to mark it complete (e.g., <code>rune complete 1.1</code>)</li>
+<li>The model MUST NOT proceed past the selected task. Once a task is done, it needs to be put up for review by the user</li>
+<li>Use tools and skills as appropriate while implementing the task. For example, if you need to know the capabilities of a library, use context7, and if you want to verify your code is efficient, use the efficiency-optimizer skill</li>
+</ul>
+<p><strong>Parallel Execution with Multiple Streams:</strong>
+When a phase is pulled in and multiple streams have ready tasks:</p>
+<ol>
+<li>The model MUST use <code>rune streams --available --json</code> to identify streams with ready work</li>
+<li>If there are 2 or more streams with ready tasks:
+<ul>
+<li>The model SHOULD spawn subagents (using the Task tool) to handle each stream in parallel</li>
+<li>Each subagent receives instructions to:
+<ul>
+<li>Retrieve all phase tasks for their stream using <code>rune next --phase --stream N --format json</code></li>
+<li>Read all referenced files from front_matter_references</li>
+<li>Implement the tasks in dependency order</li>
+<li>Mark tasks complete as they finish using <code>rune complete &lt;task-id&gt;</code></li>
+<li>Report back when all tasks in the stream are done or blocked</li>
+</ul>
+</li>
+<li>The main agent coordinates by:
+<ul>
+<li>Monitoring subagent progress</li>
+<li>Handling any cross-stream dependencies that become unblocked</li>
+<li>Aggregating results for user review</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>If there is only 1 stream with ready tasks:
+<ul>
+<li>Execute tasks sequentially within that stream as normal</li>
+<li>No subagents are needed</li>
+</ul>
+</li>
+</ol>
+<p><strong>Subagent Instructions Template:</strong>
+When spawning a subagent for a stream, provide these instructions:</p>
+<ul>
+<li>Stream number to work on</li>
+<li>Path to the tasks file</li>
+<li>List of front_matter_references to read</li>
+<li>Instruction to use <code>rune next --phase --stream N --format json</code> to retrieve all tasks for the stream</li>
+<li>Instruction to mark tasks complete using <code>rune complete &lt;task-id&gt;</code></li>
+<li>Instruction to stop when all tasks in the stream are complete or blocked by tasks in other streams</li>
+</ul>
+<p><strong>Cross-Stream Coordination:</strong></p>
+<ul>
+<li>When a subagent completes a task that unblocks tasks in another stream, that stream's agent will pick up the newly unblocked work on their next <code>rune next --phase --stream N</code> call</li>
+<li>If all streams become blocked waiting on each other, this indicates a circular dependency problem that should be reported to the user</li>
+<li>The main agent should periodically check <code>rune streams --json</code> to monitor overall progress</li>
+</ul>
+<p>ARGUMENTS: --phase</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Get next phase of tasks</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune next --phase --format json 2&gt;/dev/null || echo &#34;RUNE_NOT_FOUND&#34;</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>{
+  &#34;success&#34;: true,
+  &#34;count&#34;: 4,
+  &#34;phase_name&#34;: &#34;Phase B: Core Content&#34;,
+  &#34;tasks&#34;: [
+    {
+      &#34;id&#34;: &#34;3&#34;,
+      &#34;title&#34;: &#34;Document the two-phase structure (interactive and unattended) with what each phase does&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: false,
+      &#34;blockedBy&#34;: [
+        &#34;1&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Document interactive phase: first the script auto-installs Xcode CLT and Homebrew and gh then prompts for GitHub noreply email and full name then generates SSH key and authenticates with GitHub via gh then prompts for sudo password&#34;,
+        &#34;Instruct users to use their GitHub noreply email (e.g. 12345678+username@users.noreply.github.com) found at GitHub Settings → Emails → Keep my email addresses private — this is used for both ssh-keygen -C and .gitconfig [user] email&#34;,
+        &#34;Document unattended phase: list what happens so users know when they can walk away&#34;,
+        &#34;Mention ~/SETUP.log as the log file for debugging unattended phase issues&#34;,
+        &#34;Verification: both phases accurately reflect the actual script flow and noreply email guidance is clear&#34;
+      ],
+      &#34;references&#34;: [
+        &#34;macos/new-mac.sh&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;4&#34;,
+      &#34;title&#34;: &#34;Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;3&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;List all software by category: default_packages and home_packages and work_packages and Mac App Store&#34;,
+        &#34;Include brief descriptions for non-obvious tools: bluesnooze noTunes dockutil lychee cloudflared ykman codelayer yubico-authenticator uv mas raycast&#34;,
+        &#34;Explain how to opt into work_packages (Slack and Teams and Terraform) which are excluded by default&#34;,
+        &#34;Verification: every package in the script arrays appears in the guide&#34;
+      ],
+      &#34;references&#34;: [
+        &#34;macos/new-mac.sh&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;5&#34;,
+      &#34;title&#34;: &#34;Add What Gets Configured summary table mapping categories to script setup actions&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;3&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Create summary table mapping categories to what the script configures&#34;,
+        &#34;Categories: Dock and system preferences and power and browser and login items and shell and Git and repos and tools&#34;,
+        &#34;Reference script file paths relative to repo root for each category&#34;,
+        &#34;Verification: table covers all major configuration areas from the script&#34;
+      ],
+      &#34;references&#34;: [
+        &#34;macos/new-mac.sh&#34;,
+        &#34;macos/verify-setup.sh&#34;,
+        &#34;macos/aliases.zsh&#34;,
+        &#34;macos/zshrc&#34;,
+        &#34;macos/vimrc&#34;
+      ]
+    },
+    {
+      &#34;id&#34;: &#34;6&#34;,
+      &#34;title&#34;: &#34;Document all post-setup manual steps (app logins, license activations, config syncs)&#34;,
+      &#34;status&#34;: &#34;Pending&#34;,
+      &#34;stream&#34;: 1,
+      &#34;blocked&#34;: true,
+      &#34;blockedBy&#34;: [
+        &#34;4&#34;
+      ],
+      &#34;details&#34;: [
+        &#34;Document all manual steps: terminal restart and App Store sign-in for Magnet and Magnet license activation and Raycast configuration and NordVPN login and Bitwarden login and Tailscale login and Dropbox login and Spotify login and Google Drive login and VS Code Settings Sync activation and Logi Options+ device pairing and .gitconfig placeholder editing (SPECIFIC_FOLDER) and optionally installing full Xcode for Simulator.app&#34;,
+        &#34;Verification: every post-setup item from the smolspec is included&#34;
+      ],
+      &#34;references&#34;: [
+        &#34;specs/mac-setup-guide/smolspec.md&#34;,
+        &#34;specs/mac-env-setup/decision_log.md&#34;
+      ]
+    }
+  ],
+  &#34;streams_summary&#34;: [
+    {
+      &#34;id&#34;: 1,
+      &#34;ready&#34;: [
+        &#34;3&#34;
+      ],
+      &#34;blocked&#34;: [
+        &#34;4&#34;,
+        &#34;5&#34;,
+        &#34;6&#34;,
+        &#34;7&#34;,
+        &#34;8&#34;
+      ],
+      &#34;active&#34;: [],
+      &#34;available&#34;: true
+    }
+  ],
+  &#34;front_matter_references&#34;: [
+    &#34;specs/mac-setup-guide/smolspec.md&#34;
+  ]
+}</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>I have Phase B with 4 tasks (3, 4, 5, 6), all in stream 1. Only task 3 is ready; the rest are blocked. Let me read the referenced files to understand the context.</p>
+<p>Let me read:</p>
+<ol>
+<li>The smolspec</li>
+<li>The main script (macos/new-mac.sh)</li>
+<li>The current guide document</li>
+<li>Other referenced files</li>
+</ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Phase B: Core Content — 4 tasks, all in stream 1 (sequential). Let me read the referenced files.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>specs/mac-setup-guide/smolspec.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# Mac Setup Guide
+     2→
+     3→## Overview
+     4→Create a single comprehensive guide at `docs/new-mac-guide.md` that walks the repo owner through the complete new Mac setup process from unboxing to a fully configured development environment. The guide consolidates all knowledge from `macos/new-mac.sh`, `macos/verify-setup.sh`, and the existing spec documentation into a user-facing document with copy-pasteable commands, script path references, and clear explanations of what each phase does. Target length: 300-500 lines of markdown, readable in 10-15 minutes.
+     5→
+     6→## Requirements
+     7→- The guide MUST live at `docs/new-mac-guide.md` as a single self-contained file (implementer must create the `docs/` directory)
+     8→- The guide MUST state the minimum macOS version as macOS 15 (Sequoia) — Swift/NSWorkspace APIs work on 12+ but the full Dock layout (iPhone Mirroring) requires 15+
+     9→- The guide MUST cover prerequisites: macOS 15+, Apple ID signed into the App Store, internet connection
+    10→- The guide MUST present the bootstrap as: fetch the raw script via `curl` from the web (SSH keys don&#39;t exist yet on a fresh Mac), then run it — SSH key generation is the first meaningful interactive step after the automated Xcode CLT/Homebrew/gh bootstrap
+    11→- The guide MUST include the exact commands to download and run the setup script via `curl` to the raw file URL, formatted as fenced code blocks users can copy
+    12→- The guide MUST explain the two-phase structure (interactive vs unattended), listing what happens in each phase so users know when they can walk away
+    13→- The guide MUST document what the interactive phase asks for (GitHub noreply email, full name, SSH key generation, GitHub auth via `gh`, sudo password)
+    14→- The guide MUST instruct users to enter their GitHub noreply email (e.g., `12345678+username@users.noreply.github.com`) when the script prompts for &#34;GitHub email&#34; — this is found at GitHub Settings → Emails → &#34;Keep my email addresses private&#34;; the same address is used for both `ssh-keygen -C` and `.gitconfig [user] email`
+    15→- The guide MUST list all software installed by category (default, home, work, Mac App Store) with brief descriptions for non-obvious tools: bluesnooze, noTunes, dockutil, lychee, cloudflared, ykman, codelayer, yubico-authenticator, uv, mas, raycast
+    16→- The guide MUST reference script file paths relative to the repo root (e.g., `macos/new-mac.sh`, `macos/verify-setup.sh`, `macos/aliases.zsh`, `macos/zshrc`, `macos/vimrc`, `macos/docker-compose.yml`, `macos/iterm2-prefs.plist`)
+    17→- The guide MUST include the verification command (`bash macos/verify-setup.sh`) and explain its output
+    18→- The guide MUST document post-setup manual steps: terminal restart, App Store sign-in for Magnet, Magnet license activation, Raycast configuration, NordVPN login, Bitwarden login, Tailscale login, Dropbox login, Spotify login, Google Drive login, VS Code Settings Sync activation, Logi Options+ device pairing, `.gitconfig` placeholder editing (`SPECIFIC_FOLDER`), and optionally installing full Xcode for Simulator.app
+    19→- The guide MUST mention `~/SETUP.log` as the log file for debugging unattended phase issues
+    20→- The guide SHOULD include a &#34;What Gets Configured&#34; summary table mapping categories (Dock, system preferences, power, browser, login items, shell, Git, repos, tools) to what the script sets up
+    21→- The guide SHOULD document customisation points in a brief section (3-5 bullets) listing the arrays/variables a user would edit to customize the setup, with file paths — not a full tutorial
+    22→- The guide SHOULD explain how to opt into `work_packages` (Slack, Teams, Terraform) which are excluded by default
+    23→- The guide SHOULD include a troubleshooting section for common issues (Homebrew PATH on Apple Silicon, `mas` requiring App Store sign-in, SSH key already exists, `~/SETUP.log` for debugging)
+    24→- The guide MAY include a quick-start section at the top for experienced users who just want the commands
+    25→
+    26→## Proposed Section Outline
+    27→```
+    28→1. Quick Start (3-4 lines of commands)
+    29→2. Prerequisites
+    30→3. Getting Started (bootstrap via curl/HTTPS, then run)
+    31→4. What Happens: Interactive Phase
+    32→5. What Happens: Unattended Phase
+    33→6. What Gets Configured (summary table)
+    34→7. Software Installed (by category with descriptions)
+    35→8. Post-Setup Manual Steps
+    36→9. Verification
+    37→10. Customisation Points
+    38→11. Troubleshooting
+    39→```
+    40→
+    41→## Implementation Approach
+    42→- **File to create:** `docs/new-mac-guide.md` (new file, new `docs/` directory)
+    43→- **Source material:** `macos/new-mac.sh`, `macos/verify-setup.sh`, `macos/aliases.zsh`, `macos/zshrc`, `macos/vimrc`, `macos/docker-compose.yml`, `macos/iterm2-prefs.plist`, `specs/mac-env-setup/design.md`, `specs/mac-env-setup/decision_log.md`, `CHANGELOG.md`
+    44→- **Primary audience:** The repo owner setting up their own Mac. The guide should note where values are personal/hardcoded so someone forking can adapt.
+    45→- **Pattern:** Follow the structure of the script&#39;s own section headers (Interactive Phase -&gt; Unattended Phase -&gt; Summary) as the guide&#39;s narrative flow
+    46→- **Approach:** Extract user-facing information from the script comments, design doc, and decision log; restructure into a task-oriented guide (&#34;do this, then this&#34;) rather than a reference doc
+    47→- **Dependencies:** All content derives from existing files in the repo — no external sources needed
+    48→- **Out of Scope:** Modifying `new-mac.sh` or any other script; creating additional documentation files; updating the README (can be done separately)
+    49→
+    50→## Risks and Assumptions
+    51→- Risk: Guide becomes stale if scripts are updated without updating docs | Mitigation: Include a &#34;Last verified&#34; date and a note that `macos/new-mac.sh` is the source of truth
+    52→- Risk: Bootstrap chicken-and-egg — user can&#39;t SSH clone before SSH keys exist | Mitigation: Guide uses `curl` to download the script directly, or HTTPS clone as the initial step
+    53→- Assumption: Users have a fresh Mac running macOS 15+ (Sequoia) for full feature coverage
+    54→- Assumption: The repo is accessible at `github.com/troobit/workscripts` (public or user has access)
+    55→- Assumption: The guide is primarily for the repo owner; forked users will need to edit hardcoded values (repos, Dock apps, git identity)
+    56→- Prerequisite: `macos/new-mac.sh` and `macos/verify-setup.sh` are complete and merged (they are — all spec tasks are done)
+    57→</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/new-mac.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→#!/bin/bash
+     2→
+     3→# Exit immediately if a command exits with a non-zero status.
+     4→set -e
+     5→
+     6→echo &#34;🚀 Starting new Mac setup...&#34;
+     7→
+     8→########### INTERACTIVE PHASE ################
+     9→# User must be present for this section
+    10→
+    11→# Install Xcode command line tools if they aren&#39;t already installed
+    12→if ! xcode-select -p &amp;&gt;/dev/null; then
+    13→  echo &#34;Installing Xcode Command Line Tools...&#34;
+    14→  xcode-select --install
+    15→else
+    16→  echo &#34;Xcode Command Line Tools already installed.&#34;
+    17→fi
+    18→
+    19→# Install Homebrew if it isn&#39;t already installed
+    20→if ! command -v brew &amp;&gt;/dev/null; then
+    21→  echo &#34;Installing Homebrew...&#34;
+    22→  /bin/bash -c &#34;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&#34;
+    23→else
+    24→  echo &#34;Homebrew already installed.&#34;
+    25→fi
+    26→
+    27→# IMPORTANT: Add Homebrew to the current shell session&#39;s PATH
+    28→# This is crucial for Apple Silicon Macs
+    29→if [ -f /opt/homebrew/bin/brew ]; then
+    30→    eval &#34;$(/opt/homebrew/bin/brew shellenv)&#34;
+    31→fi
+    32→
+    33→# Install gh early — needed for SSH/GitHub auth in interactive phase
+    34→brew install gh 2&gt;/dev/null || true
+    35→
+    36→# Collect user input upfront
+    37→echo &#34;📝 Collecting user information...&#34;
+    38→while true; do
+    39→  read -rp &#34;Enter your GitHub email: &#34; GITHUB_EMAIL
+    40→  [ -n &#34;$GITHUB_EMAIL&#34; ] &amp;&amp; break
+    41→  echo &#34;⚠️  Email cannot be empty. Please try again.&#34;
+    42→done
+    43→
+    44→while true; do
+    45→  read -rp &#34;Enter your full name for Git: &#34; GIT_NAME
+    46→  [ -n &#34;$GIT_NAME&#34; ] &amp;&amp; break
+    47→  echo &#34;⚠️  Name cannot be empty. Please try again.&#34;
+    48→done
+    49→
+    50→########### SSH KEY SETUP ################
+    51→
+    52→if [ ! -f &#34;$HOME/.ssh/github&#34; ]; then
+    53→  echo &#34;🔑 Generating SSH key...&#34;
+    54→  mkdir -p &#34;$HOME/.ssh&#34;
+    55→  ssh-keygen -t ed25519 -C &#34;$GITHUB_EMAIL&#34; -f &#34;$HOME/.ssh/github&#34; -N &#34;&#34;
+    56→
+    57→  echo &#34;Starting SSH agent...&#34;
+    58→  eval &#34;$(ssh-agent -s)&#34;
+    59→
+    60→  echo &#34;Adding SSH key to agent...&#34;
+    61→  ssh-add &#34;$HOME/.ssh/github&#34;
+    62→
+    63→  echo &#34;Authenticating with GitHub...&#34;
+    64→  gh auth login --git-protocol ssh --web
+    65→
+    66→  echo &#34;Checking for existing SSH key on GitHub...&#34;
+    67→  KEY_FINGERPRINT=$(ssh-keygen -lf &#34;$HOME/.ssh/github.pub&#34; | awk &#39;{print $2}&#39;)
+    68→  if gh ssh-key list | grep -q &#34;$KEY_FINGERPRINT&#34;; then
+    69→    echo &#34;⚠️  SSH key already uploaded to GitHub (fingerprint: $KEY_FINGERPRINT)&#34;
+    70→  else
+    71→    echo &#34;Uploading SSH key to GitHub...&#34;
+    72→    gh ssh-key add &#34;$HOME/.ssh/github.pub&#34; --title &#34;MacBook-$(date +%Y%m%d)&#34;
+    73→  fi
+    74→
+    75→  echo &#34;Testing SSH connection...&#34;
+    76→  ssh -T git@github.com -i &#34;$HOME/.ssh/github&#34; 2&gt;&amp;1 || echo &#34;SSH test completed (expected authentication message)&#34;
+    77→
+    78→  echo &#34;✅ SSH key setup complete&#34;
+    79→else
+    80→  echo &#34;✅ SSH key already exists at ~/.ssh/github&#34;
+    81→fi
+    82→echo &#34;&#34;
+    83→
+    84→########### SUDO CREDENTIALS ################
+    85→
+    86→echo &#34;🔐 Requesting administrator access for system configuration...&#34;
+    87→sudo -v
+    88→
+    89→# Keep sudo alive in the background
+    90→while true; do sudo -n true; sleep 60; done 2&gt;/dev/null &amp;
+    91→SUDO_KEEPALIVE_PID=$!
+    92→
+    93→# Trap to kill keep-alive on script exit
+    94→trap &#39;kill $SUDO_KEEPALIVE_PID 2&gt;/dev/null&#39; EXIT
+    95→
+    96→echo &#34;&#34;
+    97→echo &#34;🚀 Unattended phase starting — you can walk away now&#34;
+    98→echo &#34;&#34;
+    99→
+   100→########### UNATTENDED PHASE ################
+   101→# No further user interaction required
+   102→
+   103→# Initialize logging — capture all unattended operations
+   104→SETUP_LOG=&#34;$HOME/SETUP.log&#34;
+   105→exec &gt; &gt;(tee -a &#34;$SETUP_LOG&#34;) 2&gt;&amp;1
+   106→echo &#34;=== Setup started at $(date) ===&#34;
+   107→
+   108→echo &#34;Updating Homebrew...&#34;
+   109→brew update
+   110→
+   111→brew install --cask font-droid-sans-mono-nerd-font || echo &#34;Nerd font already installed or failed.&#34;
+   112→
+   113→# Install Oh-My-Zsh if it isn&#39;t installed
+   114→if [ ! -d &#34;$HOME/.oh-my-zsh&#34; ]; then
+   115→  echo &#34;Installing Oh-My-Zsh...&#34;
+   116→  /bin/sh -c &#34;$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&#34; &#34;&#34; --unattended
+   117→else
+   118→  echo &#34;Oh My Zsh already installed.&#34;
+   119→fi
+   120→
+   121→# Clone Zsh plugins only if they don&#39;t exist
+   122→ZSH_PLUGINS_DIR=&#34;${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins&#34;
+   123→if [ ! -d &#34;$ZSH_PLUGINS_DIR/zsh-autosuggestions&#34; ]; then
+   124→  echo &#34;Cloning zsh-autosuggestions...&#34;
+   125→  git clone https://github.com/zsh-users/zsh-autosuggestions &#34;$ZSH_PLUGINS_DIR/zsh-autosuggestions&#34;
+   126→else
+   127→  echo &#34;zsh-autosuggestions plugin already exists.&#34;
+   128→fi
+   129→
+   130→
+   131→########### BREW PACKAGE LIST ################
+   132→
+   133→default_packages=(
+   134→  # Formulae
+   135→  &#34;bat&#34; &#34;fzf&#34; &#34;gh&#34; &#34;git&#34; &#34;htop&#34; &#34;jq&#34; &#34;rename&#34; &#34;tmux&#34; &#34;tree&#34; &#34;wget&#34; &#34;yq&#34; &#34;go&#34;
+   136→  # Casks
+   137→  &#34;bluesnooze&#34; &#34;brave-browser&#34; &#34;caffeine&#34; &#34;claude-code&#34; &#34;dockutil&#34; &#34;firefox&#34;
+   138→  &#34;gimp&#34; &#34;google-chrome&#34; &#34;iterm2&#34; &#34;nordvpn&#34; &#34;notunes&#34; &#34;raycast&#34;
+   139→  &#34;visual-studio-code&#34; &#34;whatsapp&#34;
+   140→)
+   141→
+   142→work_packages=(&#34;slack&#34; &#34;microsoft-teams&#34; &#34;terraform&#34;)
+   143→
+   144→home_packages=(
+   145→  # Formulae
+   146→  &#34;awscli&#34; &#34;azure-cli&#34; &#34;cloudflared&#34; &#34;lychee&#34; &#34;mas&#34; &#34;nvm&#34; &#34;opentofu&#34;
+   147→  &#34;podman&#34; &#34;podman-compose&#34; &#34;uv&#34; &#34;ykman&#34;
+   148→  # Casks
+   149→  &#34;anydesk&#34; &#34;audacity&#34; &#34;bitwarden&#34; &#34;codelayer&#34; &#34;dropbox&#34; &#34;gcloud-cli&#34;
+   150→  &#34;github&#34; &#34;google-drive&#34; &#34;inkscape&#34; &#34;logi-options+&#34; &#34;postman&#34; &#34;spotify&#34;
+   151→  &#34;stremio&#34; &#34;tailscale-app&#34; &#34;transmission&#34; &#34;vlc&#34; &#34;wireshark&#34;
+   152→  &#34;yubico-authenticator&#34;
+   153→)
+   154→
+   155→# Combine default + home (work_packages only when explicitly selected)
+   156→all_packages=(&#34;${default_packages[@]}&#34; &#34;${home_packages[@]}&#34;)
+   157→
+   158→echo &#34;Installing brew packages...&#34;
+   159→brew install &#34;${all_packages[@]}&#34; || echo &#34;Could not install some packages. They might already be installed or are not available.&#34;
+   160→
+   161→########### MAC APP STORE ################
+   162→
+   163→if command -v mas &amp;&gt;/dev/null; then
+   164→  echo &#34;📦 Installing Mac App Store apps...&#34;
+   165→
+   166→  # Magnet (window manager) — App Store ID: 441258766
+   167→  if mas list | grep -q &#34;441258766&#34;; then
+   168→    echo &#34;✅ Magnet already installed&#34;
+   169→  else
+   170→    mas install 441258766 || echo &#34;⚠️  Could not install Magnet — ensure App Store is signed in&#34;
+   171→  fi
+   172→else
+   173→  echo &#34;⚠️  mas not found — skipping Mac App Store apps&#34;
+   174→fi
+   175→
+   176→# Download config files, but check if they exist first to avoid duplication
+   177→if [ ! -f &#34;$HOME/.vimrc&#34; ]; then
+   178→    echo &#34;Downloading .vimrc...&#34;
+   179→    curl -o &#34;$HOME/.vimrc&#34; https://raw.githubusercontent.com/troobit/workscripts/main/macos/vimrc
+   180→fi
+   181→
+   182→if ! grep -q &#34;troobit/workscripts&#34; &#34;$HOME/.zshrc&#34;; then
+   183→    echo &#34;Appending custom .zshrc settings...&#34;
+   184→    # Add a comment to prevent re-adding in the future
+   185→    echo &#34;\n# Added from troobit/workscripts setup script&#34; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   186→    curl https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc &gt;&gt; &#34;$HOME/.zshrc&#34;
+   187→fi
+   188→
+   189→########### SHELL CONFIGURATION ################
+   190→
+   191→echo &#34;🔧 Deploying shell configuration...&#34;
+   192→
+   193→# Download aliases.zsh (overwrite — repo-managed)
+   194→curl -fsSL -o &#34;$HOME/.aliases.zsh&#34; \
+   195→  https://raw.githubusercontent.com/troobit/workscripts/main/macos/aliases.zsh \
+   196→  || echo &#34;⚠️  Could not download aliases.zsh&#34;
+   197→
+   198→# Source from .zshrc if not already present
+   199→if ! grep -q &#34;source.*\.aliases\.zsh&#34; &#34;$HOME/.zshrc&#34; 2&gt;/dev/null; then
+   200→  echo &#39;[ -f &#34;$HOME/.aliases.zsh&#34; ] &amp;&amp; source &#34;$HOME/.aliases.zsh&#34;&#39; &gt;&gt; &#34;$HOME/.zshrc&#34;
+   201→  echo &#34;✅ Added aliases.zsh sourcing to .zshrc&#34;
+   202→else
+   203→  echo &#34;✅ aliases.zsh already sourced in .zshrc&#34;
+   204→fi
+   205→
+   206→########### SYSTEM PREFERENCES ################
+   207→
+   208→echo &#34;⚙️  Configuring system preferences...&#34;
+   209→
+   210→# Hot corners — bottom-right: Quick Note (14)
+   211→defaults write com.apple.dock wvous-br-corner -int 14
+   212→defaults write com.apple.dock wvous-br-modifier -int 0
+   213→
+   214→# Appearance — accent color: Pink (6), highlight color: Green
+   215→defaults write NSGlobalDomain AppleAccentColor -int 6
+   216→defaults write NSGlobalDomain AppleHighlightColor -string &#34;0.752941 0.964706 0.678431 Green&#34;
+   217→
+   218→# Mission Control — group by app, don&#39;t auto-rearrange spaces
+   219→defaults write com.apple.dock expose-group-apps -bool true
+   220→defaults write com.apple.dock mru-spaces -bool false
+   221→
+   222→# Finder — column view as default
+   223→defaults write com.apple.finder FXPreferredViewStyle -string &#34;clmv&#34;
+   224→killall Finder || true
+   225→
+   226→echo &#34;✅ System preferences configured&#34;
+   227→
+   228→########### DOCK CONFIGURATION ################
+   229→
+   230→echo &#34;🖥️  Configuring Dock...&#34;
+   231→
+   232→# Define desired Dock apps — parallel indexed arrays (bash 3.2 compatible)
+   233→# &#34;SPACER&#34; entries in DOCK_NAMES trigger spacer tile insertion
+   234→DOCK_NAMES=(
+   235→  &#34;iTerm&#34; &#34;Notes&#34; &#34;SPACER&#34;
+   236→  &#34;WhatsApp&#34; &#34;SPACER&#34;
+   237→  &#34;Transmission&#34; &#34;VLC&#34; &#34;Calendar&#34; &#34;System Settings&#34;
+   238→  &#34;Stremio&#34; &#34;TV&#34; &#34;Brave Browser&#34; &#34;iPhone Mirroring&#34;
+   239→  &#34;Audacity&#34; &#34;Visual Studio Code&#34; &#34;Simulator&#34;
+   240→)
+   241→DOCK_PATHS=(
+   242→  &#34;/Applications/iTerm.app&#34;
+   243→  &#34;/System/Applications/Notes.app&#34;
+   244→  &#34;&#34;
+   245→  &#34;/Applications/WhatsApp.app&#34;
+   246→  &#34;&#34;
+   247→  &#34;/Applications/Transmission.app&#34;
+   248→  &#34;/Applications/VLC.app&#34;
+   249→  &#34;/System/Applications/Calendar.app&#34;
+   250→  &#34;/System/Applications/System Settings.app&#34;
+   251→  &#34;/Applications/Stremio.app&#34;
+   252→  &#34;/System/Applications/TV.app&#34;
+   253→  &#34;/Applications/Brave Browser.app&#34;
+   254→  &#34;/System/Applications/iPhone Mirroring.app&#34;
+   255→  &#34;/Applications/Audacity.app&#34;
+   256→  &#34;/Applications/Visual Studio Code.app&#34;
+   257→  &#34;/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app&#34;
+   258→)
+   259→
+   260→if command -v dockutil &amp;&gt;/dev/null; then
+   261→  # Snapshot current Dock state for recovery reference
+   262→  echo &#34;Current Dock state:&#34;
+   263→  dockutil --list || true
+   264→
+   265→  # Remove all existing Dock items (Finder preserved by macOS)
+   266→  dockutil --remove all --no-restart || echo &#34;⚠️  dockutil remove failed&#34;
+   267→
+   268→  # Add each app/spacer in order
+   269→  for i in &#34;${!DOCK_NAMES[@]}&#34;; do
+   270→    app_name=&#34;${DOCK_NAMES[$i]}&#34;
+   271→    app_path=&#34;${DOCK_PATHS[$i]}&#34;
+   272→
+   273→    if [ &#34;$app_name&#34; = &#34;SPACER&#34; ]; then
+   274→      dockutil --add &#39;&#39; --type spacer --section apps --no-restart \
+   275→        || echo &#34;⚠️  Could not add spacer&#34;
+   276→    elif [ -d &#34;$app_path&#34; ]; then
+   277→      dockutil --add &#34;$app_path&#34; --no-restart \
+   278→        || echo &#34;⚠️  Could not add $app_name to Dock&#34;
+   279→    else
+   280→      echo &#34;⚠️  $app_name not found at $app_path — skipping&#34;
+   281→    fi
+   282→  done
+   283→
+   284→  # Add Downloads folder to persistent-others section
+   285→  dockutil --add &#34;$HOME/Downloads&#34; --section others --no-restart \
+   286→    || echo &#34;⚠️  Could not add Downloads folder to Dock&#34;
+   287→
+   288→  # Dock preferences
+   289→  defaults write com.apple.dock show-recents -bool false
+   290→  defaults write com.apple.dock tilesize -int 44
+   291→  defaults write com.apple.dock magnification -bool true
+   292→  defaults write com.apple.dock largesize -int 128
+   293→  defaults write com.apple.dock autohide -bool true
+   294→
+   295→  # Single Dock restart to apply all changes
+   296→  killall Dock || true
+   297→  echo &#34;✅ Dock configured&#34;
+   298→else
+   299→  echo &#34;⚠️  dockutil not found — skipping Dock configuration&#34;
+   300→fi
+   301→
+   302→########### POWER MANAGEMENT ################
+   303→
+   304→echo &#34;⚡ Configuring power management...&#34;
+   305→
+   306→# AC Power — never sleep
+   307→sudo pmset -c displaysleep 0 || echo &#34;⚠️  Could not set AC display sleep&#34;
+   308→sudo pmset -c sleep 0 || echo &#34;⚠️  Could not set AC system sleep&#34;
+   309→
+   310→# Battery — conservative sleep
+   311→sudo pmset -b displaysleep 10 || echo &#34;⚠️  Could not set battery display sleep&#34;
+   312→sudo pmset -b sleep 1 || echo &#34;⚠️  Could not set battery system sleep&#34;
+   313→
+   314→echo &#34;✅ Power management configured&#34;
+   315→
+   316→########### DEFAULT BROWSER ################
+   317→
+   318→echo &#34;🌐 Setting default browser...&#34;
+   319→
+   320→if [ -d &#34;/Applications/Brave Browser.app&#34; ]; then
+   321→  # Start AppleScript to auto-dismiss the confirmation dialog
+   322→  osascript &lt;&lt;&#39;APPLESCRIPT&#39; &amp;
+   323→    tell application &#34;System Events&#34;
+   324→      repeat 30 times
+   325→        try
+   326→          tell process &#34;CoreServicesUIAgent&#34;
+   327→            click button 2 of window 1
+   328→          end tell
+   329→          exit repeat
+   330→        end try
+   331→        delay 0.5
+   332→      end repeat
+   333→    end tell
+   334→APPLESCRIPT
+   335→  DIALOG_PID=$!
+   336→
+   337→  # Set default browser via NSWorkspace API (macOS 12+)
+   338→  swift &lt;&lt; &#39;SWIFT&#39; || echo &#34;⚠️  Could not set default browser&#34;
+   339→    import AppKit
+   340→    let ws = NSWorkspace.shared
+   341→    guard let url = ws.urlForApplication(withBundleIdentifier: &#34;com.brave.Browser&#34;) else {
+   342→      fputs(&#34;Brave Browser not found\n&#34;, stderr)
+   343→      exit(1)
+   344→    }
+   345→    let sem = DispatchSemaphore(value: 0)
+   346→    var exitCode: Int32 = 0
+   347→    ws.setDefaultApplication(at: url, toOpenURLsWithScheme: &#34;http&#34;) { error in
+   348→      if let error = error { fputs(&#34;http: \(error)\n&#34;, stderr); exitCode = 1 }
+   349→      ws.setDefaultApplication(at: url, toOpenURLsWithScheme: &#34;https&#34;) { error in
+   350→        if let error = error { fputs(&#34;https: \(error)\n&#34;, stderr); exitCode = 1 }
+   351→        sem.signal()
+   352→      }
+   353→    }
+   354→    sem.wait()
+   355→    exit(exitCode)
+   356→SWIFT
+   357→
+   358→  # Clean up dialog handler
+   359→  kill &#34;$DIALOG_PID&#34; 2&gt;/dev/null
+   360→  wait &#34;$DIALOG_PID&#34; 2&gt;/dev/null
+   361→
+   362→  echo &#34;✅ Default browser set to Brave&#34;
+   363→else
+   364→  echo &#34;⚠️  Brave Browser not installed — skipping default browser&#34;
+   365→fi
+   366→
+   367→########### LOGIN ITEMS ################
+   368→
+   369→echo &#34;🔑 Configuring login items...&#34;
+   370→
+   371→LOGIN_APPS=(
+   372→  &#34;/Applications/Caffeine.app&#34;
+   373→  &#34;/Applications/noTunes.app&#34;
+   374→  &#34;/Applications/Magnet.app&#34;
+   375→  &#34;/Applications/Bluesnooze.app&#34;
+   376→  &#34;/Applications/Google Drive.app&#34;
+   377→  &#34;/Applications/Raycast.app&#34;
+   378→)
+   379→
+   380→# Get current login items
+   381→CURRENT_LOGIN_ITEMS=$(osascript -e &#39;tell application &#34;System Events&#34; to get the name of every login item&#39; 2&gt;/dev/null || echo &#34;&#34;)
+   382→
+   383→for app_path in &#34;${LOGIN_APPS[@]}&#34;; do
+   384→  app_name=$(basename &#34;$app_path&#34; .app)
+   385→
+   386→  if [ ! -d &#34;$app_path&#34; ]; then
+   387→    echo &#34;⚠️  $app_name not installed — skipping login item&#34;
+   388→    continue
+   389→  fi
+   390→
+   391→  if echo &#34;$CURRENT_LOGIN_ITEMS&#34; | grep -qi &#34;$app_name&#34;; then
+   392→    echo &#34;✅ $app_name already a login item&#34;
+   393→  else
+   394→    osascript -e &#34;tell application \&#34;System Events\&#34; to make login item at end with properties {path:\&#34;$app_path\&#34;, hidden:false}&#34; \
+   395→      || echo &#34;⚠️  Could not add $app_name as login item&#34;
+   396→    echo &#34;✅ Added $app_name as login item&#34;
+   397→  fi
+   398→done
+   399→
+   400→echo &#34;✅ Login items configured&#34;
+   401→
+   402→# Verify required dependencies are available
+   403→echo &#34;🔍 Verifying required dependencies...&#34;
+   404→for cmd in gh go git; do
+   405→  if ! command -v &#34;$cmd&#34; &amp;&gt;/dev/null; then
+   406→    echo &#34;❌ Required dependency &#39;$cmd&#39; not found. Ensure it was installed by Homebrew above.&#34;
+   407→    exit 1
+   408→  fi
+   409→done
+   410→echo &#34;✅ All required dependencies found.&#34;
+   411→
+   412→########### GIT CONFIGURATION SETUP ################
+   413→
+   414→if [ ! -f &#34;$HOME/.gitconfig&#34; ]; then
+   415→  echo &#34;⚙️  Setting up Git configuration...&#34;
+   416→  cat &gt; &#34;$HOME/.gitconfig&#34; &lt;&lt;EOF
+   417→[user]
+   418→	name = $GIT_NAME
+   419→	email = $GITHUB_EMAIL
+   420→
+   421→[core]
+   422→	sshCommand = ssh -i ~/.ssh/github
+   423→
+   424→; include for all repositories inside \$HOME/Repos/SPECIFIC_FOLDER/
+   425→[includeIf &#34;gitdir:~/Repos/SPECIFIC_FOLDER/&#34;]
+   426→	path = ~/.gc/specific_config_file
+   427→
+   428→; include for all repositories inside \$HOME/repos/another_specific_folder/
+   429→[includeIf &#34;gitdir:~/repos/another_specific_folder/&#34;]
+   430→	path = ~/.gc/another_conf_file
+   431→
+   432→[push]
+   433→	autoSetupRemote = true
+   434→
+   435→[pull]
+   436→	rebase = true
+   437→
+   438→[init]
+   439→	defaultBranch = main
+   440→
+   441→[pager]
+   442→	branch = false
+   443→	log = false
+   444→
+   445→[filter &#34;lfs&#34;]
+   446→	clean = git-lfs clean -- %f
+   447→	smudge = git-lfs smudge -- %f
+   448→	process = git-lfs filter-process
+   449→	required = true
+   450→EOF
+   451→  echo &#34;✅ Git configuration created&#34;
+   452→else
+   453→  echo &#34;✅ Git configuration already exists at ~/.gitconfig&#34;
+   454→fi
+   455→echo &#34;&#34;
+   456→
+   457→########### REPOSITORY SETUP ################
+   458→
+   459→# Create repos directory
+   460→if [ ! -d &#34;$HOME/repos&#34; ]; then
+   461→  echo &#34;📁 Creating ~/repos/ directory...&#34;
+   462→  mkdir -p &#34;$HOME/repos&#34;
+   463→  echo &#34;✅ ~/repos/ directory created&#34;
+   464→else
+   465→  echo &#34;✅ ~/repos/ directory already exists&#34;
+   466→fi
+   467→echo &#34;&#34;
+   468→
+   469→# Clone repositories
+   470→echo &#34;📦 Cloning repositories...&#34;
+   471→
+   472→REPOS_CLONED=0
+   473→REPOS_TOTAL=4
+   474→
+   475→clone_repo() {
+   476→  local org=$1
+   477→  local repo=$2
+   478→  local target=&#34;$HOME/repos/$repo&#34;
+   479→
+   480→  if [ -d &#34;$target/.git&#34; ]; then
+   481→    echo &#34;✅ $org/$repo already cloned&#34;
+   482→    REPOS_CLONED=$((REPOS_CLONED + 1))
+   483→  else
+   484→    echo &#34;Cloning $org/$repo...&#34;
+   485→    if git clone &#34;git@github.com:$org/$repo.git&#34; &#34;$target&#34; 2&gt;&amp;1; then
+   486→      echo &#34;✅ $org/$repo cloned successfully&#34;
+   487→      REPOS_CLONED=$((REPOS_CLONED + 1))
+   488→    else
+   489→      echo &#34;❌ Failed to clone $org/$repo&#34; &gt;&amp;2
+   490→    fi
+   491→  fi
+   492→}
+   493→
+   494→clone_repo &#34;troobit&#34; &#34;workscripts&#34;
+   495→clone_repo &#34;ArjenSchwarz&#34; &#34;rune&#34;
+   496→clone_repo &#34;ArjenSchwarz&#34; &#34;orbit&#34;
+   497→clone_repo &#34;ArjenSchwarz&#34; &#34;agentic-coding&#34;
+   498→
+   499→echo &#34;✅ Repository cloning complete ($REPOS_CLONED/$REPOS_TOTAL repositories available)&#34;
+   500→echo &#34;&#34;
+   501→
+   502→########### CLAUDE CODE SKILLS SYMLINK ################
+   503→
+   504→SYMLINK_SETUP=0
+   505→
+   506→if [ -d &#34;$HOME/repos/agentic-coding/claude/skills&#34; ]; then
+   507→  echo &#34;🔗 Setting up Claude Code skills symlink...&#34;
+   508→
+   509→  # Task 16: Create ~/.claude directory if it doesn&#39;t exist
+   510→  mkdir -p &#34;$HOME/.claude&#34;
+   511→
+   512→  TARGET=&#34;$HOME/repos/agentic-coding/claude/skills&#34;
+   513→  LINK=&#34;$HOME/.claude/skills&#34;
+   514→
+   515→  # Task 17: Check symlink existence and validate
+   516→  if [ -L &#34;$LINK&#34; ]; then
+   517→    CURRENT_TARGET=$(readlink &#34;$LINK&#34;)
+   518→    if [ &#34;$CURRENT_TARGET&#34; = &#34;$TARGET&#34; ]; then
+   519→      echo &#34;✅ Claude Code skills symlink already points to correct location&#34;
+   520→      SYMLINK_SETUP=1
+   521→    else
+   522→      echo &#34;⚠️  Warning: ~/.claude/skills points to $CURRENT_TARGET (expected $TARGET)&#34; &gt;&amp;2
+   523→    fi
+   524→  elif [ -e &#34;$LINK&#34; ]; then
+   525→    # Task 18: Something exists but is not a symlink - warn, don&#39;t overwrite
+   526→    echo &#34;⚠️  Warning: ~/.claude/skills exists but is not a symlink&#34; &gt;&amp;2
+   527→  else
+   528→    # Task 18: Create symlink
+   529→    if ln -s &#34;$TARGET&#34; &#34;$LINK&#34;; then
+   530→      echo &#34;✅ Claude Code skills symlink created&#34;
+   531→      SYMLINK_SETUP=1
+   532→    else
+   533→      echo &#34;❌ Failed to create Claude Code skills symlink&#34; &gt;&amp;2
+   534→    fi
+   535→  fi
+   536→else
+   537→  echo &#34;⚠️  Skipping Claude Code skills symlink - agentic-coding repository not available&#34; &gt;&amp;2
+   538→fi
+   539→echo &#34;&#34;
+   540→
+   541→########### GO TOOL INSTALLATION ################
+   542→
+   543→echo &#34;🔧 Installing Go tools...&#34;
+   544→
+   545→TOOLS_INSTALLED=0
+   546→TOOLS_TOTAL=2
+   547→
+   548→install_tool() {
+   549→  local repo_name=$1
+   550→  local repo_path=&#34;$HOME/repos/$repo_name&#34;
+   551→
+   552→  if [ ! -d &#34;$repo_path/.git&#34; ]; then
+   553→    echo &#34;⚠️  Skipping $repo_name - repository not available&#34; &gt;&amp;2
+   554→    return
+   555→  fi
+   556→
+   557→  echo &#34;Installing $repo_name...&#34;
+   558→  if (cd &#34;$repo_path&#34; &amp;&amp; [ -f &#34;Makefile&#34; ] &amp;&amp; make install 2&gt;&amp;1); then
+   559→    echo &#34;✅ $repo_name installed via make install&#34;
+   560→    TOOLS_INSTALLED=$((TOOLS_INSTALLED + 1))
+   561→  elif (cd &#34;$repo_path&#34; &amp;&amp; go install ./... 2&gt;&amp;1); then
+   562→    echo &#34;✅ $repo_name installed via go install&#34;
+   563→    TOOLS_INSTALLED=$((TOOLS_INSTALLED + 1))
+   564→  else
+   565→    echo &#34;❌ Failed to install $repo_name&#34; &gt;&amp;2
+   566→  fi
+   567→}
+   568→
+   569→install_tool &#34;rune&#34;
+   570→install_tool &#34;orbit&#34;
+   571→
+   572→echo &#34;✅ Tool installation complete ($TOOLS_INSTALLED/$TOOLS_TOTAL tools installed)&#34;
+   573→
+   574→# Verify PATH includes ~/go/bin
+   575→if [[ &#34;:$PATH:&#34; != *&#34;:$HOME/go/bin:&#34;* ]]; then
+   576→  echo &#34;⚠️  Warning: ~/go/bin not in PATH. Add to your shell config:&#34; &gt;&amp;2
+   577→  echo &#34;    export PATH=\&#34;\$HOME/go/bin:\$PATH\&#34;&#34; &gt;&amp;2
+   578→fi
+   579→
+   580→# Verify tools are accessible
+   581→for tool in rune orbit; do
+   582→  if command -v &#34;$tool&#34; &amp;&gt;/dev/null; then
+   583→    echo &#34;✅ $tool available: $(command -v &#34;$tool&#34;)&#34;
+   584→  else
+   585→    echo &#34;⚠️  $tool not found in PATH after installation&#34;
+   586→  fi
+   587→done
+   588→echo &#34;&#34;
+   589→
+   590→########### APP-LEVEL SETTINGS (STRETCH) ################
+   591→
+   592→# iTerm2 preferences import
+   593→SCRIPT_DIR=&#34;$(cd &#34;$(dirname &#34;$0&#34;)&#34; &amp;&amp; pwd)&#34;
+   594→ITERM_PLIST=&#34;$SCRIPT_DIR/iterm2-prefs.plist&#34;
+   595→if [ -f &#34;$ITERM_PLIST&#34; ] &amp;&amp; [ -d &#34;/Applications/iTerm.app&#34; ]; then
+   596→  echo &#34;Importing iTerm2 preferences...&#34;
+   597→  defaults import com.googlecode.iterm2 &#34;$ITERM_PLIST&#34; \
+   598→    || echo &#34;Could not import iTerm2 preferences&#34;
+   599→  echo &#34;iTerm2 preferences imported&#34;
+   600→else
+   601→  if [ ! -d &#34;/Applications/iTerm.app&#34; ]; then
+   602→    echo &#34;iTerm2 not installed — skipping preferences import&#34;
+   603→  elif [ ! -f &#34;$ITERM_PLIST&#34; ]; then
+   604→    echo &#34;iterm2-prefs.plist not found — skipping preferences import&#34;
+   605→  fi
+   606→fi
+   607→
+   608→########### SUMMARY ################
+   609→
+   610→# Kill sudo keep-alive — no longer needed
+   611→kill &#34;$SUDO_KEEPALIVE_PID&#34; 2&gt;/dev/null || true
+   612→
+   613→echo &#34;&#34;
+   614→echo &#34;=== Setup Summary ===&#34;
+   615→echo &#34;Repositories: $REPOS_CLONED/$REPOS_TOTAL available&#34;
+   616→echo &#34;Go tools:     $TOOLS_INSTALLED/$TOOLS_TOTAL installed&#34;
+   617→echo &#34;&#34;
+   618→
+   619→if [ &#34;$REPOS_CLONED&#34; -gt 0 ] || [ &#34;$TOOLS_INSTALLED&#34; -gt 0 ] || [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   620→  if [ &#34;$SYMLINK_SETUP&#34; -eq 1 ]; then
+   621→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories, symlink, and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   622→  else
+   623→    echo &#34;✅ Setup complete! Successfully set up $REPOS_CLONED/$REPOS_TOTAL repositories and $TOOLS_INSTALLED/$TOOLS_TOTAL tools.&#34;
+   624→  fi
+   625→else
+   626→  echo &#34;⚠️  Setup completed with issues. Check ~/SETUP.log for details.&#34;
+   627→fi
+   628→
+   629→echo &#34;Restart your terminal to apply all changes.&#34;
+   630→</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/verify-setup.sh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→#!/bin/bash
+     2→# verify-setup.sh — Run after new-mac.sh to verify full environment
+     3→
+     4→PASS=0
+     5→FAIL=0
+     6→
+     7→check() {
+     8→  local desc=$1; shift
+     9→  if &#34;$@&#34; &amp;&gt;/dev/null; then
+    10→    echo &#34;  ✅ $desc&#34;; PASS=$((PASS + 1))
+    11→  else
+    12→    echo &#34;  ❌ $desc&#34;; FAIL=$((FAIL + 1))
+    13→  fi
+    14→}
+    15→
+    16→# Helper for checks that need pipes (pipes can&#39;t be passed as arguments to check)
+    17→check_grep() {
+    18→  local desc=$1
+    19→  local haystack=$2
+    20→  local needle=$3
+    21→  if echo &#34;$haystack&#34; | grep -qi &#34;$needle&#34;; then
+    22→    echo &#34;  ✅ $desc&#34;; PASS=$((PASS + 1))
+    23→  else
+    24→    echo &#34;  ❌ $desc&#34;; FAIL=$((FAIL + 1))
+    25→  fi
+    26→}
+    27→
+    28→echo &#34;=== Dock Apps ===&#34;
+    29→for app in &#34;iTerm&#34; &#34;Notes&#34; &#34;WhatsApp&#34; &#34;Transmission&#34; &#34;VLC&#34; &#34;Calendar&#34; \
+    30→           &#34;System Settings&#34; &#34;Stremio&#34; &#34;TV&#34; &#34;Brave Browser&#34; &#34;iPhone Mirroring&#34; \
+    31→           &#34;Audacity&#34; &#34;Visual Studio Code&#34; &#34;Simulator&#34;; do
+    32→  check &#34;$app in Dock&#34; dockutil --find &#34;$app&#34;
+    33→done
+    34→
+    35→echo &#34;&#34;
+    36→echo &#34;=== Dock Preferences ===&#34;
+    37→check &#34;Show recents disabled&#34; test &#34;$(defaults read com.apple.dock show-recents)&#34; = &#34;0&#34;
+    38→check &#34;Tile size 44&#34; test &#34;$(defaults read com.apple.dock tilesize)&#34; = &#34;44&#34;
+    39→check &#34;Magnification on&#34; test &#34;$(defaults read com.apple.dock magnification)&#34; = &#34;1&#34;
+    40→check &#34;Large size 128&#34; test &#34;$(defaults read com.apple.dock largesize)&#34; = &#34;128&#34;
+    41→check &#34;Auto-hide on&#34; test &#34;$(defaults read com.apple.dock autohide)&#34; = &#34;1&#34;
+    42→
+    43→echo &#34;&#34;
+    44→echo &#34;=== System Preferences ===&#34;
+    45→check &#34;Hot corner BR: Quick Note&#34; test &#34;$(defaults read com.apple.dock wvous-br-corner)&#34; = &#34;14&#34;
+    46→check &#34;Accent color: Pink&#34; test &#34;$(defaults read NSGlobalDomain AppleAccentColor)&#34; = &#34;6&#34;
+    47→check &#34;Mission Control: group by app&#34; test &#34;$(defaults read com.apple.dock expose-group-apps)&#34; = &#34;1&#34;
+    48→check &#34;Mission Control: no auto-rearrange&#34; test &#34;$(defaults read com.apple.dock mru-spaces)&#34; = &#34;0&#34;
+    49→check &#34;Finder: column view&#34; test &#34;$(defaults read com.apple.finder FXPreferredViewStyle)&#34; = &#34;clmv&#34;
+    50→
+    51→echo &#34;&#34;
+    52→echo &#34;=== Power Management ===&#34;
+    53→check &#34;AC display sleep: never&#34; test &#34;$(pmset -g custom | awk &#39;/AC Power/{found=1} found &amp;&amp; /displaysleep/{print $2; exit}&#39;)&#34; = &#34;0&#34;
+    54→check &#34;AC system sleep: never&#34; test &#34;$(pmset -g custom | awk &#39;/AC Power/{found=1} found &amp;&amp; /^ sleep/{print $2; exit}&#39;)&#34; = &#34;0&#34;
+    55→check &#34;Battery display sleep: 10&#34; test &#34;$(pmset -g custom | awk &#39;/Battery Power/{found=1} found &amp;&amp; /displaysleep/{print $2; exit}&#39;)&#34; = &#34;10&#34;
+    56→check &#34;Battery system sleep: 1&#34; test &#34;$(pmset -g custom | awk &#39;/Battery Power/{found=1} found &amp;&amp; /^ sleep/{print $2; exit}&#39;)&#34; = &#34;1&#34;
+    57→
+    58→echo &#34;&#34;
+    59→echo &#34;=== Default Browser ===&#34;
+    60→BROWSER_HANDLERS=$(plutil -extract LSHandlers json -o - \
+    61→  ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist 2&gt;/dev/null || echo &#34;&#34;)
+    62→check_grep &#34;Brave is default browser&#34; &#34;$BROWSER_HANDLERS&#34; &#34;com.brave.Browser&#34;
+    63→
+    64→echo &#34;&#34;
+    65→echo &#34;=== Login Items ===&#34;
+    66→LOGIN_ITEMS=$(osascript -e &#39;tell application &#34;System Events&#34; to get the name of every login item&#39; 2&gt;/dev/null || echo &#34;&#34;)
+    67→for app in &#34;Caffeine&#34; &#34;noTunes&#34; &#34;Magnet&#34; &#34;Bluesnooze&#34; &#34;Google Drive&#34; &#34;Raycast&#34;; do
+    68→  check_grep &#34;$app is login item&#34; &#34;$LOGIN_ITEMS&#34; &#34;$app&#34;
+    69→done
+    70→
+    71→echo &#34;&#34;
+    72→echo &#34;=== Homebrew Packages (sample) ===&#34;
+    73→check &#34;bat installed&#34; brew list bat
+    74→check &#34;fzf installed&#34; brew list fzf
+    75→check &#34;tmux installed&#34; brew list tmux
+    76→check &#34;mas installed&#34; brew list mas
+    77→check &#34;dockutil installed&#34; brew list dockutil
+    78→
+    79→echo &#34;&#34;
+    80→echo &#34;=== Shell Config ===&#34;
+    81→check &#34;aliases.zsh exists&#34; test -f &#34;$HOME/.aliases.zsh&#34;
+    82→check &#34;aliases.zsh sourced in zshrc&#34; grep -q &#39;aliases.zsh&#39; &#34;$HOME/.zshrc&#34;
+    83→check &#34;docker alias defined&#34; grep -q &#34;alias docker=&#39;podman&#39;&#34; &#34;$HOME/.aliases.zsh&#34;
+    84→check &#34;docker-compose alias defined&#34; grep -q &#34;alias docker-compose=&#39;podman-compose&#39;&#34; &#34;$HOME/.aliases.zsh&#34;
+    85→
+    86→echo &#34;&#34;
+    87→echo &#34;=== Compose File ===&#34;
+    88→check &#34;docker-compose.yml exists in repo&#34; test -f &#34;$(dirname &#34;$0&#34;)/docker-compose.yml&#34;
+    89→
+    90→echo &#34;&#34;
+    91→echo &#34;Results: $PASS passed, $FAIL failed&#34;
+    92→</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/aliases.zsh</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→alias ll=&#39;ls -laH&#39;
+     2→alias tf=&#39;terraform&#39;
+     3→alias tfaaa=&#39;terraform apply --auto-approve&#39;
+     4→alias tfddd=&#39;terraform destroy --auto-approve&#39;
+     5→alias gl=&#39;git log --oneline --graph&#39;
+     6→alias ggc=&#39;vim ~/.gitconfig&#39;
+     7→alias c=&#39;clear&#39;
+     8→alias py=&#39;python3&#39;
+     9→alias brup=&#34;brew update; brew upgrade; brew upgrade --cask --greedy; brew uninstall microsoft-auto-update; brew cleanup -s&#34;
+    10→alias guck=&#39;git remote get-url origin | read origin &amp;&amp; git rev-parse --show-toplevel | read repo &amp;&amp; cd &#34;$repo/..&#34; &amp;&amp; rm -rf &#34;$repo&#34; &amp;&amp; git clone $origin &amp;&amp; cd $repo &amp;&amp; repo=&#34;&#34; &amp;&amp; origin=&#34;&#34;&#39;
+    11→alias gitprune=&#39;git remote prune origin &amp;&amp; git branch -vv | grep &#39;\&#39;&#39;origin/.*: gone]&#39;\&#39;&#39; | awk &#39;\&#39;&#39;{print $1}&#39;\&#39;&#39; | xargs git branch -D&#39;
+    12→alias ssmsesh=&#39;aws ssm start-session --region ap-southeast-2 --target&#39;
+    13→alias zshconfig=&#34;code ~/.zshrc&#34;
+    14→# Container aliases (Podman)
+    15→alias docker=&#39;podman&#39;
+    16→alias docker-compose=&#39;podman-compose&#39;
+    17→alias dockernuke=&#39;podman stop $(podman ps -aq) 2&gt;/dev/null; podman rm $(podman ps -aq) 2&gt;/dev/null; podman rmi $(podman images -q) 2&gt;/dev/null; podman system prune -af&#39;
+    18→alias dockerclear=&#39;podman stop $(podman ps -aq) 2&gt;/dev/null; podman rm $(podman ps -aq) 2&gt;/dev/null; podman rmi $(podman images -q) 2&gt;/dev/null&#39;
+    19→alias ohmyzsh=&#34;code ~/.oh-my-zsh&#34;
+    20→alias removetheme=&#34;cp ~/.zshrc ~/.zshrc.bak; sed -i &#39;&#39; &#39;s/ \&#34;$RANDOM_THEME\&#34;//g&#39; ~/.zshrc; source ~/.zshrc&#34;
+    21→alias gc=&#39;gcloud&#39;
+    22→alias cat=&#39;bat&#39;
+    23→alias chrdebug=&#34;/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222&#34;</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Now let me read the remaining referenced files and the current guide document.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/zshrc</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# export PATH=$HOME/bin:/usr/local/bin:$PATH
+     2→
+     3→# Path to your oh-my-zsh installation.
+     4→export ZSH=&#34;$HOME/.oh-my-zsh&#34;
+     5→setopt shwordsplit
+     6→
+     7→ZSH_THEME=random
+     8→ZSH_THEME_RANDOM_CANDIDATES=( &#34;adben&#34; &#34;afowler&#34; &#34;agnoster&#34; &#34;amuse&#34; &#34;apple&#34; &#34;arrow&#34; &#34;aussiegeek&#34; &#34;avit&#34; &#34;awesomepanda&#34; &#34;bira&#34; &#34;blinks&#34; &#34;candy-kingdom&#34; &#34;crcandy&#34; &#34;darkblood&#34; &#34;daveverwer&#34; &#34;dogenpunk&#34; &#34;dst&#34; &#34;dstufft&#34; &#34;duellj&#34; &#34;edvardm&#34; &#34;fino&#34; &#34;frisk&#34; &#34;frontcube&#34; &#34;funky&#34; &#34;garyblessington&#34; &#34;geoffgarside&#34; &#34;gianu&#34; &#34;imajes&#34; &#34;intheloop&#34; &#34;itchy&#34; &#34;jbergantine&#34; &#34;jispwoso&#34; &#34;jonathan&#34; &#34;josh&#34; &#34;jtriley&#34; &#34;kolo&#34; &#34;kphoen&#34; &#34;linuxonly&#34; &#34;lukerandall&#34; &#34;mgutz&#34; &#34;mh&#34; &#34;mikeh&#34; &#34;miloshadzic&#34; &#34;minimal&#34; &#34;mira&#34; &#34;mlh&#34; &#34;mortalscumbag&#34; &#34;mrtazz&#34; &#34;murilasso&#34; &#34;muse&#34; &#34;nanotech&#34; &#34;nebirhos&#34; &#34;nicoulaj&#34; &#34;pmcgee&#34; &#34;refined&#34; &#34;rgm&#34; &#34;robbyrussell&#34; &#34;simonoff&#34; &#34;simple&#34; &#34;sorin&#34; &#34;steeef&#34; &#34;strug&#34; &#34;sunrise&#34; &#34;suvash&#34; &#34;terminalparty&#34; &#34;theunraveler&#34; &#34;trapd00r&#34; &#34;xiong-chiamiov-plus&#34; &#34;xiong-chiamiov&#34; &#34;ys&#34; &#34;zhann&#34; )
+     9→
+    10→# Uncomment the following line to use case-sensitive completion.
+    11→# CASE_SENSITIVE=&#34;true&#34;
+    12→
+    13→# Uncomment the following line to use hyphen-insensitive completion.
+    14→# Case-sensitive completion must be off. _ and - will be interchangeable.
+    15→HYPHEN_INSENSITIVE=&#34;true&#34;
+    16→
+    17→# Uncomment one of the following lines to change the auto-update behavior
+    18→# zstyle &#39;:omz:update&#39; mode disabled # disable automatic updates
+    19→zstyle &#39;:omz:update&#39; mode auto # update automatically without asking
+    20→# zstyle &#39;:omz:update&#39; mode reminder # just remind me to update when it&#39;s time
+    21→
+    22→# Uncomment the following line to change how often to auto-update (in days).
+    23→# zstyle &#39;:omz:update&#39; frequency 13
+    24→
+    25→# Uncomment the following line if pasting URLs and other text is messed up.
+    26→# DISABLE_MAGIC_FUNCTIONS=&#34;true&#34;
+    27→
+    28→# Uncomment the following line to disable colors in ls.
+    29→# DISABLE_LS_COLORS=&#34;true&#34;
+    30→
+    31→# Uncomment the following line to disable auto-setting terminal title.
+    32→# DISABLE_AUTO_TITLE=&#34;true&#34;
+    33→
+    34→# Uncomment the following line to enable command auto-correction.
+    35→#NABLE_CORRECTION=&#34;true&#34;
+    36→
+    37→# Uncomment the following line to display red dots whilst waiting for completion.
+    38→# You can also set it to another string to have that shown instead of the default red dots.
+    39→# e.g. COMPLETION_WAITING_DOTS=&#34;%F{yellow}waiting...%f&#34;
+    40→# Caution: this setting can cause issues with multiline prompts in zsh &lt; 5.7.1 (see #5765)
+    41→# COMPLETION_WAITING_DOTS=&#34;true&#34;
+    42→
+    43→# Uncomment the following line if you want to disable marking untracked files
+    44→# under VCS as dirty. This makes repository status check for large repositories
+    45→# much, much faster.
+    46→DISABLE_UNTRACKED_FILES_DIRTY=&#34;true&#34;
+    47→
+    48→# Uncomment the following line if you want to change the command execution time
+    49→# stamp shown in the history command output.
+    50→# You can set one of the optional three formats:
+    51→# &#34;mm/dd/yyyy&#34;|&#34;dd.mm.yyyy&#34;|&#34;yyyy-mm-dd&#34;
+    52→# or set a custom format using the strftime function format specifications,
+    53→# see &#39;man strftime&#39; for details.
+    54→# HIST_STAMPS=&#34;mm/dd/yyyy&#34;
+    55→
+    56→# Would you like to use another custom folder than $ZSH/custom?
+    57→# ZSH_CUSTOM=/path/to/new-custom-folder
+    58→
+    59→plugins=(brew vim-interaction zsh-interactive-cd zsh-navigation-tools)
+    60→source $ZSH/oh-my-zsh.sh
+    61→
+    62→export LSCOLORS=&#39;ExGxDxDxCxDxDxFxFxexEx&#39;
+    63→setopt EXTENDED_HISTORY
+    64→</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>macos/vimrc</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→set cursorline
+     2→&#34; set cursorcolumn
+     3→set number
+     4→set shiftwidth=4
+     5→set tabstop=4
+     6→set expandtab &#34; Spaces instead of tabs
+     7→set scrolloff=10 &#34; Do not let cursor scroll below or above N number of lines when scrolling.
+     8→set wrap &#34; wrap lines. Use nowrap to invert
+     9→set incsearch
+    10→set ignorecase &#34; Ignore capital letters during search.
+    11→set smartcase &#34; This will allow you to search specifically for capital letters.
+    12→set showcmd &#34; Show partial command you type in the last line of the screen.
+    13→set showmode &#34; Show the mode you are on the last line.
+    14→set showmatch &#34; Show matching words during a search.
+    15→set hlsearch &#34; Use highlighting when doing a search.&#34;
+    16→set list &#34; Show spaces when editing documents
+    17→set listchars=tab:»·,trail:·,extends:»,precedes:«,nbsp:· &#34;Show spaces as dots?
+    18→syntax on
+    19→hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+    20→&#34; hi CursorColumn cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+    21→nnoremap &lt;Leader&gt;c :set cursorline!&lt;CR&gt;
+    22→</code></pre>
+                    </div>
+                </details>
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>specs/mac-env-setup/decision_log.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# Decision Log — mac-env-setup
+     2→
+     3→## D1: Feature name
+     4→- **Decision:** `mac-env-setup`
+     5→- **Rationale:** Covers dock customization, podman container setup, and app management holistically
+     6→
+     7→## D2: Dock app list
+     8→- **Decision:** Dock will contain only: Finder, Brave Browser, WhatsApp, iTerm2, Calendar
+     9→- **Rationale:** User-specified minimal dock. All other defaults removed. Recent apps section disabled.
+    10→
+    11→## D3: Brave Browser and WhatsApp
+    12→- **Decision:** Add `brave-browser` and `whatsapp` to `default_packages` in brew install list
+    13→- **Rationale:** Both needed in the Dock, so they must be installed by the script
+    14→
+    15→## D4: Proxy configuration
+    16→- **Decision:** General networking only (no corporate proxy config)
+    17→- **Rationale:** Containers just need standard inter-container and host communication with internet access
+    18→
+    19→## D5: Podman volumes
+    20→- **Decision:** Mount local project directories (e.g., ~/repos) into containers
+    21→- **Rationale:** Primary use case is local development, not persistent named volumes for databases
+    22→
+    23→## D6: Docker alias strategy
+    24→- **Decision:** Replace existing docker aliases with podman equivalents; alias `docker`→`podman` and `docker-compose`→`podman-compose`
+    25→- **Rationale:** Single container runtime, avoid confusion between docker and podman commands
+    26→
+    27→## D7: Backwards compatibility
+    28→- **Decision:** All new sections must be idempotent (safe to re-run)
+    29→- **Rationale:** Matches existing script pattern — check state before modifying
+    30→
+    31→## D8: Recent apps in Dock
+    32→- **Decision:** Disable &#34;Show recent applications in Dock&#34; via `defaults write`
+    33→- **Rationale:** User explicitly requested this
+    34→
+    35→## D9: Dock manipulation tool
+    36→- **Decision:** Use `dockutil` (installed via Homebrew) for Dock manipulation
+    37→- **Rationale:** macOS has no built-in CLI for adding/removing Dock items. `dockutil` is the standard third-party tool. Added to `default_packages`.
+    38→
+    39→## D10: Finder in Dock list
+    40→- **Decision:** Exclude Finder from the explicit add list; macOS preserves it automatically
+    41→- **Rationale:** Finder cannot be removed from the Dock via `dockutil`; listing it would be redundant
+    42→
+    43→## D11: set -e conflict resolution
+    44→- **Decision:** Non-critical sections use `|| true` guards; critical sections exit on failure
+    45→- **Rationale:** Existing script uses `set -e`. Rather than removing it (which would weaken error handling for existing sections), wrap non-critical new sections.
+    46→
+    47→## D12: Podman default home mount
+    48→- **Decision:** Rely on Podman 4+ default home directory mount for ~/repos access
+    49→- **Rationale:** Podman on macOS mounts the user home by default. No need for explicit `--volume` flag on `podman machine init`.
+    50→
+    51→## D13: docker-compose compatibility scope
+    52→- **Decision:** Aliases support common Compose features; full compatibility is not guaranteed
+    53→- **Rationale:** `podman-compose` has known incompatibilities with advanced docker-compose features (depends_on conditions, some network modes)
+    54→
+    55→## D14: dockutil v3 syntax
+    56→- **Decision:** Use `--no-restart` flag to batch changes, single `killall Dock` at end
+    57→- **Rationale:** Research confirmed `--no-restart` IS supported in dockutil v3.1.3 (current Homebrew version). README documents it explicitly. Batching avoids multiple Dock restarts.
+    58→
+    59→## D15: Shell config deployment (aliases.zsh only)
+    60→- **Decision:** Download `aliases.zsh` from the repo and source it from `~/.zshrc`. Remove `path.zsh` from the repo.
+    61→- **Rationale:** `aliases.zsh` was never deployed or sourced — without this, alias changes (section 7) would never take effect. `path.zsh` is redundant (see D16).
+    62→
+    63→## D16: Remove path.zsh
+    64→- **Decision:** Remove `macos/path.zsh` from the repository
+    65→- **Rationale:** pnpm PATH is handled automatically by `brew install pnpm`. NVM manages its own PATH via its installer. Homebrew PATH is already set by `eval &#34;$(/opt/homebrew/bin/brew shellenv)&#34;` in the script. The file also contained a hardcoded `/Users/ronan/Library/pnpm` path that wouldn&#39;t work on other users&#39; machines.
+    66→
+    67→## D17: Homebrew bash re-exec — SUPERSEDED by D19
+    68→- **Decision:** ~~Re-exec script under Homebrew&#39;s bash 4+~~ → Replaced with indexed arrays
+    69→- **Rationale:** See D19
+    70→
+    71→## D18: Drop NVM
+    72→- **Decision:** NVM is not installed or configured by the setup script
+    73→- **Rationale:** NVM init was only in `path.zsh` which is being removed. NVM is not in the Homebrew package list and is not needed for the current development workflow.
+    74→
+    75→## D19: Use indexed arrays instead of associative arrays
+    76→- **Decision:** Use two parallel indexed arrays (`DOCK_NAMES`, `DOCK_PATHS`) instead of `declare -A`
+    77→- **Rationale:** Eliminates need for bash 4+ and the entire re-exec component. macOS ships bash 3.2 which supports indexed arrays but not associative arrays. Two reviewers independently recommended this simplification.
+    78→
+    79→## D20: Podman network DNS default — SUPERSEDED by D21
+    80→- **Decision:** ~~Omit `--dns-enabled` flag~~ → No network creation in script at all
+    81→- **Rationale:** See D21
+    82→
+    83→## D21: Podman is install-only
+    84→- **Decision:** The setup script installs Podman and podman-compose via Homebrew but does NOT initialise/start the machine, create networks, or run containers
+    85→- **Rationale:** User feedback: Podman just needs to be available. Machine init, networking, and containers are user-initiated via the reference compose file. This keeps the setup script simple and avoids side effects.
+    86→
+    87→## D22: Compose file volume separation
+    88→- **Decision:** Compose file mounts `./src` (project subdirectory) not `~/repos` directly
+    89→- **Rationale:** User specified that network drives should not be mapped to ~/repos but rather a subdirectory. Each project gets its own compose file with its own mount context.
+    90→
+    91→---
+    92→
+    93→## v2 Decisions
+    94→
+    95→## D23: Script restructuring — interactive/unattended phases
+    96→- **Decision:** Restructure `new-mac.sh` into two distinct phases: interactive (Xcode, Homebrew install, user input, SSH keys, sudo credentials) followed by unattended (everything else)
+    97→- **Rationale:** User wants to log in, answer a few prompts, then walk away. Moving all interactive steps before package installation creates a clean boundary. A &#34;walk away&#34; banner marks the transition.
+    98→
+    99→## D24: Sudo keep-alive mechanism
+   100→- **Decision:** Use `sudo -v` during interactive phase with a background `while true; do sudo -n true; sleep 60; done` keep-alive loop, killed on script exit via `trap EXIT`
+   101→- **Rationale:** `pmset` requires `sudo`. Without keep-alive, the sudo credential cache (default 5 minutes) would expire during long package installs, causing the power management section to fail or prompt mid-unattended phase.
+   102→
+   103→## D25: Default browser via Swift/NSWorkspace — replacing defaultbrowser CLI
+   104→- **Decision:** Set Brave as default browser using a Swift heredoc that calls `NSWorkspace.shared.setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https`. Use background AppleScript to auto-dismiss the system confirmation dialog.
+   105→- **Rationale:** The `defaultbrowser` CLI (kerma/defaultbrowser) is being deprecated. Swift/NSWorkspace is built into macOS 12+ (no extra dependency), uses the modern API (`LSSetDefaultHandlerForURLScheme` was removed in macOS 12), and Swift is available after Xcode CLI tools are installed.
+   106→
+   107→## D26: Full Dock layout with SPACER sentinel pattern
+   108→- **Decision:** Expand Dock from 4 apps to 16 apps + 2 spacers + Downloads folder. Use `SPACER` as a sentinel value in `DOCK_NAMES` array to trigger `dockutil --add &#39;&#39; --type spacer` during the loop.
+   109→- **Rationale:** The current 4-app Dock doesn&#39;t match the user&#39;s actual 16-app layout. The SPACER sentinel keeps the single-loop pattern (bash 3.2 compatible) and avoids post-loop position-based insertion which would be fragile.
+   110→
+   111→## D27: Login items via osascript
+   112→- **Decision:** Use `osascript -e &#39;tell application &#34;System Events&#34; to make login item at end with properties {path:&#34;...&#34;, hidden:false}&#39;` to add login items. Check existing items via `osascript` query before adding.
+   113→- **Rationale:** AppleScript is the supported way to manage login items programmatically. macOS Ventura+ may show a notification, but this is unavoidable — documented as a known limitation.
+   114→
+   115→## D28: Power management values
+   116→- **Decision:** AC: displaysleep=0, sleep=0 (never). Battery: displaysleep=10, sleep=1.
+   117→- **Rationale:** Captured from current environment via `pmset -g custom`. AC never-sleep prevents long-running tasks from being interrupted. Battery values are conservative for portable use.
+   118→
+   119→## D29: Scoped out items
+   120→- **Decision:** VS Code extensions, desktop wallpaper, and computer name are out of scope.
+   121→- **Rationale:** VS Code extensions are managed by the logged-in user (Settings Sync). Desktop wallpaper/background and data collection are out of scope per user decision. Computer name prompt is out of scope.
+   122→
+   123→## D30: Mac App Store via mas — Magnet only
+   124→- **Decision:** Install `mas` via Homebrew, use `mas install 441258766` for Magnet. No other App Store apps needed.
+   125→- **Rationale:** Magnet is the only currently-installed app that is only available via the Mac App Store. All other apps are available via Homebrew casks. `mas` requires prior App Store authentication — script warns and continues if not signed in.
+   126→
+   127→## D31: App-level settings automation limitations
+   128→- **Decision:** Only iTerm2 preferences are automated (via `defaults export`/`import`). The following apps cannot be reliably automated:
+   129→  - **Magnet** — Shortcuts stored in `com.crowdcafe.windowmagnet` plist; export/import possible but activation requires license verification
+   130→  - **Raycast** — Settings encrypted and tied to Raycast account; export requires Raycast Pro
+   131→  - **NordVPN** — Requires interactive login; cannot automate credentials
+   132→  - **Bitwarden** — Requires interactive login; security-sensitive
+   133→  - **VS Code** — Managed by logged-in user via Settings Sync (out of scope per D29)
+   134→- **Rationale:** iTerm2 is the only app where plist import reliably reproduces the full configuration. Other apps either require license/account authentication or use encrypted settings formats.
+   135→
+   136→## D18: Drop NVM — SUPERSEDED
+   137→- **Decision:** ~~NVM is not installed by the setup script~~ → NVM is now included in `home_packages`
+   138→- **Rationale:** NVM is currently installed via Homebrew on the existing environment. v2 aims for complete environment reproduction, so NVM is included. (Overrides v1 D18 which excluded NVM.)
+   139→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Glob</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Pattern:</strong> <code>docs/new-mac-guide.md</code>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>/Users/ronan/repos/workscripts/docs/new-mac-guide.md</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# New Mac Setup Guide
+     2→
+     3→&gt; Last verified: 2026-03-24 | Source of truth: `macos/new-mac.sh`
+     4→
+     5→## Quick Start
+     6→
+     7→```bash
+     8→curl -fsSL https://raw.githubusercontent.com/troobit/workscripts/main/macos/new-mac.sh -o /tmp/new-mac.sh
+     9→chmod +x /tmp/new-mac.sh
+    10→bash /tmp/new-mac.sh
+    11→```
+    12→
+    13→## Prerequisites
+    14→
+    15→- **macOS 15+ (Sequoia)** — the full Dock layout (including iPhone Mirroring) requires macOS 15; underlying Swift/NSWorkspace APIs work on 12+
+    16→- **Apple ID signed into the App Store** — required for `mas` (Mac App Store CLI) to install apps like Magnet
+    17→- **Internet connection** — the script downloads Homebrew, packages, Oh My Zsh, shell configs, and clones Git repositories
+    18→
+    19→## Getting Started
+    20→
+    21→On a fresh Mac, SSH keys don&#39;t exist yet — so you can&#39;t `git clone` via SSH. Instead, bootstrap by fetching the setup script directly over HTTPS using `curl`:
+    22→
+    23→```bash
+    24→curl -fsSL https://raw.githubusercontent.com/troobit/workscripts/main/macos/new-mac.sh -o /tmp/new-mac.sh
+    25→chmod +x /tmp/new-mac.sh
+    26→bash /tmp/new-mac.sh
+    27→```
+    28→
+    29→The script begins with an automated bootstrap that installs Xcode Command Line Tools, Homebrew, and `gh` (GitHub CLI) — all without requiring SSH access. Once those are in place, the first meaningful interactive step is **SSH key generation**: the script creates an Ed25519 key at `~/.ssh/github`, starts the SSH agent, and authenticates with GitHub via `gh auth login`. From that point on, all Git operations (repository cloning, etc.) use SSH.
+    30→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 ToolSearch</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Input:</strong>
+                            <pre><code>{
+  &#34;max_results&#34;: 1,
+  &#34;query&#34;: &#34;select:TodoWrite&#34;
+}</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>[{&#34;tool_name&#34;:&#34;TodoWrite&#34;,&#34;type&#34;:&#34;tool_reference&#34;}]</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Now I have a clear picture of the current state. The guide exists at <code>docs/new-mac-guide.md</code> with Quick Start, Prerequisites, and Getting Started sections already written (Phase A). Now I need to implement Phase B: Core Content (tasks 3-6).</p>
+<p>Let me set up my todo list and start working through the tasks sequentially.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[-] Task 3: Document the two-phase structure (interactive and unattended)</li>
+                                <li>[ ] Task 4: Add software inventory by category with descriptions</li>
+                                <li>[ ] Task 5: Add What Gets Configured summary table</li>
+                                <li>[ ] Task 6: Document all post-setup manual steps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Starting with Task 3: documenting the two-phase structure.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> ```</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> The script begins with an automated bootstrap that installs Xcode Command Line Tools, Homebrew, and `gh` (GitHub CLI) — all without requiring SSH access. Once those are in place, the first meaningful interactive step is **SSH key generation**: the script creates an Ed25519 key at `~/.ssh/github`, starts the SSH agent, and authenticates with GitHub via `gh auth login`. From that point on, all Git operations (repository cloning, etc.) use SSH.</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+## What Happens: Interactive Phase</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+The interactive phase requires you to be present at the keyboard. The script handles bootstrap dependencies automatically, then prompts you for input:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+1. **Auto-installs Xcode CLT and Homebrew** — if not already present, these are installed without prompting (Xcode CLT may show a system dialog)</span>
+                            <span class="patch-line addition">+2. **Installs `gh` (GitHub CLI)** — needed for SSH key upload and GitHub authentication</span>
+                            <span class="patch-line addition">+3. **Prompts for your GitHub noreply email** — enter the address from [GitHub Settings → Emails → &#34;Keep my email addresses private&#34;](https://github.com/settings/emails), e.g. `12345678+username@users.noreply.github.com`. This is used for both `ssh-keygen -C` and `.gitconfig [user] email`</span>
+                            <span class="patch-line addition">+4. **Prompts for your full name** — used in `.gitconfig [user] name`</span>
+                            <span class="patch-line addition">+5. **Generates an SSH key** — creates an Ed25519 key at `~/.ssh/github`, adds it to the SSH agent, authenticates with GitHub via `gh auth login` (opens a browser), and uploads the public key</span>
+                            <span class="patch-line addition">+6. **Prompts for your sudo password** — needed for system-level configuration (power management). A background keep-alive process maintains the sudo session for the rest of the script</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+Once you enter your sudo password, the script prints:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+```</span>
+                            <span class="patch-line addition">+🚀 Unattended phase starting — you can walk away now</span>
+                            <span class="patch-line addition">+```</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+## What Happens: Unattended Phase</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+After the banner, no further input is required. You can walk away while the script:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- Updates Homebrew and installs all packages (formulae and casks)</span>
+                            <span class="patch-line addition">+- Installs the Nerd Font (Droid Sans Mono) and Oh My Zsh with plugins</span>
+                            <span class="patch-line addition">+- Installs Mac App Store apps via `mas` (Magnet)</span>
+                            <span class="patch-line addition">+- Downloads and deploys shell configuration (`.vimrc`, `.zshrc` additions, `aliases.zsh`)</span>
+                            <span class="patch-line addition">+- Configures system preferences (hot corners, accent colour, Mission Control, Finder)</span>
+                            <span class="patch-line addition">+- Sets up the Dock layout with spacers and preferences (auto-hide, magnification, tile size)</span>
+                            <span class="patch-line addition">+- Configures power management (AC: never sleep; battery: conservative)</span>
+                            <span class="patch-line addition">+- Sets Brave Browser as the default browser (auto-dismisses the confirmation dialog)</span>
+                            <span class="patch-line addition">+- Adds login items (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast)</span>
+                            <span class="patch-line addition">+- Creates `.gitconfig` with your name, email, SSH key path, and conditional includes</span>
+                            <span class="patch-line addition">+- Creates `~/repos/` and clones repositories via SSH</span>
+                            <span class="patch-line addition">+- Sets up the Claude Code skills symlink</span>
+                            <span class="patch-line addition">+- Installs Go tools (`rune`, `orbit`) via `make install` or `go install`</span>
+                            <span class="patch-line addition">+- Imports iTerm2 preferences from `macos/iterm2-prefs.plist`</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+All output from the unattended phase is logged to **`~/SETUP.log`** — check this file if anything goes wrong.</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark task 3 as complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete 3</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 3: Document the two-phase structure (interactive and unattended) with what each phase does</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Task 3: Document the two-phase structure (interactive and unattended)</li>
+                                <li>[-] Task 4: Add software inventory by category with descriptions</li>
+                                <li>[ ] Task 5: Add What Gets Configured summary table</li>
+                                <li>[ ] Task 6: Document all post-setup manual steps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Now Task 4: software inventory by category.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# New Mac Setup Guide
+     2→
+     3→&gt; Last verified: 2026-03-24 | Source of truth: `macos/new-mac.sh`
+     4→
+     5→## Quick Start
+     6→
+     7→```bash
+     8→curl -fsSL https://raw.githubusercontent.com/troobit/workscripts/main/macos/new-mac.sh -o /tmp/new-mac.sh
+     9→chmod +x /tmp/new-mac.sh
+    10→bash /tmp/new-mac.sh
+    11→```
+    12→
+    13→## Prerequisites
+    14→
+    15→- **macOS 15+ (Sequoia)** — the full Dock layout (including iPhone Mirroring) requires macOS 15; underlying Swift/NSWorkspace APIs work on 12+
+    16→- **Apple ID signed into the App Store** — required for `mas` (Mac App Store CLI) to install apps like Magnet
+    17→- **Internet connection** — the script downloads Homebrew, packages, Oh My Zsh, shell configs, and clones Git repositories
+    18→
+    19→## Getting Started
+    20→
+    21→On a fresh Mac, SSH keys don&#39;t exist yet — so you can&#39;t `git clone` via SSH. Instead, bootstrap by fetching the setup script directly over HTTPS using `curl`:
+    22→
+    23→```bash
+    24→curl -fsSL https://raw.githubusercontent.com/troobit/workscripts/main/macos/new-mac.sh -o /tmp/new-mac.sh
+    25→chmod +x /tmp/new-mac.sh
+    26→bash /tmp/new-mac.sh
+    27→```
+    28→
+    29→The script begins with an automated bootstrap that installs Xcode Command Line Tools, Homebrew, and `gh` (GitHub CLI) — all without requiring SSH access. Once those are in place, the first meaningful interactive step is **SSH key generation**: the script creates an Ed25519 key at `~/.ssh/github`, starts the SSH agent, and authenticates with GitHub via `gh auth login`. From that point on, all Git operations (repository cloning, etc.) use SSH.
+    30→
+    31→## What Happens: Interactive Phase
+    32→
+    33→The interactive phase requires you to be present at the keyboard. The script handles bootstrap dependencies automatically, then prompts you for input:
+    34→
+    35→1. **Auto-installs Xcode CLT and Homebrew** — if not already present, these are installed without prompting (Xcode CLT may show a system dialog)
+    36→2. **Installs `gh` (GitHub CLI)** — needed for SSH key upload and GitHub authentication
+    37→3. **Prompts for your GitHub noreply email** — enter the address from [GitHub Settings → Emails → &#34;Keep my email addresses private&#34;](https://github.com/settings/emails), e.g. `12345678+username@users.noreply.github.com`. This is used for both `ssh-keygen -C` and `.gitconfig [user] email`
+    38→4. **Prompts for your full name** — used in `.gitconfig [user] name`
+    39→5. **Generates an SSH key** — creates an Ed25519 key at `~/.ssh/github`, adds it to the SSH agent, authenticates with GitHub via `gh auth login` (opens a browser), and uploads the public key
+    40→6. **Prompts for your sudo password** — needed for system-level configuration (power management). A background keep-alive process maintains the sudo session for the rest of the script
+    41→
+    42→Once you enter your sudo password, the script prints:
+    43→
+    44→```
+    45→🚀 Unattended phase starting — you can walk away now
+    46→```
+    47→
+    48→## What Happens: Unattended Phase
+    49→
+    50→After the banner, no further input is required. You can walk away while the script:
+    51→
+    52→- Updates Homebrew and installs all packages (formulae and casks)
+    53→- Installs the Nerd Font (Droid Sans Mono) and Oh My Zsh with plugins
+    54→- Installs Mac App Store apps via `mas` (Magnet)
+    55→- Downloads and deploys shell configuration (`.vimrc`, `.zshrc` additions, `aliases.zsh`)
+    56→- Configures system preferences (hot corners, accent colour, Mission Control, Finder)
+    57→- Sets up the Dock layout with spacers and preferences (auto-hide, magnification, tile size)
+    58→- Configures power management (AC: never sleep; battery: conservative)
+    59→- Sets Brave Browser as the default browser (auto-dismisses the confirmation dialog)
+    60→- Adds login items (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast)
+    61→- Creates `.gitconfig` with your name, email, SSH key path, and conditional includes
+    62→- Creates `~/repos/` and clones repositories via SSH
+    63→- Sets up the Claude Code skills symlink
+    64→- Installs Go tools (`rune`, `orbit`) via `make install` or `go install`
+    65→- Imports iTerm2 preferences from `macos/iterm2-prefs.plist`
+    66→
+    67→All output from the unattended phase is logged to **`~/SETUP.log`** — check this file if anything goes wrong.
+    68→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> - Imports iTerm2 preferences from `macos/iterm2-prefs.plist`</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> All output from the unattended phase is logged to **`~/SETUP.log`** — check this file if anything goes wrong.</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+## Software Installed</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+The script installs packages in three categories. By default, `default_packages` and `home_packages` are combined. `work_packages` are excluded unless you opt in.</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Default Packages</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+| Package | Type | Description |</span>
+                            <span class="patch-line addition">+|---------|------|-------------|</span>
+                            <span class="patch-line addition">+| bat | Formula | `cat` replacement with syntax highlighting |</span>
+                            <span class="patch-line addition">+| fzf | Formula | Fuzzy finder for the terminal |</span>
+                            <span class="patch-line addition">+| gh | Formula | GitHub CLI |</span>
+                            <span class="patch-line addition">+| git | Formula | Version control |</span>
+                            <span class="patch-line addition">+| go | Formula | Go programming language |</span>
+                            <span class="patch-line addition">+| htop | Formula | Interactive process viewer |</span>
+                            <span class="patch-line addition">+| jq | Formula | JSON processor |</span>
+                            <span class="patch-line addition">+| rename | Formula | Batch file renaming |</span>
+                            <span class="patch-line addition">+| tmux | Formula | Terminal multiplexer |</span>
+                            <span class="patch-line addition">+| tree | Formula | Directory listing as a tree |</span>
+                            <span class="patch-line addition">+| wget | Formula | HTTP file downloader |</span>
+                            <span class="patch-line addition">+| yq | Formula | YAML/XML/TOML processor (like jq) |</span>
+                            <span class="patch-line addition">+| bluesnooze | Cask | Disables Bluetooth when Mac sleeps to prevent phantom wake-ups |</span>
+                            <span class="patch-line addition">+| brave-browser | Cask | Privacy-focused Chromium browser (set as default) |</span>
+                            <span class="patch-line addition">+| caffeine | Cask | Prevents Mac from sleeping (menu bar toggle) |</span>
+                            <span class="patch-line addition">+| claude-code | Cask | Claude Code AI assistant |</span>
+                            <span class="patch-line addition">+| dockutil | Cask | CLI tool for managing Dock items programmatically |</span>
+                            <span class="patch-line addition">+| firefox | Cask | Web browser |</span>
+                            <span class="patch-line addition">+| gimp | Cask | Image editor |</span>
+                            <span class="patch-line addition">+| google-chrome | Cask | Web browser |</span>
+                            <span class="patch-line addition">+| iterm2 | Cask | Terminal emulator |</span>
+                            <span class="patch-line addition">+| nordvpn | Cask | VPN client |</span>
+                            <span class="patch-line addition">+| notunes | Cask | Prevents Apple Music from launching when media keys are pressed |</span>
+                            <span class="patch-line addition">+| raycast | Cask | Spotlight replacement with extensions, clipboard history, and window management |</span>
+                            <span class="patch-line addition">+| visual-studio-code | Cask | Code editor |</span>
+                            <span class="patch-line addition">+| whatsapp | Cask | Messaging app |</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Home Packages</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+| Package | Type | Description |</span>
+                            <span class="patch-line addition">+|---------|------|-------------|</span>
+                            <span class="patch-line addition">+| awscli | Formula | AWS command-line interface |</span>
+                            <span class="patch-line addition">+| azure-cli | Formula | Azure command-line interface |</span>
+                            <span class="patch-line addition">+| cloudflared | Formula | Cloudflare Tunnel client for exposing local services securely |</span>
+                            <span class="patch-line addition">+| lychee | Formula | Fast link checker for markdown, HTML, and URLs |</span>
+                            <span class="patch-line addition">+| mas | Formula | Mac App Store CLI — installs App Store apps from the terminal |</span>
+                            <span class="patch-line addition">+| nvm | Formula | Node.js version manager |</span>
+                            <span class="patch-line addition">+| opentofu | Formula | Open-source Terraform alternative |</span>
+                            <span class="patch-line addition">+| podman | Formula | Daemonless container runtime (Docker alternative) |</span>
+                            <span class="patch-line addition">+| podman-compose | Formula | Docker Compose equivalent for Podman |</span>
+                            <span class="patch-line addition">+| uv | Formula | Ultra-fast Python package installer and resolver |</span>
+                            <span class="patch-line addition">+| ykman | Formula | YubiKey Manager CLI for configuring YubiKey devices |</span>
+                            <span class="patch-line addition">+| anydesk | Cask | Remote desktop |</span>
+                            <span class="patch-line addition">+| audacity | Cask | Audio editor |</span>
+                            <span class="patch-line addition">+| bitwarden | Cask | Password manager |</span>
+                            <span class="patch-line addition">+| codelayer | Cask | Code overlay tool for screen recordings and presentations |</span>
+                            <span class="patch-line addition">+| dropbox | Cask | Cloud storage |</span>
+                            <span class="patch-line addition">+| gcloud-cli | Cask | Google Cloud CLI |</span>
+                            <span class="patch-line addition">+| github | Cask | GitHub Desktop |</span>
+                            <span class="patch-line addition">+| google-drive | Cask | Google Drive sync client |</span>
+                            <span class="patch-line addition">+| inkscape | Cask | Vector graphics editor |</span>
+                            <span class="patch-line addition">+| logi-options+ | Cask | Logitech device configuration |</span>
+                            <span class="patch-line addition">+| postman | Cask | API testing tool |</span>
+                            <span class="patch-line addition">+| spotify | Cask | Music streaming |</span>
+                            <span class="patch-line addition">+| stremio | Cask | Media centre |</span>
+                            <span class="patch-line addition">+| tailscale-app | Cask | Mesh VPN |</span>
+                            <span class="patch-line addition">+| transmission | Cask | BitTorrent client |</span>
+                            <span class="patch-line addition">+| vlc | Cask | Media player |</span>
+                            <span class="patch-line addition">+| wireshark | Cask | Network protocol analyser |</span>
+                            <span class="patch-line addition">+| yubico-authenticator | Cask | TOTP authenticator that stores codes on a YubiKey |</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Work Packages (opt-in)</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+These are **excluded by default**. To include them, edit `macos/new-mac.sh` and add `&#34;${work_packages[@]}&#34;` to the `all_packages` array:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+| Package | Type |</span>
+                            <span class="patch-line addition">+|---------|------|</span>
+                            <span class="patch-line addition">+| slack | Cask |</span>
+                            <span class="patch-line addition">+| microsoft-teams | Cask |</span>
+                            <span class="patch-line addition">+| terraform | Formula |</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Mac App Store</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+Installed via `mas` (requires App Store sign-in):</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+| App | App Store ID |</span>
+                            <span class="patch-line addition">+|-----|-------------|</span>
+                            <span class="patch-line addition">+| Magnet (window manager) | 441258766 |</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark task 4 as complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete 4</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 4: Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Task 3: Document the two-phase structure (interactive and unattended)</li>
+                                <li>[x] Task 4: Add software inventory by category with descriptions</li>
+                                <li>[-] Task 5: Add What Gets Configured summary table</li>
+                                <li>[ ] Task 6: Document all post-setup manual steps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Task 5: What Gets Configured summary table. Let me also check for the docker-compose file.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Glob</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Pattern:</strong> <code>macos/docker-compose.yml</code>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>/Users/ronan/repos/workscripts/macos/docker-compose.yml</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   118→| ykman | Formula | YubiKey Manager CLI for configuring YubiKey devices |
+   119→| anydesk | Cask | Remote desktop |
+   120→| audacity | Cask | Audio editor |
+   121→| bitwarden | Cask | Password manager |
+   122→| codelayer | Cask | Code overlay tool for screen recordings and presentations |
+   123→| dropbox | Cask | Cloud storage |
+   124→| gcloud-cli | Cask | Google Cloud CLI |
+   125→| github | Cask | GitHub Desktop |
+   126→| google-drive | Cask | Google Drive sync client |
+   127→| inkscape | Cask | Vector graphics editor |
+   128→| logi-options+ | Cask | Logitech device configuration |
+   129→| postman | Cask | API testing tool |
+   130→| spotify | Cask | Music streaming |
+   131→| stremio | Cask | Media centre |
+   132→| tailscale-app | Cask | Mesh VPN |
+   133→| transmission | Cask | BitTorrent client |
+   134→| vlc | Cask | Media player |
+   135→| wireshark | Cask | Network protocol analyser |
+   136→| yubico-authenticator | Cask | TOTP authenticator that stores codes on a YubiKey |
+   137→
+   138→### Work Packages (opt-in)
+   139→
+   140→These are **excluded by default**. To include them, edit `macos/new-mac.sh` and add `&#34;${work_packages[@]}&#34;` to the `all_packages` array:
+   141→
+   142→| Package | Type |
+   143→|---------|------|
+   144→| slack | Cask |
+   145→| microsoft-teams | Cask |
+   146→| terraform | Formula |
+   147→
+   148→### Mac App Store
+   149→
+   150→Installed via `mas` (requires App Store sign-in):
+   151→
+   152→| App | App Store ID |
+   153→|-----|-------------|
+   154→| Magnet (window manager) | 441258766 |
+   155→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> | App | App Store ID |</span>
+                            <span class="patch-line context"> |-----|-------------|</span>
+                            <span class="patch-line context"> | Magnet (window manager) | 441258766 |</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+## What Gets Configured</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+| Category | What the script does | Source file(s) |</span>
+                            <span class="patch-line addition">+|----------|---------------------|----------------|</span>
+                            <span class="patch-line addition">+| Dock | Removes all items, adds 16 apps + 2 spacers + Downloads folder; sets auto-hide, magnification, tile size 44, hides recents | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| System preferences | Hot corner (BR → Quick Note), accent colour (Pink), highlight colour (Green), Mission Control (group by app, no auto-rearrange), Finder (column view) | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Power | AC: display and system sleep disabled; battery: display sleep 10 min, system sleep 1 min | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Default browser | Brave Browser set as default for HTTP/HTTPS via Swift/NSWorkspace API | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Login items | Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast added via AppleScript | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Shell | Oh My Zsh with zsh-autosuggestions plugin; random theme from curated list; aliases (docker→podman, terraform shortcuts, git helpers) | `macos/zshrc`, `macos/aliases.zsh` |</span>
+                            <span class="patch-line addition">+| Git | `.gitconfig` with user identity, SSH key path, `push.autoSetupRemote`, `pull.rebase`, conditional includes for org-specific configs | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Vim | `.vimrc` with line numbers, search highlighting, tab/space settings, cursor line highlighting | `macos/vimrc` |</span>
+                            <span class="patch-line addition">+| Repositories | Clones `workscripts`, `rune`, `orbit`, `agentic-coding` into `~/repos/` | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Go tools | Installs `rune` and `orbit` via `make install` or `go install` | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| Claude Code | Symlinks `~/.claude/skills` → `~/repos/agentic-coding/claude/skills` | `macos/new-mac.sh` |</span>
+                            <span class="patch-line addition">+| iTerm2 | Imports preferences from plist file | `macos/iterm2-prefs.plist` |</span>
+                            <span class="patch-line addition">+| Containers | Podman and podman-compose installed (install-only — no machine init); reference compose file available | `macos/docker-compose.yml` |</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark task 5 as complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete 5</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 5: Add What Gets Configured summary table mapping categories to script setup actions</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Task 3: Document the two-phase structure (interactive and unattended)</li>
+                                <li>[x] Task 4: Add software inventory by category with descriptions</li>
+                                <li>[x] Task 5: Add What Gets Configured summary table</li>
+                                <li>[-] Task 6: Document all post-setup manual steps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Task 6: post-setup manual steps.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>   155→
+   156→## What Gets Configured
+   157→
+   158→| Category | What the script does | Source file(s) |
+   159→|----------|---------------------|----------------|
+   160→| Dock | Removes all items, adds 16 apps + 2 spacers + Downloads folder; sets auto-hide, magnification, tile size 44, hides recents | `macos/new-mac.sh` |
+   161→| System preferences | Hot corner (BR → Quick Note), accent colour (Pink), highlight colour (Green), Mission Control (group by app, no auto-rearrange), Finder (column view) | `macos/new-mac.sh` |
+   162→| Power | AC: display and system sleep disabled; battery: display sleep 10 min, system sleep 1 min | `macos/new-mac.sh` |
+   163→| Default browser | Brave Browser set as default for HTTP/HTTPS via Swift/NSWorkspace API | `macos/new-mac.sh` |
+   164→| Login items | Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast added via AppleScript | `macos/new-mac.sh` |
+   165→| Shell | Oh My Zsh with zsh-autosuggestions plugin; random theme from curated list; aliases (docker→podman, terraform shortcuts, git helpers) | `macos/zshrc`, `macos/aliases.zsh` |
+   166→| Git | `.gitconfig` with user identity, SSH key path, `push.autoSetupRemote`, `pull.rebase`, conditional includes for org-specific configs | `macos/new-mac.sh` |
+   167→| Vim | `.vimrc` with line numbers, search highlighting, tab/space settings, cursor line highlighting | `macos/vimrc` |
+   168→| Repositories | Clones `workscripts`, `rune`, `orbit`, `agentic-coding` into `~/repos/` | `macos/new-mac.sh` |
+   169→| Go tools | Installs `rune` and `orbit` via `make install` or `go install` | `macos/new-mac.sh` |
+   170→| Claude Code | Symlinks `~/.claude/skills` → `~/repos/agentic-coding/claude/skills` | `macos/new-mac.sh` |
+   171→| iTerm2 | Imports preferences from plist file | `macos/iterm2-prefs.plist` |
+   172→| Containers | Podman and podman-compose installed (install-only — no machine init); reference compose file available | `macos/docker-compose.yml` |
+   173→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>docs/new-mac-guide.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> | Claude Code | Symlinks `~/.claude/skills` → `~/repos/agentic-coding/claude/skills` | `macos/new-mac.sh` |</span>
+                            <span class="patch-line context"> | iTerm2 | Imports preferences from plist file | `macos/iterm2-prefs.plist` |</span>
+                            <span class="patch-line context"> | Containers | Podman and podman-compose installed (install-only — no machine init); reference compose file available | `macos/docker-compose.yml` |</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+## Post-Setup Manual Steps</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+After the script completes, restart your terminal (or run `source ~/.zshrc`) to pick up all shell changes. Then work through these items:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### App Store and Licensing</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- [ ] **App Store sign-in** — if not already signed in, open the App Store and sign in so that `mas`-installed apps (Magnet) activate correctly</span>
+                            <span class="patch-line addition">+- [ ] **Magnet license** — open Magnet, enter your license key to unlock full functionality</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### App Logins</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+Sign into each of these apps with your existing accounts:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- [ ] **NordVPN** — open and log in</span>
+                            <span class="patch-line addition">+- [ ] **Bitwarden** — open and log in to your vault</span>
+                            <span class="patch-line addition">+- [ ] **Tailscale** — open and authenticate with your tailnet</span>
+                            <span class="patch-line addition">+- [ ] **Dropbox** — open and sign in to start syncing</span>
+                            <span class="patch-line addition">+- [ ] **Spotify** — open and log in</span>
+                            <span class="patch-line addition">+- [ ] **Google Drive** — open and sign in to start syncing</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Configuration Syncs</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- [ ] **VS Code Settings Sync** — open VS Code, sign in with your GitHub account, and enable Settings Sync to restore extensions, keybindings, and preferences</span>
+                            <span class="patch-line addition">+- [ ] **Raycast** — open Raycast, configure your preferred extensions, hotkeys, and clipboard history settings</span>
+                            <span class="patch-line addition">+- [ ] **Logi Options+** — open Logi Options+ and pair your Logitech devices (mouse, keyboard) to restore button mappings and scroll settings</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Git Configuration</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- [ ] **Edit `.gitconfig` conditional includes** — the generated `~/.gitconfig` contains placeholder `includeIf` entries for `SPECIFIC_FOLDER` and `another_specific_folder`. Update these paths and config file references to match your actual org-specific Git configurations:</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+  ```ini</span>
+                            <span class="patch-line addition">+  [includeIf &#34;gitdir:~/Repos/SPECIFIC_FOLDER/&#34;]</span>
+                            <span class="patch-line addition">+      path = ~/.gc/specific_config_file</span>
+                            <span class="patch-line addition">+  ```</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+### Optional</span>
+                            <span class="patch-line addition">+</span>
+                            <span class="patch-line addition">+- [ ] **Install full Xcode** — if you need `Simulator.app` (included in the Dock layout), install Xcode from the App Store. The setup script only installs Xcode Command Line Tools</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Mark task 6 as complete</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>rune complete 6</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>Completed task 6: Document all post-setup manual steps (app logins, license activations, config syncs)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible" open>
+                    <summary><span class="icon">✅</span> 🔧 TodoWrite</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <ul class="todo-list">
+                                <li>[x] Task 3: Document the two-phase structure (interactive and unattended)</li>
+                                <li>[x] Task 4: Add software inventory by category with descriptions</li>
+                                <li>[x] Task 5: Add What Gets Configured summary table</li>
+                                <li>[x] Task 6: Document all post-setup manual steps</li>
+                            </ul>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Phase B complete — all 4 tasks done. Now running <code>/commit</code>.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">🔧</span> Skill: commit</summary>
+                    <div class="tool-content">
+                        <div class="markdown-content">
+<p>Base directory for this skill: /Users/ronan/.claude/skills/commit</p>
+<h1>Commits</h1>
+<ol>
+<li>Use the command line to get an overview of the staged git changes. If no changes are staged, stage all files.</li>
+<li>Determine if the changes include code files (not just documentation like .md files, comments, or config files). If code changes are present, run all formatting and test commands. If only documentation changes, skip tests and linting. If running the formatting resulted in unstaged changes to files, stage these as well. DO NOT revert code changes unless specifically asked to do so.</li>
+<li>Create a concise, well-documented summary of the changes in the format as defined at keepachangelog.com, excluding any changes to the changelog file itself. Use proper formatting and be specific about the changes. Ignore the marking of tasks as complete.</li>
+<li>Read the CHANGELOG.md file, if the file does not exist, create it.</li>
+<li>Verify if the summary is already present in the changelog, if not add it to the top of the file.</li>
+<li>Add the changelog to staged commits</li>
+<li>Verify the current git branch using the git command.</li>
+<li>Extract any ticket numbers from the branch, check for the below options based on what is likely.
+a. Extract the ticket number from the branch. The ticket number will be in the format ABC-123 and will be the combination of 1-5 letters or numbers, a -, and 1-5 numbers. This will be at the start of the branch name, possibly preceeded by something like feature/ or hotfix/.
+b. Check for a pure number, this would likely reflect a GitHub Issue.</li>
+<li>If a ticket number was found, use this as the commit message prefix, otherwise use [feat] / [bug] / [doc] as appropriate based on any prefixes in the branchname and/or the code changes</li>
+<li>Summarise the changes into a multi-line detailed commit message, prefixed with the commit message prefix and :. Do NOT include any co-authored-by information in the commit message.</li>
+<li>Commit the code</li>
+</ol>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Show working tree status</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git status</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>On branch mac-setup-guide
+Changes not staged for commit:
+  (use &#34;git add &lt;file&gt;...&#34; to update what will be committed)
+  (use &#34;git restore &lt;file&gt;...&#34; to discard changes in working directory)
+	modified:   docs/new-mac-guide.md
+	modified:   specs/mac-setup-guide/.orbit/summary.json
+	modified:   specs/mac-setup-guide/tasks.md
+
+Untracked files:
+  (use &#34;git add &lt;file&gt;...&#34; to include in what will be committed)
+	specs/mac-setup-guide/.orbit/phase-1-session.json
+	specs/mac-setup-guide/.orbit/phase-1-session.txt
+	specs/mac-setup-guide/.orbit/phase-1-transcript.html
+	specs/mac-setup-guide/.orbit/phase-1-transcript.jsonl
+	specs/mac-setup-guide/.orbit/phase-1-transcript.md
+
+no changes added to commit (use &#34;git add&#34; and/or &#34;git commit -a&#34;)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Show staged changes</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git diff --staged</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>(Bash completed with no output)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Show unstaged changes</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git diff</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>diff --git a/docs/new-mac-guide.md b/docs/new-mac-guide.md
+index 6183db3..9e36031 100644
+--- a/docs/new-mac-guide.md
++++ b/docs/new-mac-guide.md
+@@ -27,3 +27,185 @@ bash /tmp/new-mac.sh
+ ```
+ 
+ The script begins with an automated bootstrap that installs Xcode Command Line Tools, Homebrew, and `gh` (GitHub CLI) — all without requiring SSH access. Once those are in place, the first meaningful interactive step is **SSH key generation**: the script creates an Ed25519 key at `~/.ssh/github`, starts the SSH agent, and authenticates with GitHub via `gh auth login`. From that point on, all Git operations (repository cloning, etc.) use SSH.
++
++## What Happens: Interactive Phase
++
++The interactive phase requires you to be present at the keyboard. The script handles bootstrap dependencies automatically, then prompts you for input:
++
++1. **Auto-installs Xcode CLT and Homebrew** — if not already present, these are installed without prompting (Xcode CLT may show a system dialog)
++2. **Installs `gh` (GitHub CLI)** — needed for SSH key upload and GitHub authentication
++3. **Prompts for your GitHub noreply email** — enter the address from [GitHub Settings → Emails → &#34;Keep my email addresses private&#34;](https://github.com/settings/emails), e.g. `12345678+username@users.noreply.github.com`. This is used for both `ssh-keygen -C` and `.gitconfig [user] email`
++4. **Prompts for your full name** — used in `.gitconfig [user] name`
++5. **Generates an SSH key** — creates an Ed25519 key at `~/.ssh/github`, adds it to the SSH agent, authenticates with GitHub via `gh auth login` (opens a browser), and uploads the public key
++6. **Prompts for your sudo password** — needed for system-level configuration (power management). A background keep-alive process maintains the sudo session for the rest of the script
++
++Once you enter your sudo password, the script prints:
++
++```
++🚀 Unattended phase starting — you can walk away now
++```
++
++## What Happens: Unattended Phase
++
++After the banner, no further input is required. You can walk away while the script:
++
++- Updates Homebrew and installs all packages (formulae and casks)
++- Installs the Nerd Font (Droid Sans Mono) and Oh My Zsh with plugins
++- Installs Mac App Store apps via `mas` (Magnet)
++- Downloads and deploys shell configuration (`.vimrc`, `.zshrc` additions, `aliases.zsh`)
++- Configures system preferences (hot corners, accent colour, Mission Control, Finder)
++- Sets up the Dock layout with spacers and preferences (auto-hide, magnification, tile size)
++- Configures power management (AC: never sleep; battery: conservative)
++- Sets Brave Browser as the default browser (auto-dismisses the confirmation dialog)
++- Adds login items (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast)
++- Creates `.gitconfig` with your name, email, SSH key path, and conditional includes
++- Creates `~/repos/` and clones repositories via SSH
++- Sets up the Claude Code skills symlink
++- Installs Go tools (`rune`, `orbit`) via `make install` or `go install`
++- Imports iTerm2 preferences from `macos/iterm2-prefs.plist`
++
++All output from the unattended phase is logged to **`~/SETUP.log`** — check this file if anything goes wrong.
++
++## Software Installed
++
++The script installs packages in three categories. By default, `default_packages` and `home_packages` are combined. `work_packages` are excluded unless you opt in.
++
++### Default Packages
++
++| Package | Type | Description |
++|---------|------|-------------|
++| bat | Formula | `cat` replacement with syntax highlighting |
++| fzf | Formula | Fuzzy finder for the terminal |
++| gh | Formula | GitHub CLI |
++| git | Formula | Version control |
++| go | Formula | Go programming language |
++| htop | Formula | Interactive process viewer |
++| jq | Formula | JSON processor |
++| rename | Formula | Batch file renaming |
++| tmux | Formula | Terminal multiplexer |
++| tree | Formula | Directory listing as a tree |
++| wget | Formula | HTTP file downloader |
++| yq | Formula | YAML/XML/TOML processor (like jq) |
++| bluesnooze | Cask | Disables Bluetooth when Mac sleeps to prevent phantom wake-ups |
++| brave-browser | Cask | Privacy-focused Chromium browser (set as default) |
++| caffeine | Cask | Prevents Mac from sleeping (menu bar toggle) |
++| claude-code | Cask | Claude Code AI assistant |
++| dockutil | Cask | CLI tool for managing Dock items programmatically |
++| firefox | Cask | Web browser |
++| gimp | Cask | Image editor |
++| google-chrome | Cask | Web browser |
++| iterm2 | Cask | Terminal emulator |
++| nordvpn | Cask | VPN client |
++| notunes | Cask | Prevents Apple Music from launching when media keys are pressed |
++| raycast | Cask | Spotlight replacement with extensions, clipboard history, and window management |
++| visual-studio-code | Cask | Code editor |
++| whatsapp | Cask | Messaging app |
++
++### Home Packages
++
++| Package | Type | Description |
++|---------|------|-------------|
++| awscli | Formula | AWS command-line interface |
++| azure-cli | Formula | Azure command-line interface |
++| cloudflared | Formula | Cloudflare Tunnel client for exposing local services securely |
++| lychee | Formula | Fast link checker for markdown, HTML, and URLs |
++| mas | Formula | Mac App Store CLI — installs App Store apps from the terminal |
++| nvm | Formula | Node.js version manager |
++| opentofu | Formula | Open-source Terraform alternative |
++| podman | Formula | Daemonless container runtime (Docker alternative) |
++| podman-compose | Formula | Docker Compose equivalent for Podman |
++| uv | Formula | Ultra-fast Python package installer and resolver |
++| ykman | Formula | YubiKey Manager CLI for configuring YubiKey devices |
++| anydesk | Cask | Remote desktop |
++| audacity | Cask | Audio editor |
++| bitwarden | Cask | Password manager |
++| codelayer | Cask | Code overlay tool for screen recordings and presentations |
++| dropbox | Cask | Cloud storage |
++| gcloud-cli | Cask | Google Cloud CLI |
++| github | Cask | GitHub Desktop |
++| google-drive | Cask | Google Drive sync client |
++| inkscape | Cask | Vector graphics editor |
++| logi-options+ | Cask | Logitech device configuration |
++| postman | Cask | API testing tool |
++| spotify | Cask | Music streaming |
++| stremio | Cask | Media centre |
++| tailscale-app | Cask | Mesh VPN |
++| transmission | Cask | BitTorrent client |
++| vlc | Cask | Media player |
++| wireshark | Cask | Network protocol analyser |
++| yubico-authenticator | Cask | TOTP authenticator that stores codes on a YubiKey |
++
++### Work Packages (opt-in)
++
++These are **excluded by default**. To include them, edit `macos/new-mac.sh` and add `&#34;${work_packages[@]}&#34;` to the `all_packages` array:
++
++| Package | Type |
++|---------|------|
++| slack | Cask |
++| microsoft-teams | Cask |
++| terraform | Formula |
++
++### Mac App Store
++
++Installed via `mas` (requires App Store sign-in):
++
++| App | App Store ID |
++|-----|-------------|
++| Magnet (window manager) | 441258766 |
++
++## What Gets Configured
++
++| Category | What the script does | Source file(s) |
++|----------|---------------------|----------------|
++| Dock | Removes all items, adds 16 apps + 2 spacers + Downloads folder; sets auto-hide, magnification, tile size 44, hides recents | `macos/new-mac.sh` |
++| System preferences | Hot corner (BR → Quick Note), accent colour (Pink), highlight colour (Green), Mission Control (group by app, no auto-rearrange), Finder (column view) | `macos/new-mac.sh` |
++| Power | AC: display and system sleep disabled; battery: display sleep 10 min, system sleep 1 min | `macos/new-mac.sh` |
++| Default browser | Brave Browser set as default for HTTP/HTTPS via Swift/NSWorkspace API | `macos/new-mac.sh` |
++| Login items | Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast added via AppleScript | `macos/new-mac.sh` |
++| Shell | Oh My Zsh with zsh-autosuggestions plugin; random theme from curated list; aliases (docker→podman, terraform shortcuts, git helpers) | `macos/zshrc`, `macos/aliases.zsh` |
++| Git | `.gitconfig` with user identity, SSH key path, `push.autoSetupRemote`, `pull.rebase`, conditional includes for org-specific configs | `macos/new-mac.sh` |
++| Vim | `.vimrc` with line numbers, search highlighting, tab/space settings, cursor line highlighting | `macos/vimrc` |
++| Repositories | Clones `workscripts`, `rune`, `orbit`, `agentic-coding` into `~/repos/` | `macos/new-mac.sh` |
++| Go tools | Installs `rune` and `orbit` via `make install` or `go install` | `macos/new-mac.sh` |
++| Claude Code | Symlinks `~/.claude/skills` → `~/repos/agentic-coding/claude/skills` | `macos/new-mac.sh` |
++| iTerm2 | Imports preferences from plist file | `macos/iterm2-prefs.plist` |
++| Containers | Podman and podman-compose installed (install-only — no machine init); reference compose file available | `macos/docker-compose.yml` |
++
++## Post-Setup Manual Steps
++
++After the script completes, restart your terminal (or run `source ~/.zshrc`) to pick up all shell changes. Then work through these items:
++
++### App Store and Licensing
++
++- [ ] **App Store sign-in** — if not already signed in, open the App Store and sign in so that `mas`-installed apps (Magnet) activate correctly
++- [ ] **Magnet license** — open Magnet, enter your license key to unlock full functionality
++
++### App Logins
++
++Sign into each of these apps with your existing accounts:
++
++- [ ] **NordVPN** — open and log in
++- [ ] **Bitwarden** — open and log in to your vault
++- [ ] **Tailscale** — open and authenticate with your tailnet
++- [ ] **Dropbox** — open and sign in to start syncing
++- [ ] **Spotify** — open and log in
++- [ ] **Google Drive** — open and sign in to start syncing
++
++### Configuration Syncs
++
++- [ ] **VS Code Settings Sync** — open VS Code, sign in with your GitHub account, and enable Settings Sync to restore extensions, keybindings, and preferences
++- [ ] **Raycast** — open Raycast, configure your preferred extensions, hotkeys, and clipboard history settings
++- [ ] **Logi Options+** — open Logi Options+ and pair your Logitech devices (mouse, keyboard) to restore button mappings and scroll settings
++
++### Git Configuration
++
++- [ ] **Edit `.gitconfig` conditional includes** — the generated `~/.gitconfig` contains placeholder `includeIf` entries for `SPECIFIC_FOLDER` and `another_specific_folder`. Update these paths and config file references to match your actual org-specific Git configurations:
++
++  ```ini
++  [includeIf &#34;gitdir:~/Repos/SPECIFIC_FOLDER/&#34;]
++      path = ~/.gc/specific_config_file
++  ```
++
++### Optional
++
++- [ ] **Install full Xcode** — if you need `Simulator.app` (included in the Dock layout), install Xcode from the App Store. The setup script only installs Xcode Command Line Tools
+diff --git a/specs/mac-setup-guide/.orbit/summary.json b/specs/mac-setup-guide/.orbit/summary.json
+index c27b26d..72a38ae 100644
+--- a/specs/mac-setup-guide/.orbit/summary.json
++++ b/specs/mac-setup-guide/.orbit/summary.json
+@@ -1,14 +1,32 @@
+ {
+   &#34;started_at&#34;: &#34;2026-03-24T15:17:25.692153+11:00&#34;,
+   &#34;status&#34;: &#34;running&#34;,
+-  &#34;phases_completed&#34;: 0,
+-  &#34;total_cost_usd&#34;: 0,
+-  &#34;total_duration_ms&#34;: 0,
+-  &#34;sessions&#34;: [],
++  &#34;phases_completed&#34;: 1,
++  &#34;total_cost_usd&#34;: 0.785139,
++  &#34;cost_totals&#34;: {
++    &#34;usd&#34;: 0.785139
++  },
++  &#34;total_duration_ms&#34;: 122803,
++  &#34;sessions&#34;: [
++    {
++      &#34;phase&#34;: 1,
++      &#34;session_id&#34;: &#34;099c0a13-7097-4fed-8afb-2813a99ee102&#34;,
++      &#34;duration_ms&#34;: 122803,
++      &#34;cost_usd&#34;: 0.785139,
++      &#34;cost_value&#34;: 0.785139,
++      &#34;cost_unit&#34;: &#34;USD&#34;,
++      &#34;num_turns&#34;: 33,
++      &#34;started_at&#34;: &#34;2026-03-24T15:17:25.953155+11:00&#34;,
++      &#34;ended_at&#34;: &#34;2026-03-24T15:19:30.117657+11:00&#34;,
++      &#34;run_number&#34;: 1,
++      &#34;agent_alias&#34;: &#34;claude-code&#34;,
++      &#34;agent_type&#34;: &#34;claude-code&#34;
++    }
++  ],
+   &#34;current_phase&#34;: {
+-    &#34;phase&#34;: 1,
+-    &#34;session_id&#34;: &#34;099c0a13-7097-4fed-8afb-2813a99ee102&#34;,
+-    &#34;started_at&#34;: &#34;2026-03-24T15:17:25.973249+11:00&#34;
++    &#34;phase&#34;: 2,
++    &#34;session_id&#34;: &#34;9bbbb364-8c3e-4410-ad50-1ab488bfe19e&#34;,
++    &#34;started_at&#34;: &#34;2026-03-24T15:19:30.414882+11:00&#34;
+   },
+   &#34;run_number&#34;: 1,
+   &#34;branch_name&#34;: &#34;mac-setup-guide&#34;
+diff --git a/specs/mac-setup-guide/tasks.md b/specs/mac-setup-guide/tasks.md
+index 8aa2b2f..8242fd3 100644
+--- a/specs/mac-setup-guide/tasks.md
++++ b/specs/mac-setup-guide/tasks.md
+@@ -25,7 +25,7 @@ references:
+ 
+ ## Phase B: Core Content
+ 
+-- [ ] 3. Document the two-phase structure (interactive and unattended) with what each phase does &lt;!-- id:lew5h9f --&gt;
++- [x] 3. Document the two-phase structure (interactive and unattended) with what each phase does &lt;!-- id:lew5h9f --&gt;
+   - Document interactive phase: first the script auto-installs Xcode CLT and Homebrew and gh then prompts for GitHub noreply email and full name then generates SSH key and authenticates with GitHub via gh then prompts for sudo password
+   - Instruct users to use their GitHub noreply email (e.g. 12345678+username@users.noreply.github.com) found at GitHub Settings → Emails → Keep my email addresses private — this is used for both ssh-keygen -C and .gitconfig [user] email
+   - Document unattended phase: list what happens so users know when they can walk away
+@@ -35,7 +35,7 @@ references:
+   - Stream: 1
+   - References: macos/new-mac.sh
+ 
+-- [ ] 4. Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools &lt;!-- id:lew5h9g --&gt;
++- [x] 4. Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools &lt;!-- id:lew5h9g --&gt;
+   - List all software by category: default_packages and home_packages and work_packages and Mac App Store
+   - Include brief descriptions for non-obvious tools: bluesnooze noTunes dockutil lychee cloudflared ykman codelayer yubico-authenticator uv mas raycast
+   - Explain how to opt into work_packages (Slack and Teams and Terraform) which are excluded by default
+@@ -44,7 +44,7 @@ references:
+   - Stream: 1
+   - References: macos/new-mac.sh
+ 
+-- [ ] 5. Add What Gets Configured summary table mapping categories to script setup actions &lt;!-- id:lew5h9h --&gt;
++- [x] 5. Add What Gets Configured summary table mapping categories to script setup actions &lt;!-- id:lew5h9h --&gt;
+   - Create summary table mapping categories to what the script configures
+   - Categories: Dock and system preferences and power and browser and login items and shell and Git and repos and tools
+   - Reference script file paths relative to repo root for each category
+@@ -53,10 +53,10 @@ references:
+   - Stream: 1
+   - References: macos/new-mac.sh, macos/verify-setup.sh, macos/aliases.zsh, macos/zshrc, macos/vimrc
+ 
+-- [ ] 6. Document all post-setup manual steps (app logins, license activations, config syncs) &lt;!-- id:lew5h9i --&gt;
++- [x] 6. Document all post-setup manual steps (app logins, license activations, config syncs) &lt;!-- id:lew5h9i --&gt;
+   - Document all manual steps: terminal restart and App Store sign-in for Magnet and Magnet license activation and Raycast configuration and NordVPN login and Bitwarden login and Tailscale login and Dropbox login and Spotify login and Google Drive login and VS Code Settings Sync activation and Logi Options+ device pairing and .gitconfig placeholder editing (SPECIFIC_FOLDER) and optionally installing full Xcode for Simulator.app
+   - Verification: every post-setup item from the smolspec is included
+-  - Blocked-by: lew5h9g (Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools), obvious, obvious
++  - Blocked-by: lew5h9g (Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools), obvious, obvious, obvious, obvious, obvious, obvious
+   - Stream: 1
+   - References: specs/mac-setup-guide/smolspec.md, specs/mac-env-setup/decision_log.md
+ 
+@@ -67,7 +67,7 @@ references:
+   - Add troubleshooting section: Homebrew PATH on Apple Silicon and mas requiring App Store sign-in and SSH key already exists and ~/SETUP.log for debugging
+   - Add customisation points section (3-5 bullets): arrays/variables a user would edit with file paths
+   - Verification: troubleshooting covers all items from smolspec SHOULD requirements
+-  - Blocked-by: lew5h9i (Document all post-setup manual steps (app logins, license activations, config syncs)), license, license
++  - Blocked-by: lew5h9i (Document all post-setup manual steps (app logins, license activations, config syncs)), license, license, license, license, license, license
+   - Stream: 1
+   - References: macos/verify-setup.sh, macos/new-mac.sh
+ 
+@@ -78,6 +78,6 @@ references:
+   - Verify all script file paths referenced: macos/new-mac.sh and macos/verify-setup.sh and macos/aliases.zsh and macos/zshrc and macos/vimrc and macos/docker-compose.yml and macos/iterm2-prefs.plist
+   - Verify guide includes Last verified date and source-of-truth note
+   - Verify guide reads coherently end-to-end and stays within 300-500 lines target
+-  - Blocked-by: lew5h9e (Document bootstrap problem and initial download commands), lew5h9f (Document the two-phase structure (interactive and unattended) with what each phase does), lew5h9g (Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools), obvious, obvious, lew5h9h (Add What Gets Configured summary table mapping categories to script setup actions), lew5h9i (Document all post-setup manual steps (app logins, license activations, config syncs)), license, license, lew5h9j (Add verification command section, troubleshooting section, and customisation points)
++  - Blocked-by: lew5h9e (Document bootstrap problem and initial download commands), lew5h9f (Document the two-phase structure (interactive and unattended) with what each phase does), lew5h9g (Add software inventory by category (default, home, work, MAS) with descriptions for non-obvious tools), obvious, obvious, obvious, obvious, obvious, obvious, lew5h9h (Add What Gets Configured summary table mapping categories to script setup actions), lew5h9i (Document all post-setup manual steps (app logins, license activations, config syncs)), license, license, license, license, license, license, lew5h9j (Add verification command section, troubleshooting section, and customisation points)
+   - Stream: 1
+   - References: specs/mac-setup-guide/smolspec.md</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="thinking-block">
+                    <div class="thinking-header">💭 Thinking</div>
+                    <div class="thinking-content markdown-content">
+<p>Only documentation changes (.md and .json files). No code files changed, so I'll skip tests and linting. Let me stage all files, read the CHANGELOG, and prepare the commit.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Only documentation changes — skipping tests and linting. Let me stage everything and prepare the changelog.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Stage all changed and untracked files</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git add docs/new-mac-guide.md specs/mac-setup-guide/.orbit/summary.json specs/mac-setup-guide/tasks.md specs/mac-setup-guide/.orbit/phase-1-session.json specs/mac-setup-guide/.orbit/phase-1-session.txt specs/mac-setup-guide/.orbit/phase-1-transcript.html specs/mac-setup-guide/.orbit/phase-1-transcript.jsonl specs/mac-setup-guide/.orbit/phase-1-transcript.md</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>(Bash completed with no output)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Show recent commits</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git log --oneline -5</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>feee643 [doc]: Scaffold new Mac setup guide with Quick Start, Prerequisites, and Getting Started
+648fe4f spec completion
+73bd2ff [feat]: Add comprehensive verification, iTerm2 preferences import, and app automation docs
+fd1a4f3 [feat]: Add system preferences, power management, default browser, and login items
+c197d35 [feat]: Reconcile Homebrew package lists and add Mac App Store support</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Read: <code>CHANGELOG.md</code></summary>
+                    <div class="tool-content">
+                        <pre><code>     1→# Changelog
+     2→
+     3→All notable changes to this project will be documented in this file.
+     4→
+     5→The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+     6→
+     7→## [Unreleased]
+     8→
+     9→### Added
+    10→- Created `docs/new-mac-guide.md` with Quick Start (curl commands), Prerequisites (macOS 15+, Apple ID, internet), and Getting Started sections documenting the HTTPS bootstrap problem and SSH key generation flow
+    11→- Added `specs/mac-setup-guide/` smolspec and task list for the new Mac setup guide
+    12→
+    13→### Added
+    14→- Expanded `macos/verify-setup.sh` with comprehensive verification: Dock app checks for all 16 apps via `dockutil --find`, Dock preference checks (tilesize, magnification, largesize, autohide, show-recents), system preference checks (hot corner, accent color, Mission Control, Finder view), power management checks via `pmset -g custom` parsing, default browser check via LaunchServices plist, login items checks via `osascript` query, and expanded Homebrew package spot-checks (bat, fzf, tmux, mas, dockutil)
+    15→- Added iTerm2 preferences export (`macos/iterm2-prefs.plist`) and import section in `macos/new-mac.sh`: checks for plist file and iTerm2 installation, imports via `defaults import com.googlecode.iterm2` with `|| echo` guard
+    16→- Added D31 to `specs/mac-env-setup/decision_log.md` documenting app-level settings automation limitations (Magnet license verification, Raycast encryption, NordVPN/Bitwarden interactive login, VS Code Settings Sync)
+    17→
+    18→### Added
+    19→- Added system preferences section to `macos/new-mac.sh`: hot corner (bottom-right Quick Note), accent color (Pink), highlight color (Green), Mission Control settings (group by app, disable auto-rearrange spaces), Finder column view default, with `killall Finder || true` to apply changes
+    20→- Updated Dock configuration in `macos/new-mac.sh` from 4 apps to full 16-app layout with 2 spacer tiles using `SPACER` sentinel pattern in indexed arrays; added Downloads folder to persistent-others section; added Dock preferences (`tilesize 44`, `magnification true`, `largesize 128`, `autohide true`)
+    21→- Added power management section to `macos/new-mac.sh`: AC power never-sleep (`displaysleep 0`, `sleep 0`), battery conservative sleep (`displaysleep 10`, `sleep 1`) via `sudo pmset` with `|| echo` guards
+    22→- Added default browser section to `macos/new-mac.sh`: sets Brave Browser as default via Swift/NSWorkspace API (`setDefaultApplication(at:toOpenURLsWithScheme:)` for `http` and `https`), background AppleScript auto-dismisses CoreServicesUIAgent confirmation dialog, guarded by app existence check
+    23→- Added login items section to `macos/new-mac.sh`: defines 6 utility apps (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast), queries existing login items once via `osascript`, adds missing items with `[ -d ]` existence checks and `grep -qi` deduplication
+    24→
+    25→### Changed
+    26→- Replaced `default_packages` array in `macos/new-mac.sh` with 26 packages: 12 formulae (`bat`, `fzf`, `gh`, `git`, `htop`, `jq`, `rename`, `tmux`, `tree`, `wget`, `yq`, `go`) and 14 casks (`bluesnooze`, `brave-browser`, `caffeine`, `claude-code`, `dockutil`, `firefox`, `gimp`, `google-chrome`, `iterm2`, `nordvpn`, `notunes`, `raycast`, `visual-studio-code`, `whatsapp`); added inline `# Formulae` / `# Casks` comments
+    27→- Replaced `home_packages` array in `macos/new-mac.sh` with 29 packages: 11 formulae (`awscli`, `azure-cli`, `cloudflared`, `lychee`, `mas`, `nvm`, `opentofu`, `podman`, `podman-compose`, `uv`, `ykman`) and 18 casks (`anydesk`, `audacity`, `bitwarden`, `codelayer`, `dropbox`, `gcloud-cli`, `github`, `google-drive`, `inkscape`, `logi-options+`, `postman`, `spotify`, `stremio`, `tailscale-app`, `transmission`, `vlc`, `wireshark`, `yubico-authenticator`); added inline comments
+    28→- Updated `all_packages` comment to clarify `work_packages` are excluded by design
+    29→
+    30→### Added
+    31→- Added Mac App Store installation section after `brew install` in `macos/new-mac.sh`: checks for `mas` availability via `command -v`, verifies Magnet (ID 441258766) not already installed via `mas list | grep -q`, installs with `|| echo` guard and App Store sign-in warning
+    32→
+    33→### Added
+    34→- Restructured `macos/new-mac.sh` into two distinct phases: interactive (Xcode, Homebrew, user input, SSH keys, sudo credentials) followed by unattended (packages, config, Dock, repos, tools) with a &#34;walk away&#34; banner marking the transition
+    35→- Added early `brew install gh` in the interactive phase so GitHub CLI is available for SSH key setup before full package installation
+    36→- Added sudo keep-alive mechanism: `sudo -v` prompt during interactive phase with background `while true; do sudo -n true; sleep 60; done` loop, PID stored in `SUDO_KEEPALIVE_PID`, `trap EXIT` safety net, and explicit kill in summary section
+    37→- Added v2 design decisions (D23–D30) to `specs/mac-env-setup/decision_log.md` covering script restructuring, sudo keep-alive, default browser via Swift/NSWorkspace, full Dock layout with SPACER sentinel, login items via osascript, power management values, scoped-out items, and Mac App Store via mas
+    38→- Added v2 requirements and design documents for mac-env-setup covering Dock layout, system preferences, power management, default browser, login items, package reconciliation, and app-level settings
+    39→
+    40→### Fixed
+    41→- Corrected Dock app name from `iTerm` to `iTerm2` in `macos/new-mac.sh` to match the actual application name
+    42→
+    43→- Added VS Code keyboard shortcut reference files for macOS: `vsc-shortcuts-gem.md` (concise AI-focused cheat sheet), `vsc-shortcuts-gpt.md` (comprehensive guide with Claude Code and Copilot shortcuts), `vsc-shortcuts-gpt52.md` (extended guide including vim-style shortcuts and focus recipes), and `vsc-shortcuts-msft.pdf` (Microsoft official reference)
+    44→
+    45→### Fixed
+    46→- Corrected Dock app name from `iTerm` to `iTerm2` in `macos/new-mac.sh` to match the actual application name
+    47→
+    48→- Added `brave-browser`, `whatsapp`, and `dockutil` to the `default_packages` array in `macos/new-mac.sh`
+    49→- Added shell configuration deployment section to `macos/new-mac.sh`: downloads `aliases.zsh` from the repo to `~/.aliases.zsh` (overwrite on re-run), appends `source ~/.aliases.zsh` to `~/.zshrc` with idempotent `grep -q` guard
+    50→- Added Dock configuration section to `macos/new-mac.sh`: snapshots current Dock state, removes all items via `dockutil --remove all --no-restart`, adds Brave Browser, WhatsApp, iTerm, and Calendar with `[ -d ]` path checks, disables recent apps via `defaults write`, restarts Dock with `killall Dock || true`; entire block guarded by `command -v dockutil` check
+    51→- Added `macos/docker-compose.yml` reference compose file with PostgreSQL 16 Alpine service, placeholder app service, shared `devnet` bridge network, named volume `pgdata`, healthcheck, and env vars with defaults for all config values
+    52→- Added `docker=&#39;podman&#39;` and `docker-compose=&#39;podman-compose&#39;` aliases to `macos/aliases.zsh`
+    53→- Added `macos/verify-setup.sh` verification script with checks for Dock configuration, Homebrew packages, shell config deployment, alias definitions, and compose file existence
+    54→
+    55→### Changed
+    56→- Updated `dockernuke` alias to use `podman` commands with `2&gt;/dev/null` error suppression, `;` separators, and `podman system prune -af` instead of `docker-buildx prune`
+    57→- Updated `dockerclear` alias to use `podman` commands with `2&gt;/dev/null` error suppression and `;` separators
+    58→
+    59→### Removed
+    60→- Deleted `macos/path.zsh` — pnpm PATH handled by `brew install pnpm`, Homebrew PATH set via `eval &#34;$(/opt/homebrew/bin/brew shellenv)&#34;`, NVM not installed
+    61→
+    62→---
+    63→
+    64→## [Previous]
+    65→
+    66→### Added
+    67→- Added `gh` (GitHub CLI) and `go` to `default_packages` in `macos/new-mac.sh` to support GitHub authentication and Go tool installation during Mac setup
+    68→- Added logging initialization to `macos/new-mac.sh`: all developer setup output is tee&#39;d to `~/SETUP.log`
+    69→- Added dependency verification in `macos/new-mac.sh`: checks that `gh`, `go`, and `git` are available after Homebrew install, exits with a clear error if any are missing
+    70→- Added upfront user input prompts in `macos/new-mac.sh`: collects `GITHUB_EMAIL` and `GIT_NAME` with non-empty validation before proceeding with developer setup
+    71→- Added SSH key setup section in `macos/new-mac.sh`: generates an ED25519 key at `~/.ssh/github`, starts ssh-agent, adds the key, authenticates with GitHub via `gh auth login --web`, deduplicates before uploading the public key, and tests the SSH connection to github.com
+    72→- Added Git configuration setup section in `macos/new-mac.sh`: checks if `~/.gitconfig` exists, skips if already present, otherwise writes an embedded gitconfig template populated with `$GIT_NAME` and `$GITHUB_EMAIL` including user identity, SSH command, push/pull/init settings, pager config, and Git LFS filters
+    73→- Added `~/repos/` directory creation in `macos/new-mac.sh`: idempotent `mkdir -p` with skip-if-exists check and status logging
+    74→- Added `clone_repo` helper function and clone calls for four repositories (`troobit/workscripts`, `ArjenSchwarz/rune`, `ArjenSchwarz/orbit`, `ArjenSchwarz/agentic-coding`) into `~/repos/` via SSH, with per-repo skip-if-cloned check and a `REPOS_CLONED/REPOS_TOTAL` summary counter
+    75→- Added Claude Code skills symlink setup in `macos/new-mac.sh`: creates `~/.claude` directory if needed, then checks `~/.claude/skills` for three states — correct symlink (skip), wrong target or non-symlink (warn to stderr), or absent (create via `ln -s`); skips entirely if `agentic-coding` was not cloned
+    76→- Added Go tool installation section in `macos/new-mac.sh`: `install_tool` helper tries `make install` first (if Makefile exists), falls back to `go install ./...`, skips if the repository was not cloned, tracks `TOOLS_INSTALLED/TOOLS_TOTAL` counter, and is called for `rune` and `orbit`
+    77→- Added PATH and tool availability verification after Go tool installation: warns to stderr if `~/go/bin` is not in `$PATH`, then checks that each of `rune` and `orbit` is accessible via `command -v`
+    78→- Added setup summary block at end of `macos/new-mac.sh`: prints `REPOS_CLONED/REPOS_TOTAL` and `TOOLS_INSTALLED/TOOLS_TOTAL` counts, then emits a success or warning message depending on whether any repos or tools were set up successfully
+    79→
+    80→### Changed
+    81→- Renamed spec directory from `specs/repos-setup/` to `specs/repo-setup/` for consistency
+    82→- Updated final success message in `macos/new-mac.sh` to include counts inline: &#34;Successfully set up X/Y repositories, symlink, and X/Y tools&#34; (per requirement 9.8); added `SYMLINK_SETUP` tracking variable to the symlink section so the message conditionally includes symlink status
+    83→</code></pre>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible read-item">
+                    <summary><span class="icon">✅</span> 🔧 Edit: <code>CHANGELOG.md</code></summary>
+                    <div class="tool-content">
+                        <div class="patch-content">
+                            <span class="patch-line context"> ## [Unreleased]</span>
+                            <span class="patch-line context"> </span>
+                            <span class="patch-line context"> ### Added</span>
+                            <span class="patch-line addition">+- Added Interactive Phase and Unattended Phase sections to `docs/new-mac-guide.md`: documents the two-phase script structure including all interactive prompts (GitHub noreply email, full name, SSH key, sudo), noreply email guidance with link, walk-away banner, and full list of unattended operations with `~/SETUP.log` reference</span>
+                            <span class="patch-line addition">+- Added Software Installed section to `docs/new-mac-guide.md`: complete inventory of all packages by category (default, home, work, Mac App Store) with descriptions for non-obvious tools (bluesnooze, noTunes, dockutil, lychee, cloudflared, ykman, codelayer, yubico-authenticator, uv, mas, raycast) and opt-in instructions for work_packages</span>
+                            <span class="patch-line addition">+- Added What Gets Configured summary table to `docs/new-mac-guide.md`: maps 13 categories (Dock, system preferences, power, browser, login items, shell, Git, Vim, repositories, Go tools, Claude Code, iTerm2, containers) to script actions and source file paths</span>
+                            <span class="patch-line addition">+- Added Post-Setup Manual Steps section to `docs/new-mac-guide.md`: checklist covering terminal restart, App Store sign-in, Magnet licensing, app logins (NordVPN, Bitwarden, Tailscale, Dropbox, Spotify, Google Drive), configuration syncs (VS Code Settings Sync, Raycast, Logi Options+), `.gitconfig` placeholder editing, and optional full Xcode installation</span>
+                            <span class="patch-line context"> - Created `docs/new-mac-guide.md` with Quick Start (curl commands), Prerequisites (macOS 15+, Apple ID, internet), and Getting Started sections documenting the HTTPS bootstrap problem and SSH key generation flow</span>
+                            <span class="patch-line context"> - Added `specs/mac-setup-guide/` smolspec and task list for the new Mac setup guide</span>
+                            <span class="patch-line context"> </span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Stage updated changelog</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git add CHANGELOG.md</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>(Bash completed with no output)</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Branch is <code>mac-setup-guide</code> — no ticket number, documentation changes → <code>[doc]</code> prefix.</p>
+                </div>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <details class="tool-collapsible">
+                    <summary><span class="icon">✅</span> 🔧 Bash: Commit Phase B core content changes</summary>
+                    <div class="tool-content">
+                        <div class="tool-input-section">
+                            <strong>Command:</strong>
+                            <pre><code>git commit -m &#34;$(cat &lt;&lt;&#39;EOF&#39;
+[doc]: Add core content to Mac setup guide — phases, software inventory, config table, and post-setup steps
+
+Document the interactive and unattended phase structure with noreply email
+guidance, walk-away banner, and ~/SETUP.log reference. Add complete software
+inventory by category (default, home, work, MAS) with descriptions for all
+non-obvious tools. Add What Gets Configured summary table mapping 13
+categories to script actions and source files. Add Post-Setup Manual Steps
+checklist covering app logins, license activations, config syncs, gitconfig
+placeholder editing, and optional Xcode installation.
+EOF
+)&#34;</code></pre>
+                        </div>
+                        <div class="tool-result-section">
+                            <strong>Result:</strong>
+                            <pre><code>[mac-setup-guide 58b3070] [doc]: Add core content to Mac setup guide — phases, software inventory, config table, and post-setup steps
+ 9 files changed, 4665 insertions(+), 14 deletions(-)
+ create mode 100644 specs/mac-setup-guide/.orbit/phase-1-session.json
+ create mode 100644 specs/mac-setup-guide/.orbit/phase-1-session.txt
+ create mode 100644 specs/mac-setup-guide/.orbit/phase-1-transcript.html
+ create mode 100644 specs/mac-setup-guide/.orbit/phase-1-transcript.jsonl
+ create mode 100644 specs/mac-setup-guide/.orbit/phase-1-transcript.md</code></pre>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+        <section class="message assistant">
+            <div class="message-header">
+                <span class="icon">🤖</span>
+                <span>Assistant</span>
+            </div>
+            <div class="message-content">
+                <div class="markdown-content">
+<p>Phase B complete and committed. All 4 tasks (3–6) implemented:</p>
+<ul>
+<li><strong>Task 3</strong>: Interactive/unattended phase documentation with noreply email guidance and <code>~/SETUP.log</code> reference</li>
+<li><strong>Task 4</strong>: Full software inventory (58 packages across default, home, work, MAS) with descriptions for all non-obvious tools</li>
+<li><strong>Task 5</strong>: What Gets Configured table mapping 13 categories to script actions and source files</li>
+<li><strong>Task 6</strong>: Post-setup manual steps checklist (app logins, licensing, config syncs, gitconfig placeholders, optional Xcode)</li>
+</ul>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

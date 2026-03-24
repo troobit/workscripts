@@ -1,0 +1,24 @@
+Orbit Session Log - Phase 2
+========================================
+
+Session ID: d8332a50-dbd7-4949-a3f8-9967f4ff68e6
+Started:    2026-03-24T16:31:09+11:00
+Ended:      2026-03-24T16:34:24+11:00
+Duration:   3m13.97s
+Cost:       $0.7287
+Turns:      37
+Error:      false
+
+Output:
+----------------------------------------
+All done. Here's a summary of what was implemented:
+
+**Task 4** — Audited `logi-options+`, `gcloud-cli`, `lychee`, `anydesk`: all valid Homebrew names, no changes needed.
+
+**Tasks 5 & 6** — Added `install_packages()` helper before the brew install block. It attempts a batch install first (fast path), then retries packages individually on failure, appending each failure to `FAILED_PACKAGES`. The two `brew install ... || echo` calls are replaced with `install_packages --formula` and `install_packages --cask`.
+
+**Task 7** — Initialised `FAILED_PACKAGES=()` at the top of the install section. The Summary section now prints the failed package count inline, plus a detailed list at the end with per-package `brew info <name>` hints and a re-run instruction.
+
+Stderr:
+----------------------------------------
+

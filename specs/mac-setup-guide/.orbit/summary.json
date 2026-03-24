@@ -1,0 +1,71 @@
+{
+  "started_at": "2026-03-24T15:17:25.692153+11:00",
+  "completed_at": "2026-03-24T15:27:14.679059+11:00",
+  "status": "success",
+  "phases_completed": 3,
+  "total_cost_usd": 3.27381275,
+  "cost_totals": {
+    "usd": 3.27381275
+  },
+  "total_duration_ms": 582758,
+  "sessions": [
+    {
+      "phase": 1,
+      "session_id": "099c0a13-7097-4fed-8afb-2813a99ee102",
+      "duration_ms": 122803,
+      "cost_usd": 0.785139,
+      "cost_value": 0.785139,
+      "cost_unit": "USD",
+      "num_turns": 33,
+      "started_at": "2026-03-24T15:17:25.953155+11:00",
+      "ended_at": "2026-03-24T15:19:30.117657+11:00",
+      "run_number": 1,
+      "agent_alias": "claude-code",
+      "agent_type": "claude-code"
+    },
+    {
+      "phase": 2,
+      "session_id": "9bbbb364-8c3e-4410-ad50-1ab488bfe19e",
+      "duration_ms": 196495,
+      "cost_usd": 1.1720894999999998,
+      "cost_value": 1.1720894999999998,
+      "cost_unit": "USD",
+      "num_turns": 42,
+      "started_at": "2026-03-24T15:19:30.395304+11:00",
+      "ended_at": "2026-03-24T15:22:48.187135+11:00",
+      "run_number": 1,
+      "agent_alias": "claude-code",
+      "agent_type": "claude-code"
+    },
+    {
+      "phase": 3,
+      "session_id": "9ffb8eb9-db4d-4572-9ab7-6e0dfb97f128",
+      "duration_ms": 186609,
+      "cost_usd": 0.9388907500000001,
+      "cost_value": 0.9388907500000001,
+      "cost_unit": "USD",
+      "num_turns": 31,
+      "started_at": "2026-03-24T15:22:48.453515+11:00",
+      "ended_at": "2026-03-24T15:25:56.350996+11:00",
+      "run_number": 1,
+      "agent_alias": "claude-code",
+      "agent_type": "claude-code"
+    },
+    {
+      "phase": 0,
+      "session_id": "1f6713cc-0d78-4c52-ad3d-7beedbceaf73",
+      "duration_ms": 76851,
+      "cost_usd": 0.3776935,
+      "cost_value": 0.3776935,
+      "cost_unit": "USD",
+      "num_turns": 10,
+      "started_at": "2026-03-24T15:25:56.499015+11:00",
+      "ended_at": "2026-03-24T15:27:14.62913+11:00",
+      "run_number": 1,
+      "agent_alias": "claude-code",
+      "agent_type": "claude-code"
+    }
+  ],
+  "run_number": 1,
+  "branch_name": "mac-setup-guide"
+}
