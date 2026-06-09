@@ -1,60 +1,60 @@
-# VS Code on macOS — Speed Cheat Sheet (Distilled)
+## Nav
 
-**Core Navigation**
-- **`Cmd + P`**: Quick Open (fuzzy file search; use `:` for line, `@` for symbol).
-- **`Cmd + Shift + P`**: Command Palette (run commands; open Keyboard Shortcuts to verify mappings).
-- **`Cmd + B`**: Toggle Sidebar (show/hide Explorer/Search/SCM/Extensions).
-- **`Cmd + 0`**: Focus Sidebar (use `Cmd + 1` to return to the editor).
-- **`Cmd + 1 / Cmd + 2 / Cmd + 3`**: Focus Editor Group (jump between splits).
+| | | | |
+| --- | --- | --- | --- |
+| **⌘ P** | Quick Open (fuzzy file) | **⇧ ⌘ P** | Command Palette |
+| **⌘ B** | Toggle sidebar | **⌘ 0** | Focus sidebar |
+| **⌘ 1** | Focus editor | **⌘ 1 / 2 / 3** | Switch editor groups |
+| **⌃ 1 / 2 / 3 / 4** | Focus UI area (editor / sidebar / panel) | | |
 
-**Search & Jump**
-- **`Cmd + Shift + F`**: Global Search (regex and file filters supported).
-- **`Cmd + G`**: Go to line.
-- **`Cmd + Up/Down`**: Jump to start/end of file.
+## Find
 
-**Editor Workflow**
-- **`Cmd + \`**: Split editor (side-by-side).
-- **`Cmd + W`** / **`Cmd + Shift + T`**: Close tab / Reopen last closed tab.
-- **`Cmd + Opt + Left/Right`**: Navigate back/forward between files.
-- **`Cmd + Shift + K`**: Delete line.
-- **`Cmd + X`** (no selection): Cut line.
-- **`Cmd + C`** (no selection): Copy line.
-- **`Cmd + L`**: Select line.
-- **`Cmd + Enter`** / **`Cmd + Shift + Enter`**: Insert line below / above.
-- **`Opt + Left/Right`**: Jump by word.
-- **`Opt + Up/Down`**: Move line up/down.  **`Shift + Opt + Up/Down`**: Copy line up/down.
+| | | | |
+| --- | --- | --- | --- |
+| **⇧ ⌘ F** | Global search (regex + filters) | **⌘ G** | Go to line |
+| **⌘ ↑** | Start of file | **⌘ ↓** | End of file |
 
-**Multi-cursor & Selection**
-- **`Cmd + D`**: Add next match (multi-cursor).
-- **`Cmd + Shift + L`**: Select all occurrences.
-- **`Opt + Shift + I`**: Insert cursor at end of each selected line.
-- **`Cmd + U`**: Undo last cursor.
-- **`Opt + Click`**: Add cursor at click position.
+## Edit
 
-**Terminal**
-- **`Ctrl + \``** (backtick): Toggle integrated terminal.
+| | | | |
+| --- | --- | --- | --- |
+| **⌘ \\** | Split editor | **⌥ ⌘ ← / →** | Navigate file history (back/forward) |
+| **⌘ W** | Close tab | **⇧ ⌘ T** | Reopen last closed tab |
+| **⇧ ⌘ K** | Delete line | **⌘ L** | Select line |
+| **⌘ X** | Cut line (no selection) | **⌘ C** | Copy line (no selection) |
+| **⌘ ⏎** | Insert line below | **⇧ ⌘ ⏎** | Insert line above |
+| **⌥ ← / →** | Jump by word | **⌥ ↑ / ↓** | Move line up/down |
+| **⇧ ⌥ ↑ / ↓** | Copy line up/down | **⌘ K Z** | Zen mode (full-screen) |
 
-**AI & Extensions (Copilot / Claude)**
-- **`Tab`**: Accept Copilot inline suggestion.  **`Esc`**: Dismiss suggestion.
-- **`Cmd + I`**: Copilot inline chat (ask about code in-place).
-- **`Cmd + Shift + I`**: Copilot chat panel (persistent repo-aware chat).
-- **`Opt + ]` / `Opt + [`**: Cycle Copilot suggestions.
-- **`Cmd + Shift + P → "Claude: Open Chat"`**: Open Claude Code chat (if configured).
-- **`Cmd + Shift + P → "Claude: Explain Selection"`**: Explain highlighted code.
-- **`Cmd + Shift + P → "Claude: Refactor Selection"`**: Refactor highlighted code.
-- **`Cmd + Shift + P → "Claude: Fix Errors"`**: Target diagnostics in the active file.
-- **`Cmd + Shift + Esc`**: Open Claude tab (if configured).
-- **`Cmd + Esc`**: Toggle focus between editor and Claude (if configured).
-- **`Alt + K`**: AI Context / @-mention files in Claude.
-- **Credential note**: Ensure `~/.claudecreds` contains your model string for Claude extensions.
+## Multi-Select
 
-**Vim-like / Power Habits**
-- Use `Cmd + P` instead of clicking the tree; `Cmd + 0` to open explorer then `Enter` → `Cmd + 1` to return to code.
-- Split editor + AI chat = review changes live.
-- Select → Ask AI (Claude or Copilot) for focused results.
+| | | | |
+| --- | --- | --- | --- |
+| **⌘ D** | Add next match | **⇧ ⌘ L** | Select all occurrences |
+| **⇧ ⌥ I** | Cursor at end of each line | **⌘ U** | Undo last cursor |
+| **⌥ Click** | Add cursor at click | | |
 
-**Quick Recipes**
-- **Search → open → code:** `Cmd + Shift + F` → `Enter` → `Cmd + 1`.
-- **Explorer → open file → code:** `Cmd + 0` → `Enter` → `Cmd + 1`.
-- **Terminal → run → code:** `Ctrl + \`` → run → `Cmd + 1`.
+## Terminal & ML
 
+| | | | |
+| --- | --- | --- | --- |
+| **⌃ `** | Toggle integrated terminal | **⌥ K** | context / @-mention files |
+| **⇥** | Accept Copilot suggestion | **⎋** | Dismiss suggestion |
+| **⌘ I** | Copilot inline chat | **⇧ ⌘ I** | Copilot chat panel |
+| **⌥ ] / [** | Cycle Copilot suggestions | | |
+| **⇧ ⌘ ⎋** | Open Claude tab | **⌘ ⎋** | Toggle focus editor ↔ Claude |
+
+Claude actions via `⇧ ⌘ P` → "Claude: Open Chat / Explain / Refactor / Fix Errors". Credential note: `~/.claudecreds` must hold your model string.
+
+## Combos
+
+| | |
+| --- | --- |
+| Search → open → code | **⇧ ⌘ F** → **⏎** → **⌘ 1** |
+| Explorer → open → code | **⌘ 0** → **⏎** → **⌘ 1** |
+| Terminal → run → code | **⌃ `** → run → **⌘ 1** |
+| Quick Open → line / symbol | **⌘ P** then `:` / `@` |
+| Quick Open → command / help | **⌘ P** then `>` / `?` |
+| Global search filters | regex · `*.ts` include · `!dist` exclude |
+
+Glyphs: `⌘` Cmd · `⌥` Option · `⇧` Shift · `⌃` Control · `⏎` Return · `⎋` Esc · `⇥` Tab
