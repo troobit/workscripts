@@ -28,7 +28,7 @@ references:
 
 ## Agent templates and docs
 
-- [ ] 4. Import sanarte agent-customisation templates under azure/agent-templates/ <!-- id:v0eba5o -->
+- [x] 4. Import sanarte agent-customisation templates under azure/agent-templates/ <!-- id:v0eba5o -->
   - chatmodes, instructions, prompts with YAML front-matter intact
   - Stream: 3
 
