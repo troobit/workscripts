@@ -1,0 +1,36 @@
+# =============================================================================
+# Example Configuration — placeholders only, copy to terraform.tfvars
+# =============================================================================
+
+tenant_id     = "00000000-0000-0000-0000-000000000000"
+tenant_domain = "example.onmicrosoft.com"
+
+users = {
+  alice = {
+    display_name  = "Alice Example"
+    mail_nickname = "alice"
+    groups        = ["engineering"]
+    role_assignments = [
+      { role_definition_name = "User Administrator", scope = "/" },
+    ]
+  }
+  bob = {
+    display_name  = "Bob Example"
+    mail_nickname = "bob"
+    groups        = ["engineering", "device-admins"]
+  }
+}
+
+groups = {
+  engineering = {
+    display_name = "Engineering"
+    description  = "All engineers"
+  }
+  device-admins = {
+    display_name       = "Device Administrators"
+    assignable_to_role = true
+    role_assignments = [
+      { role_definition_name = "Intune Administrator", scope = "/" },
+    ]
+  }
+}
