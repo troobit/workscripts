@@ -32,7 +32,7 @@ references:
   - chatmodes, instructions, prompts with YAML front-matter intact
   - Stream: 3
 
-- [ ] 5. Write azure/README.md <!-- id:v0eba5p -->
+- [x] 5. Write azure/README.md <!-- id:v0eba5p -->
   - Layout; greenfield (primary) vs brownfield (secondary) application
   - OIDC/user-assigned-managed-identity auth model, why no client secrets
   - tfstate firewall open/close and deploy-by-immutable-digest patterns
