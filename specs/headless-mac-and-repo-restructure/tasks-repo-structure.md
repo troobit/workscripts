@@ -24,6 +24,6 @@ references:
   - lychee --offline README.md passes
   - Blocked-by: 1r4styj (Relocate PowerShell/ to powershell/ via git mv with space-free subdirs), 1r4styk (Move general-win-use.txt under windows/ or powershell/docs/)
 
-- [ ] 5. Integration check: every top-level dir in tree exists and every existing dir appears; per-dir READMEs present <!-- id:1r4styn -->
+- [x] 5. Integration check: every top-level dir in tree exists and every existing dir appears; per-dir READMEs present <!-- id:1r4styn -->
   - Final reconciliation happens on the integrated branch after all contexts merge
   - Blocked-by: 1r4stym (Rewrite root README.md as file tree + table of contents only)
