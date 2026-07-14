@@ -1,0 +1,27 @@
+# Provenance: imported unchanged from ~/Downloads/tf/az_hostedrunner (self-hosted CI runner compose file).
+version: "3.8"
+networks:
+  default:
+    name: ${CI_PROJECT_NAME}_${CI_JOB_ID}_config
+​
+volumes:
+  config:
+    driver: local
+    name: ${CI_PROJECT_NAME}_${CI_JOB_ID}_config
+​
+services:
+  # Required even for pytesting cdk code
+  cdk-utils:
+    image: ${DOCKER_IMAGE}
+    entrypoint: []
+    volumes:
+      - .:/work
+      - ${AWS_DIR}:/root/.aws
+    working_dir: /work
+​
+  envvars:
+    image: flemay/envvars:0.0.7
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - .:/work

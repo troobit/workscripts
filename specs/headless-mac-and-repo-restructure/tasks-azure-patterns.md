@@ -16,12 +16,12 @@ references:
 
 ## Container Apps patterns
 
-- [ ] 2. Capture Container Apps deployment pattern under azure/container-apps/ <!-- id:v0eba5m -->
+- [x] 2. Capture Container Apps deployment pattern under azure/container-apps/ <!-- id:v0eba5m -->
   - Generalised declarative app YAML from config/frontend.yml
   - deploy.sh local deploy pattern and setup_permissions.sh OIDC bootstrap, placeholders instead of sanarte values
   - Stream: 2
 
-- [ ] 3. Import az_hostedrunner from /Users/r/Downloads/tf as azure/hosted-runner/ <!-- id:v0eba5n -->
+- [x] 3. Import az_hostedrunner from /Users/r/Downloads/tf as azure/hosted-runner/ <!-- id:v0eba5n -->
   - Unchanged apart from short provenance header note
   - Dockerfile, compose file, requirements referenced from area README
   - Stream: 2
