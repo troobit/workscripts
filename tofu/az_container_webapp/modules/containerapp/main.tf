@@ -96,7 +96,7 @@ resource "azurerm_container_app" "this" {
 # =============================================================================
 
 resource "azurerm_container_app_custom_domain" "this" {
-  count           = var.custom_domain != null ? 1 : 0
+  count            = var.custom_domain != null ? 1 : 0
   name             = var.custom_domain
   container_app_id = azurerm_container_app.this.id
 

@@ -28,12 +28,12 @@ references:
 
 ## Validation and parameterisation
 
-- [ ] 5. Parameterise hardcoded backends/subscriptions into per-env *.backend.hcl with committed *.example files <!-- id:is7zc43 -->
+- [x] 5. Parameterise hardcoded backends/subscriptions into per-env *.backend.hcl with committed *.example files <!-- id:is7zc43 -->
   - Pattern: sanarte environments/{dev,prod}-backend.hcl
   - No real storage-account names, subscription IDs, or role ARNs in .tf files
   - Blocked-by: is7zc3z (Migrate roots from /Users/r/Downloads/tf into tofu/ copy, source is read-only)
 
-- [ ] 6. Every root passes tofu fmt -check and tofu init -backend=false + tofu validate <!-- id:is7zc44 -->
+- [x] 6. Every root passes tofu fmt -check and tofu init -backend=false + tofu validate <!-- id:is7zc44 -->
   - Blocked-by: is7zc40 (Standardise banner comments to 77-char # === form; preserve inline rationale and commented-out reference blocks), is7zc41 (Rename numbered NN_*.tf files to conventional scheme main/variables/outputs/providers), is7zc43 (Parameterise hardcoded backends/subscriptions into per-env *.backend.hcl with committed *.example files)
 
 ## Docs

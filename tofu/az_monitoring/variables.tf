@@ -4,7 +4,7 @@
 
 variable "subscription_id" {
   type = string
-  #default = "d79193eb-3ccd-4b78-ae11-0c0507247e5b"
+  #default = "00000000-0000-0000-0000-000000000000"
 }
 
 variable "tenant_id" {
@@ -27,4 +27,9 @@ variable "common_tags" {
 variable "location" {
   type = string
   #default = "australiaeast"
+}
+
+variable "storage_account_name" {
+  description = "Globally unique name of the storage account used for custom log storage."
+  type        = string
 }

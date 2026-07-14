@@ -22,7 +22,7 @@ provider "aws" {
   alias   = "dev"
   assume_role {
     # The role ARN within Account B to AssumeRole into. Created in step 1.
-    role_arn = "arn:aws:iam::767827085228:role/terraform"
+    role_arn = var.dev_role_arn
   }
   default_tags {
     tags = {
@@ -36,7 +36,7 @@ provider "aws" {
   alias   = "prod"
   assume_role {
     # The role ARN within Account B to AssumeRole into. Created in step 1.
-    role_arn = "arn:aws:iam::107932403193:role/terraform"
+    role_arn = var.prod_role_arn
   }
   default_tags {
     tags = {

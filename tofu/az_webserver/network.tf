@@ -3,7 +3,7 @@
 # =============================================================================
 
 variable "vnet_name" {
-  default = "vnet_name"  
+  default = "vnet_name"
 }
 
 variable "vnet_CIDR" {
@@ -26,7 +26,7 @@ resource "azurerm_virtual_network" "vnet" {
   location            = var.location
   resource_group_name = var.rg_name
   address_space       = var.vnet_CIDR
-  tags = merge(var.common_tags, {"Resource Type" = "vnet"})
+  tags                = merge(var.common_tags, { "Resource Type" = "vnet" })
 
   depends_on = [azurerm_resource_group.rg]
 }
@@ -34,10 +34,10 @@ resource "azurerm_virtual_network" "vnet" {
 
 
 resource "azurerm_subnet" "subnet" {
-  name           = "sn01"
-  address_prefixes = var.subnet1_CIDR
+  name                 = "sn01"
+  address_prefixes     = var.subnet1_CIDR
   virtual_network_name = var.vnet_name
-  resource_group_name = var.rg_name
+  resource_group_name  = var.rg_name
   depends_on = [
     azurerm_virtual_network.vnet
   ]
@@ -57,7 +57,7 @@ resource "azurerm_network_security_group" "nsg" {
     priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "TCP"
+    protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
     source_address_prefix      = "*"
@@ -68,7 +68,7 @@ resource "azurerm_network_security_group" "nsg" {
     priority                   = 200
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "TCP"
+    protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
     source_address_prefix      = "*"
@@ -79,7 +79,7 @@ resource "azurerm_network_security_group" "nsg" {
     priority                   = 300
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "TCP"
+    protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "443"
     source_address_prefix      = "*"
@@ -91,7 +91,7 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_subnet_network_security_group_association" "nsg-assoc" {
   subnet_id                 = azurerm_subnet.subnet.id
   network_security_group_id = azurerm_network_security_group.nsg.id
-  depends_on = [azurerm_network_security_group.nsg]
+  depends_on                = [azurerm_network_security_group.nsg]
 }
 
 # =============================================================================
@@ -103,10 +103,10 @@ resource "azurerm_public_ip" "pip" {
   resource_group_name = var.rg_name
   location            = var.location
   allocation_method   = "Dynamic"
-  tags = var.common_tags
+  tags                = var.common_tags
   depends_on = [
     azurerm_resource_group.rg,
-    azurerm_virtual_network.vnet]
+  azurerm_virtual_network.vnet]
 }
 
 # =============================================================================
@@ -114,16 +114,16 @@ resource "azurerm_public_ip" "pip" {
 # =============================================================================
 
 resource "azurerm_network_interface" "nic" {
-  name                           = "ws-nic"
-  location                       = var.location
-  resource_group_name            = var.rg_name
+  name                = "ws-nic"
+  location            = var.location
+  resource_group_name = var.rg_name
 
   ip_configuration {
-    name                         = "ws-ipconfig"
-    subnet_id                    = azurerm_subnet.subnet.id
-    private_ip_address_allocation= "static"
-    private_ip_address           = var.private_ip
-    public_ip_address_id         = azurerm_public_ip.pip.id
+    name                          = "ws-ipconfig"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "static"
+    private_ip_address            = var.private_ip
+    public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
 

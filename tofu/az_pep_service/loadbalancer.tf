@@ -17,8 +17,8 @@ resource "azurerm_lb" "lb" {
   resource_group_name = azurerm_resource_group.endpointsvc_rg.name
 
   frontend_ip_configuration {
-    name              = var.frontend_ipconfig_name
-    subnet_id         = azurerm_subnet.endpointsvc_default_sn.id
+    name                          = var.frontend_ipconfig_name
+    subnet_id                     = azurerm_subnet.endpointsvc_default_sn.id
     private_ip_address_allocation = "Dynamic"
   }
 }
@@ -31,7 +31,7 @@ resource "azurerm_lb_rule" "lb_rule_http" {
   frontend_port                  = 80
   backend_port                   = 80
   frontend_ip_configuration_name = var.frontend_ipconfig_name
-  backend_address_pool_ids = [azurerm_lb_backend_address_pool.lb_backend.id]
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.lb_backend.id]
   depends_on = [
     azurerm_lb_backend_address_pool.lb_backend
   ]
@@ -47,8 +47,8 @@ resource "azurerm_lb_backend_address_pool" "lb_backend" {
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "endpointsvc_lb_backend_assoc" {
-  count = var.endpointsvc_count
-  network_interface_id    = azurerm_network_interface.endpointvm_nic[count.index].id
+  count                = var.endpointsvc_count
+  network_interface_id = azurerm_network_interface.endpointvm_nic[count.index].id
   #ip config name is defined ON THE SOURCE VNIC
   ip_configuration_name   = "endpointsvc-ipconfig"
   backend_address_pool_id = azurerm_lb_backend_address_pool.lb_backend.id

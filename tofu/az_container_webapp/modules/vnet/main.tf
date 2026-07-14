@@ -38,7 +38,7 @@ resource "azurerm_subnet" "this" {
 # =============================================================================
 
 resource "azurerm_network_security_group" "this" {
-  for_each             = var.subnets
+  for_each            = var.subnets
   name                = "nsg-${each.key}"
   location            = var.location
   resource_group_name = var.resource_group_name

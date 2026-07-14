@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "this" {
-  name                     = "rtobcustomloggingsa2024"
+  name                     = var.storage_account_name
   resource_group_name      = local.rg_name
   location                 = var.location
   account_tier             = "Standard"

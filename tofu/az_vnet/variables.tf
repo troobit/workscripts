@@ -1,11 +1,9 @@
 variable "subscription_id" {
-  type    = string
-  default = "95991215-8f22-4b25-919c-451d98526ef3"
+  type = string
 }
 
 variable "tenant_id" {
-  type    = string
-  default = "6b7d3a1d-4be6-417f-929f-37b0119ba799"
+  type = string
 }
 
 variable "common_tags" {

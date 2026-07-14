@@ -2,16 +2,22 @@
 # Defining Provider Data
 # =============================================================================
 
-provider "azurerm" {
-    subscription_id                         = var.subscription_id
-    features {}
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.116"
+    }
+    tls = {
+      source = "hashicorp/tls"
+    }
+  }
+  # backend values are environment-specific and supplied at init time:
+  #   tofu init -backend-config=environments/dev-backend.hcl
+  backend "azurerm" {}
 }
 
-terraform {
-  backend "azurerm" {
-      resource_group_name               = "tf-data"
-      storage_account_name              = "storageaccountname"
-      container_name                    = "tfstate"
-      key                               = "placeholder.tf.state"
-  }
+provider "azurerm" {
+  subscription_id = var.subscription_id
+  features {}
 }

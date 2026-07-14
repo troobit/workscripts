@@ -7,7 +7,7 @@ locals {
   publicip_name = "example-${var.env_name}-pip"
   bastion_name  = "example-${var.env_name}-bastion"
   nsg_name      = "internal-nsg"
-  vnet_cidr     = [" 	10.140.64.0/22"]
+  vnet_cidr     = ["10.140.64.0/22"]
   subnets = tomap({
     "example-${var.env_name}-database-sn" = {
       address_prefixes   = ["10.140.64.0/24"]
@@ -31,7 +31,7 @@ locals {
 resource "azurerm_virtual_network" "vnet" {
   name                = local.vnet_name
   location            = var.location_primary
-  resource_group_name = azurerm_resource_group.resourcegroup.name
+  resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.140.64.0/20"]
   tags                = var.common_tags
 }
@@ -39,7 +39,7 @@ resource "azurerm_virtual_network" "vnet" {
 resource "azurerm_subnet" "this" {
   for_each             = local.subnets
   name                 = each.key
-  resource_group_name  = azurerm_resource_group.resourcegroup.name
+  resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = each.value.address_prefixes
 
@@ -67,7 +67,7 @@ resource "azurerm_subnet" "this" {
 resource "azurerm_network_security_group" "nsg" {
   name                = local.nsg_name
   location            = var.location_primary
-  resource_group_name = azurerm_resource_group.resourcegroup.name
+  resource_group_name = azurerm_resource_group.rg.name
   tags                = var.common_tags
 }
 
@@ -83,7 +83,7 @@ resource "azurerm_subnet_network_security_group_association" "internal_subnet_ns
 resource "azurerm_public_ip" "publicip" {
   name                = local.publicip_name
   location            = var.location_primary
-  resource_group_name = azurerm_resource_group.resourcegroup.name
+  resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
   tags                = var.common_tags
@@ -95,7 +95,7 @@ resource "azurerm_public_ip" "publicip" {
 resource "azurerm_bastion_host" "bastion" {
   name                = local.bastion_name
   location            = var.location_primary
-  resource_group_name = azurerm_resource_group.resourcegroup.name
+  resource_group_name = azurerm_resource_group.rg.name
   tags                = var.common_tags
 
   ip_configuration {

@@ -1,0 +1,6 @@
+# copy to prod-backend.hcl and fill in real values, then:
+#   tofu init -backend-config=environments/prod-backend.hcl
+resource_group_name  = "rg-tfstate-prod"
+storage_account_name = "sttfstateprod"
+container_name       = "tfstate"
+key                  = "az_private_endpoints.tfstate"

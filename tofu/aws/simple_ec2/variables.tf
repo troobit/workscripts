@@ -5,8 +5,6 @@ variable "aws_region" {
 }
 
 variable "aws_profile" {
-  
-  
-  default = "sandpit2"
-  
+  description = "Local AWS CLI profile to deploy with."
+  type        = string
 }

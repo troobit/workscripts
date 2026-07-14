@@ -5,7 +5,18 @@ variable "aws_region" {
 }
 
 variable "aws_profile" {
-  default = "rtob-mgmt-tf"
+  description = "Local AWS CLI profile for the management account."
+  type        = string
+}
+
+variable "dev_role_arn" {
+  description = "IAM role ARN assumed in the dev account."
+  type        = string
+}
+
+variable "prod_role_arn" {
+  description = "IAM role ARN assumed in the prod account."
+  type        = string
 }
 
 variable "environment" {

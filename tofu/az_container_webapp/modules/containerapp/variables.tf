@@ -6,10 +6,10 @@ variable "common_tags" {
   }
 }
 
-variable custom_domain {
+variable "custom_domain" {
   type        = string
   description = "The custom domain to be used by the container app"
-  default = null
+  default     = null
 }
 
 variable "user_managed_resource_ids" {

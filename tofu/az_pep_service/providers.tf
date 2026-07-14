@@ -5,12 +5,9 @@ terraform {
       version = "=3.27.0"
     }
   }
-  backend "azurerm" {
-      resource_group_name               = "terraform"
-      storage_account_name              = "tfrtobsa"
-      container_name                    = "tfstate"
-      key                               = "privatelinks.tf.state"
-  }
+  # backend values are environment-specific and supplied at init time:
+  #   tofu init -backend-config=environments/dev-backend.hcl
+  backend "azurerm" {}
 }
 
 # Configure the Microsoft Azure Provider

@@ -9,11 +9,11 @@ terraform {
 
 
 provider "aws" {
-  profile = var.profile
+  profile = var.aws_profile
 
   default_tags {
     tags = {
-      OpenTofu    = "true"
+      OpenTofu = "true"
     }
   }
 }

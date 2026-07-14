@@ -4,22 +4,22 @@
 
 variable "plinkname" {
   description = "Name to be used a suffix for resources deployed associated with this private link endpoint"
-  default = "plink"  
+  default     = "plink"
 }
 
 variable "requestmessage" {
   description = "Message to send with the request for connection to external private link service"
-  default = "Request Message"
+  default     = "Request Message"
 }
 
 variable "serviceendpointresourcealias" {
   description = "Private link resource alias for the service you are connecting to"
-  default = ""
+  default     = ""
 }
 
 variable "location" {
   description = "Which Azure region should the resource be deployed to. Defaults to australiaeast"
-  default = "australiaeast"
+  default     = "australiaeast"
 }
 
 variable "subnetid" {
@@ -28,7 +28,7 @@ variable "subnetid" {
 
 variable "tags" {
   description = "Tags to be applied to the link and vnic"
-  type = map
+  type        = map(any)
 }
 
 variable "rgname" {
@@ -37,4 +37,5 @@ variable "rgname" {
 
 variable "privateIP" {
   description = "Private IP assigned to the endpoint. If left blank the IP is dynamically allocated."
+  default     = ""
 }

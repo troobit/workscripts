@@ -3,16 +3,16 @@
 # =============================================================================
 
 variable "subscription_id" {
-    type = string
-    #default = "d79193eb-3ccd-4b78-ae11-0c0507247e5b"
+  type = string
+  #default = "00000000-0000-0000-0000-000000000000"
 }
 
 variable "common_tags" {
-    type = map
-    default = {"Project" = "ProjectNames"}
+  type    = map(any)
+  default = { "Project" = "ProjectNames" }
 }
 
 variable "location" {
-    type = string
-    #default = "australiaeast"
+  type = string
+  #default = "australiaeast"
 }
