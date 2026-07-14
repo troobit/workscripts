@@ -1,0 +1,40 @@
+# Declarative Azure Container App config. Apply with:
+#   az containerapp update --resource-group <RESOURCE_GROUP> --name <CONTAINERAPP_NAME> --yaml containerapp.yml
+# Generalised from sanarte's config/frontend.yml — replace every <PLACEHOLDER>.
+# The deploy-container-app workflow template rewrites .properties.template.containers[0].image
+# with yq before applying this file.
+---
+properties:
+  environmentId: "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.App/managedEnvironments/<CONTAINERAPP_ENV_NAME>"
+  configuration:
+    registries:
+      - server: ghcr.io
+        username: <GHCR_OWNER>
+        passwordSecretRef: cr-password # Container App secret holding a read:packages PAT
+    ingress:
+      external: true
+      targetPort: 3000 # must match the port the container listens on (and any health probes)
+      traffic:
+        - weight: 100
+          latestRevision: true
+    maxInactiveRevisions: 1
+  template:
+    containers:
+      - image: ghcr.io/<GHCR_OWNER>/<IMAGE_NAME>:latest
+        name: <CONTAINER_NAME>
+        resources:
+          cpu: 0.25 # Minimum possible CPU
+          memory: 0.5Gi # Minimum possible memory
+          ephemeralStorage: 1Gi
+        env:
+          # App-specific environment variables go here.
+          - name: <ENV_NAME>
+            value: <ENV_VALUE>
+    scale:
+      minReplicas: 0 # Scale to zero for maximum cost savings
+      maxReplicas: 2 # Allow slightly higher max for traffic spikes
+      rules:
+        - name: http-scale-rule
+          http:
+            metadata:
+              concurrentRequests: "10" # Scale up when >10 concurrent requests

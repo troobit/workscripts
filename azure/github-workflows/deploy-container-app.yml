@@ -1,0 +1,70 @@
+# Template — copy into a target repo's .github/workflows/ and set the repo
+# variables listed below. Imported from sanarte's deploy-container-app.yml.
+#
+# Required repo variables:
+#   AZ_CLIENT_ID        client ID of the user-assigned managed identity (OIDC federated)
+#   AZ_TENANT_ID        Entra ID tenant ID
+#   AZ_SUBSCRIPTION_ID  target subscription ID
+# workflow_dispatch input defaults cannot reference repo vars — replace the
+# <PLACEHOLDER> defaults below per repo. Expects the declarative app config at
+# config/frontend.yml (see azure/container-apps/containerapp.yml).
+name: Deploy Container to AzCApp
+
+on:
+  # Manual deployment with any tag to production environment
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Container image and tag to deploy (e.g., main-a1b2c3d, development-xyz123, latest)"
+        required: true
+        default: "ghcr.io/<OWNER>/<IMAGE>:latest"
+        type: string
+      rg_name:
+        description: "Resource group name for deployment"
+        required: true
+        default: "<RESOURCE_GROUP>"
+        type: string
+      app_name:
+        description: "Container app name for deployment"
+        required: true
+        default: "<CONTAINERAPP_NAME>"
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    name: Deploy Container App
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Container Config
+        id: config
+        run: |
+          yq e ".properties.template.containers[0].image = \"${{ github.event.inputs.image }}\"" $GITHUB_WORKSPACE/config/frontend.yml -i
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          # Use OIDC authentication with User-Assigned Managed Identity
+          client-id: ${{ vars.AZ_CLIENT_ID }} # Azure User-Assigned Managed Identity Client ID
+          tenant-id: ${{ vars.AZ_TENANT_ID }} # Azure Tenant ID
+          subscription-id: ${{ vars.AZ_SUBSCRIPTION_ID }} # Azure Subscription ID
+          allow-no-subscriptions: true
+
+      - name: Deploy to Azure Container App
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az containerapp update \
+            --resource-group ${{ github.event.inputs.rg_name }} \
+            --name ${{ github.event.inputs.app_name}} \
+            --yaml "$GITHUB_WORKSPACE/config/frontend.yml"
