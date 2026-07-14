@@ -13,7 +13,6 @@ Top-level dirs are per-platform areas, each with its own `README.md`: `macos/`, 
 - **`.tf` comment convention**: 77-char `# ===` banner headers plus terse lowercase inline rationale comments; intentionally commented-out reference blocks are kept, not stripped. Canonical example in `tofu/README.md`.
 - **Backends are parameterised**: real backend config lives in gitignored `environments/*-backend.hcl`; only `.example` files are committed. No real subscription IDs / storage accounts / role ARNs in `.tf` files.
 - **`azure/github-workflows/` are templates for other repos** — they must never live under this repo's own `.github/workflows/` or they would execute here.
-- **Legacy oddity**: `macos/bash/installCassandra.sh` contains PowerShell, not bash, and fails shellcheck; pre-existing, untouched by the restructure. Candidate for relocation or deletion.
 
 ## Quality gates (no Makefile)
 
