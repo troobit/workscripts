@@ -38,7 +38,7 @@ references:
 
 ## Docs
 
-- [ ] 7. Write tofu/README.md <!-- id:is7zc45 -->
+- [x] 7. Write tofu/README.md <!-- id:is7zc45 -->
   - Layout, comment convention with banner example, backend/tfvars pattern, YAML-driven yamldecode+flatten/for_each pattern
   - lychee --offline passes
   - Blocked-by: is7zc44 (Every root passes tofu fmt -check and tofu init -backend=false + tofu validate)
