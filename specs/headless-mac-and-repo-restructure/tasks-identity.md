@@ -28,7 +28,7 @@ references:
 
 ## Area docs
 
-- [ ] 5. Write identity/README.md tying the area together <!-- id:8frf0u6 -->
+- [x] 5. Write identity/README.md tying the area together <!-- id:8frf0u6 -->
   - Reference existing powershell/ Active Directory and Azure scripts WITHOUT moving them (moves are repo-structure's job)
   - lychee --offline passes on area docs
   - Blocked-by: 8frf0u2 (Write identity/entra/README.md: tenant creation docs portal + CLI with official Microsoft links), 8frf0u3 (Build identity/entra/ OpenTofu root with azuread provider: users, groups, role assignments), 8frf0u4 (Write identity/autopilot/README.md structuring Autopilot moving parts with Microsoft Learn links), 8frf0u5 (Add Autopilot config-as-code skeleton Graph API-based, clearly marked scaffolding)
