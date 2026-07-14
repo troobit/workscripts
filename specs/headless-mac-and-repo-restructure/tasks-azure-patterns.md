@@ -6,7 +6,7 @@ references:
 
 ## Workflow templates
 
-- [ ] 1. Import 4 sanarte workflows as parameterised templates under azure/github-workflows/ <!-- id:v0eba5l -->
+- [x] 1. Import 4 sanarte workflows as parameterised templates under azure/github-workflows/ <!-- id:v0eba5l -->
   - Sources: /Users/r/repos/sanarte/.github/workflows/{build-container,deploy-container-app,tf-deploy,update-kv-secret}.yml (read-only)
   - Replace sanarte identifiers (client/tenant/subscription IDs, rg-sanarte-prod, ca-sanarte-prod, ghcr.io/troobit/sanarte, hardcoded ARM env) with vars/secrets refs or marked placeholders
   - Normalise auth to repo vars across all four; fix or remove dead workflow_run trigger in update-kv-secret.yml

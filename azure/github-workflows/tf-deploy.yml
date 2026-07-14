@@ -1,0 +1,243 @@
+# Template — copy into a target repo's .github/workflows/ and set the repo
+# variables listed below. Imported from sanarte's tf-deploy.yml.
+#
+# Required repo variables:
+#   AZ_CLIENT_ID        client ID of the user-assigned managed identity (OIDC federated)
+#   AZ_TENANT_ID        Entra ID tenant ID
+#   AZ_SUBSCRIPTION_ID  target subscription ID
+# Expects the IaC root at infrastructure/terraform/ with per-environment
+# backend config in environments/prod-backend.hcl and vars in prod.tfvars.
+# The workflow opens the tfstate storage-account firewall for the runner IP
+# before init and removes it again in an always() step at the end.
+name: Infrastructure Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infrastructure/terraform/**"
+      - ".github/workflows/tf-deploy.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action to perform"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+        default: plan
+  pull_request:
+    branches: [main]
+    paths:
+      - "infrastructure/terraform/**"
+      - ".github/workflows/tf-deploy.yml"
+
+jobs:
+  terraform:
+    name: Deploy Production Infrastructure
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    env:
+      WORKING_DIR: infrastructure/terraform
+      TF_ACTION: ${{ inputs.action || 'plan' }}
+      # Configure Terraform to use OIDC authentication for both provider and backend
+      ARM_USE_OIDC: true
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZ_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ vars.AZ_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZ_TENANT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          # Use OIDC authentication with User-Assigned Managed Identity
+          client-id: ${{ vars.AZ_CLIENT_ID }} # Azure User-Assigned Managed Identity Client ID
+          tenant-id: ${{ vars.AZ_TENANT_ID }} # Azure Tenant ID
+          subscription-id: ${{ vars.AZ_SUBSCRIPTION_ID }} # Azure Subscription ID
+          allow-no-subscriptions: true
+
+      - name: Get Runner IP
+        id: ip
+        run: |
+          ipv4=$(curl -s https://api.ipify.org?format=json | jq -r '.ip')
+          echo "ipv4=$ipv4" >> $GITHUB_OUTPUT
+
+      - name: Add Runner IP to Storage Account
+        id: storage
+        run: |
+          # Get storage account name from production backend config
+          STORAGE_ACCOUNT=$(grep storage_account_name infrastructure/terraform/environments/prod-backend.hcl | awk -F'=' '{print $2}' | tr -d ' "')
+          RESOURCE_GROUP=$(grep resource_group_name infrastructure/terraform/environments/prod-backend.hcl | awk -F'=' '{print $2}' | tr -d ' "')
+
+          echo "storage_account=$STORAGE_ACCOUNT" >> $GITHUB_OUTPUT
+          echo "resource_group=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
+
+          # Add IP to firewall rules for secure access
+          az storage account network-rule add \
+            --resource-group "$RESOURCE_GROUP" \
+            --account-name "$STORAGE_ACCOUNT" \
+            --ip-address "${{ steps.ip.outputs.ipv4 }}"
+
+          # Wait for network rule to propagate
+          echo "Waiting for network rule to propagate..."
+          sleep 10
+        continue-on-error: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+
+      - name: Terraform Format
+        id: fmt
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform fmt -check -recursive -no-color
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          # Additional environment variables for Terraform backend OIDC authentication
+          ARM_OIDC_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
+          ARM_OIDC_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+        run: |
+          terraform init \
+            -backend-config=environments/prod-backend.hcl
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        id: plan
+        run: |
+          terraform plan \
+            -var-file=environments/prod.tfvars \
+            -var="github_token=${{ secrets.GITHUB_TOKEN }}" \
+            -out=tfplan \
+            -detailed-exitcode \
+            -no-color
+        continue-on-error: true
+
+      - name: Update PR with Plan
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+            return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+            })
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.WORKING_DIR }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
+
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        if: |
+          (env.TF_ACTION == 'apply' && steps.plan.outputs.exitcode == '2') ||
+          (github.ref == 'refs/heads/main' && env.TF_ACTION != 'destroy' && steps.plan.outputs.exitcode == '2')
+        run: |
+          terraform apply \
+            -auto-approve \
+            tfplan
+
+      - name: Terraform Destroy
+        working-directory: ${{ env.WORKING_DIR }}
+        if: env.TF_ACTION == 'destroy'
+        run: |
+          terraform plan -destroy \
+            -var-file=environments/prod.tfvars \
+            -var="github_token=${{ secrets.GITHUB_TOKEN }}" \
+            -out=destroy.tfplan
+          terraform apply -auto-approve destroy.tfplan
+
+      - name: Display Deployment Info
+        working-directory: ${{ env.WORKING_DIR }}
+        if: |
+          (env.TF_ACTION == 'apply' && steps.plan.outputs.exitcode == '2') ||
+          (github.ref == 'refs/heads/main' && env.TF_ACTION != 'destroy' && steps.plan.outputs.exitcode == '2')
+        run: |
+          echo "## 🚀 Production Infrastructure Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Application URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Container App URL**: \`$(terraform output -raw container_app_url)\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Container App FQDN**: \`$(terraform output -raw container_app_fqdn)\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Infrastructure Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Group**: \`$(terraform output -raw resource_group_name)\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Location**: \`$(terraform output -raw location)\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Container App**: \`$(terraform output -raw container_app_name)\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Key Vault**: \`$(terraform output -raw key_vault_name)\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Test the application** by visiting the Container App URL above" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Update DNS records** to point your custom domain to the Container App FQDN" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Configure custom domain** in Azure Container Apps if using a custom domain" >> $GITHUB_STEP_SUMMARY
+
+      - name: Remove Runner IP from Storage Account
+        if: always()
+        run: |
+          # Remove IP from firewall rules even if previous steps failed
+          az storage account network-rule remove \
+            --resource-group "${{ steps.storage.outputs.resource_group }}" \
+            --account-name "${{ steps.storage.outputs.storage_account }}" \
+            --ip-address "${{ steps.ip.outputs.ipv4 }}"
+        continue-on-error: true

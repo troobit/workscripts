@@ -1,0 +1,186 @@
+# Template — copy into a target repo's .github/workflows/ and set the repo
+# variables listed below. Imported from sanarte's build-container.yml.
+#
+# Required repo variables (Settings > Secrets and variables > Actions > Variables):
+#   AZ_CLIENT_ID        client ID of the user-assigned managed identity (OIDC federated)
+#   AZ_TENANT_ID        Entra ID tenant ID
+#   AZ_SUBSCRIPTION_ID  target subscription ID
+#   AZ_RESOURCE_GROUP   resource group containing the Container App
+#   AZ_CONTAINERAPP_NAME  Container App name
+# <PLACEHOLDER> values below must be replaced per repo (workflow_dispatch input
+# defaults and env cannot reference repo vars).
+name: Build and Push to GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: "Force rebuild even without code changes"
+        required: false
+        default: false
+        type: boolean
+      custom_commit:
+        description: "Custom commit SHA to build (leave empty for current HEAD)"
+        required: false
+        type: string
+      extra_tags:
+        description: "Additional tags to apply (comma-separated, e.g., 'v1.0,release')"
+        required: false
+        type: string
+
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'Dockerfile'
+      - '.github/workflows/build-container.yml'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+      - 'src/**'
+      - 'sites/**'
+      - 'static/**'
+      - 'scripts/**'
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  PACKAGE_NAME: <PACKAGE_NAME>
+  SHORT_SHA: $(echo ${{ github.sha }}} | cut -c1-8)
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    name: Build and Push Container Image
+    runs-on: ubuntu-latest
+
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+      image-labels: ${{ steps.meta.outputs.labels }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.custom_commit || github.sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Process extra tags
+        id: extra-tags
+        run: |
+          if [ -n "${{ inputs.extra_tags }}" ]; then
+            # Convert comma-separated tags to newline-separated with type=raw prefix
+            EXTRA_TAGS=$(echo "${{ inputs.extra_tags }}" | tr ',' '\n' | sed 's/^/type=raw,value=/')
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "$EXTRA_TAGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "tags=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # Branch name for feature branches
+            type=ref,event=branch
+            # Git short SHA
+            type=sha,format=short
+            # Latest tag
+            type=raw,value=latest
+            # Custom commit SHA tag (when using custom_commit)
+            type=raw,value=${{ inputs.custom_commit }},enable=${{ inputs.custom_commit != '' }}
+            # Extra tags from manual input
+            ${{ steps.extra-tags.outputs.tags }}
+          labels: |
+            org.opencontainers.image.title=<APP_TITLE>
+            org.opencontainers.image.description=<APP_DESCRIPTION>
+            org.opencontainers.image.vendor=<APP_VENDOR>
+
+      - name: Build and push container image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Generate build summary
+        run: |
+          echo "## 📦 Container Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏷️ Image Tags" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.meta.outputs.tags }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Image Digest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.build.outputs.digest }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏗️ Build Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platforms**: linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Cache**: GitHub Actions Cache" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: Deploy to Container App
+    needs: build
+    # Only auto-deploy production from main pushes. Feature branches and manual
+    # develop builds still publish to GHCR but are deployed on demand.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          # OIDC via the User-Assigned Managed Identity (same identity as the
+          # manual deploy and terraform workflows).
+          client-id: ${{ vars.AZ_CLIENT_ID }}
+          tenant-id: ${{ vars.AZ_TENANT_ID }}
+          subscription-id: ${{ vars.AZ_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
+
+      - name: Deploy immutable image digest to Container App
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          # Deploy by digest, not by a mutable tag. A digest always differs when
+          # the image content changes, so Container Apps reliably rolls a new
+          # revision (a mutable :latest/:main tag would leave the old revision running).
+          inlineScript: |
+            az containerapp update \
+              --resource-group ${{ vars.AZ_RESOURCE_GROUP }} \
+              --name ${{ vars.AZ_CONTAINERAPP_NAME }} \
+              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.image-digest }}
