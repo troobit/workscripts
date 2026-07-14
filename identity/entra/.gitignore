@@ -1,0 +1,5 @@
+# provider binaries and local state stay out of the repo; the lock file is committed
+.terraform/
+terraform.tfvars
+*.tfstate
+*.tfstate.*
