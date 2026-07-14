@@ -45,14 +45,14 @@ references:
 
 ## Documentation
 
-- [ ] 8. Write docs/new-mac-localhost.md headless guide <!-- id:4w9cwsy -->
+- [x] 8. Write docs/new-mac-localhost.md headless guide <!-- id:4w9cwsy -->
   - Bootstrap curl one-liner, interactive phase, sign-in checklist
   - Connect from another Mac: ssh, tmux new -A -s main; scp/rsync both directions; git push to machine
   - Long-lived processes via launchd/tmux (e.g. sdd-ui)
   - lychee --offline passes on local links
   - Blocked-by: 4w9cwst (Install and bring up Tailscale), 4w9cwsu (Enable Remote Login SSH idempotently), 4w9cwsv (Configure always-on clamshell power settings), 4w9cwsw (Consolidated manual sign-ins checklist GitHub, Claude, Tailscale, App Store)
 
-- [ ] 9. Reconcile with docs/new-mac-guide.md (single source, cross-link) <!-- id:4w9cwsz -->
+- [x] 9. Reconcile with docs/new-mac-guide.md (single source, cross-link) <!-- id:4w9cwsz -->
   - Blocked-by: 4w9cwsy (Write docs/new-mac-localhost.md headless guide)
 
 ## Human verification
