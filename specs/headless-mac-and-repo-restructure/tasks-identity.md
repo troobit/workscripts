@@ -6,11 +6,11 @@ references:
 
 ## Entra ID
 
-- [ ] 1. Write identity/entra/README.md: tenant creation docs (portal + CLI) with official Microsoft links <!-- id:8frf0u2 -->
+- [x] 1. Write identity/entra/README.md: tenant creation docs (portal + CLI) with official Microsoft links <!-- id:8frf0u2 -->
   - Explicit that tenant creation is a manual, billing-gated step
   - Stream: 1
 
-- [ ] 2. Build identity/entra/ OpenTofu root with azuread provider: users, groups, role assignments <!-- id:8frf0u3 -->
+- [x] 2. Build identity/entra/ OpenTofu root with azuread provider: users, groups, role assignments <!-- id:8frf0u3 -->
   - Data-driven for_each role-assignment pattern from sanarte umid module
   - Repo banner-comment style (77-char # === banners)
   - Passes tofu fmt -check and tofu init -backend=false + tofu validate
