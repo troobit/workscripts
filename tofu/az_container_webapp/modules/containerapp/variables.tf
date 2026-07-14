@@ -2,7 +2,7 @@ variable "common_tags" {
   type = map(any)
   default = {
     "env"       = null
-    "createdBy" = "Terraform"
+    "createdBy" = "OpenTofu"
   }
 }
 
@@ -69,5 +69,5 @@ variable "app_config" {
       })
     })
   })
-  description = "Container application config as defined in azurerm_container_app on the Terraform Registry."
+  description = "Container application config as defined for azurerm_container_app in the azurerm provider docs."
 }

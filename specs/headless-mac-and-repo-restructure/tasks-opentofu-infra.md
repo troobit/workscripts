@@ -13,15 +13,15 @@ references:
 
 ## Convention alignment
 
-- [ ] 2. Standardise banner comments to 77-char # === form; preserve inline rationale and commented-out reference blocks <!-- id:is7zc40 -->
+- [x] 2. Standardise banner comments to 77-char # === form; preserve inline rationale and commented-out reference blocks <!-- id:is7zc40 -->
   - Blocked-by: is7zc3z (Migrate roots from /Users/r/Downloads/tf into tofu/ copy, source is read-only)
   - Stream: 1
 
-- [ ] 3. Rename numbered NN_*.tf files to conventional scheme (main/variables/outputs/providers) <!-- id:is7zc41 -->
+- [x] 3. Rename numbered NN_*.tf files to conventional scheme (main/variables/outputs/providers) <!-- id:is7zc41 -->
   - Blocked-by: is7zc3z (Migrate roots from /Users/r/Downloads/tf into tofu/ copy, source is read-only)
   - Stream: 2
 
-- [ ] 4. OpenTofu terminology in all prose; never Terraform for local toolchain <!-- id:is7zc42 -->
+- [x] 4. OpenTofu terminology in all prose; never Terraform for local toolchain <!-- id:is7zc42 -->
   - grep -ri terraform tofu/ --include=*.md returns no local-toolchain hits (provider addresses and quoted workflow snippets exempt)
   - Blocked-by: is7zc3z (Migrate roots from /Users/r/Downloads/tf into tofu/ copy, source is read-only)
   - Stream: 3

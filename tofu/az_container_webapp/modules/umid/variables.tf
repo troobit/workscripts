@@ -1,7 +1,7 @@
 variable "common_tags" {
   type = map(any)
   default = {
-    "createdBy" = "Terraform"
+    "createdBy" = "OpenTofu"
   }
 }
 

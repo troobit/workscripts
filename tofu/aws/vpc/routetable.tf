@@ -13,7 +13,7 @@ resource "aws_route_table" "this" {
 
   tags = {
     Name        = "a4l-vpc1-rt-web"
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = var.environment
   }
 }

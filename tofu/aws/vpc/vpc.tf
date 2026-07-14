@@ -1,6 +1,6 @@
-# ====================================================================================
+# =============================================================================
 # Data feed from YAML file
-# ====================================================================================
+# =============================================================================
 locals {
   vpc_data = yamldecode(file("./config/networks.yml"))
 
@@ -50,9 +50,9 @@ locals {
   ])
 }
 
-# ====================================================================================
+# =============================================================================
 # VPCs
-# ====================================================================================
+# =============================================================================
 
 resource "aws_vpc" "this" {
   provider = aws.mgmt
@@ -64,7 +64,7 @@ resource "aws_vpc" "this" {
   cidr_block                       = each.value.cidr
   tags = {
     Name        = each.value.name
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = var.environment
   }
 }
@@ -75,7 +75,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id   = aws_vpc.this[each.key].id
   tags = {
     Name        = "${each.key}-rt"
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = var.environment
   }
 }
@@ -90,7 +90,7 @@ resource "aws_subnet" "private" {
   assign_ipv6_address_on_creation = true
   tags = {
     Name        = "${each.value.name}-${each.value.az}"
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = var.environment
   }
 }
@@ -106,7 +106,7 @@ resource "aws_subnet" "public" {
   assign_ipv6_address_on_creation = true
   tags = {
     Name        = "${each.value.name}-${each.value.az}"
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = var.environment
   }
 }

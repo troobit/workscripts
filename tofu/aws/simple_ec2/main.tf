@@ -16,7 +16,7 @@ module "vpc" {
   enable_vpn_gateway = false
 
   tags = {
-    Terraform   = "true"
+    OpenTofu    = "true"
     Environment = "dev"
   }
   vpc_tags = {

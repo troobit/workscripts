@@ -12,7 +12,7 @@ provider "aws" {
   alias   = "mgmt"
   default_tags {
     tags = {
-      Terraform = "true"
+      OpenTofu = "true"
     }
   }
 }
@@ -26,7 +26,7 @@ provider "aws" {
   }
   default_tags {
     tags = {
-      Terraform = "true"
+      OpenTofu = "true"
     }
   }
 }
@@ -40,7 +40,7 @@ provider "aws" {
   }
   default_tags {
     tags = {
-      Terraform = "true"
+      OpenTofu = "true"
     }
   }
 }
