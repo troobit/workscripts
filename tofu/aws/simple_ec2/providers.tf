@@ -1,0 +1,19 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.25"
+    }
+  }
+}
+
+
+provider "aws" {
+  profile = var.aws_profile
+
+  default_tags {
+    tags = {
+      OpenTofu = "true"
+    }
+  }
+}

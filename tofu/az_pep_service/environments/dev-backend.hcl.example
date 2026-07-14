@@ -1,0 +1,6 @@
+# copy to dev-backend.hcl and fill in real values, then:
+#   tofu init -backend-config=environments/dev-backend.hcl
+resource_group_name  = "rg-tfstate-dev"
+storage_account_name = "sttfstatedev"
+container_name       = "tfstate"
+key                  = "az_pep_service.tfstate"

@@ -1,0 +1,6 @@
+# copy to prod-backend.hcl and fill in real values, then:
+#   tofu init -backend-config=environments/prod-backend.hcl
+resource_group_name  = "rg-iac-prod"
+storage_account_name = "stiacprod"
+container_name       = "tfstate"
+key                  = "az_container_webapp.tfstate"

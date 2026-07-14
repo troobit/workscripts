@@ -1,0 +1,23 @@
+- name: project-env-region-vnet01
+  location: australiaeast
+  cidr: 10.0.0.0/16
+  subnets:
+    - name: subnet01
+      cidr: 10.0.0.0/24
+    - name: CAPSSUBNET02
+      cidr: 10.0.0.1/24
+    - name: AzureBastionSubnet
+      cidr: 10.0.255.192/26
+
+- name: project-env-region-vnet-02
+  location: australiaeast
+  cidr: 10.1.0.0/16
+  subnets:
+    - name: subnet-01
+      cidr: 10.1.0.0/24
+
+# peerings:
+#   - source: hub-vnet
+#   destination: 
+#     - spoke1-vnet
+#     - spoke2-vnet
