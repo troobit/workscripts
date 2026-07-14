@@ -1,0 +1,28 @@
+{
+  "_comment": "SCAFFOLDING — example user-driven Entra-join deployment profile body, not working configuration. Replace placeholder values before POSTing via New-AutopilotDeploymentProfile.ps1.",
+  "@odata.type": "#microsoft.graph.azureADWindowsAutopilotDeploymentProfile",
+  "displayName": "<PROFILE_DISPLAY_NAME>",
+  "description": "Standard user-driven Microsoft Entra join profile (scaffolding)",
+  "deviceNameTemplate": "<PREFIX>-%SERIAL%",
+  "locale": "os-default",
+  "deviceType": "windowsPc",
+  "hybridAzureADJoinSkipConnectivityCheck": false,
+  "outOfBoxExperienceSettings": {
+    "@odata.type": "microsoft.graph.outOfBoxExperienceSettings",
+    "hidePrivacySettings": true,
+    "hideEULA": true,
+    "userType": "standard",
+    "deviceUsageType": "singleUser",
+    "skipKeyboardSelectionPage": false,
+    "hideEscapeLink": true
+  },
+  "enrollmentStatusScreenSettings": {
+    "@odata.type": "microsoft.graph.windowsEnrollmentStatusScreenSettings",
+    "hideInstallationProgress": false,
+    "allowDeviceUseBeforeProfileAndAppInstallComplete": false,
+    "blockDeviceSetupRetryByUser": false,
+    "allowLogCollectionOnInstallFailure": true,
+    "installProgressTimeoutInMinutes": 60,
+    "allowDeviceUseOnInstallFailure": false
+  }
+}

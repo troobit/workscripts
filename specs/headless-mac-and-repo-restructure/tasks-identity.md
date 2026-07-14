@@ -18,11 +18,11 @@ references:
 
 ## Autopilot
 
-- [ ] 3. Write identity/autopilot/README.md structuring Autopilot moving parts with Microsoft Learn links <!-- id:8frf0u4 -->
+- [x] 3. Write identity/autopilot/README.md structuring Autopilot moving parts with Microsoft Learn links <!-- id:8frf0u4 -->
   - Device registration/hardware hash, deployment profiles, Intune enrollment, ESP
   - Stream: 2
 
-- [ ] 4. Add Autopilot config-as-code skeleton (Graph API-based, clearly marked scaffolding) <!-- id:8frf0u5 -->
+- [x] 4. Add Autopilot config-as-code skeleton (Graph API-based, clearly marked scaffolding) <!-- id:8frf0u5 -->
   - PowerShell/Graph scripts or OpenTofu/Graph provider layout with placeholders showing where profiles and assignments live
   - Stream: 2
 
