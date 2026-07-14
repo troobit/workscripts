@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Executed PRD `specs/headless-mac-and-repo-restructure/` across five parallel contexts:
+  - `macos/new-mac.sh` hardened for headless always-on use: fixed a hard syntax error in the Swift heredoc block, the `echo "\n"` bashism, and a `set -e`/`wait` abort after the browser section; added Tailscale, idempotent Remote Login, clamshell always-on power settings (`pmset disablesleep`, auto-restart on power failure), and a consolidated manual sign-ins checklist; `macos/verify-setup.sh` gained a Headless Operation section
+  - Added `docs/new-mac-localhost.md` (headless server guide: ssh/tmux/Tailscale access, file copy, long-lived processes) and `macos/README.md`
+  - Migrated ~10 OpenTofu roots from `~/Downloads/tf` into `tofu/` under repo conventions (77-char banners, conventional file names, parameterised backends via `*-backend.hcl.example`, all roots `tofu validate`-clean)
+  - Added `azure/`: four parameterised GitHub workflow templates, Container Apps deployment patterns (declarative YAML, deploy script, OIDC bootstrap), hosted-runner, and agent-customisation templates from sanarte
+  - Added `identity/`: Entra ID tenant docs plus a validating `azuread` OpenTofu root (users, groups, role assignments), and Windows Autopilot groundwork (docs + Graph API scaffolding)
+
+### Changed
+- Restructured the repo: `PowerShell/` → `powershell/` (space-free subdirs, history preserved), `general-win-use.txt` → `windows/`; root `README.md` rewritten as file tree + table of contents with per-area READMEs
+
+### Added
 - Added `install_packages` resilient helper to `macos/new-mac.sh`: attempts batch install first for speed, falls back to per-package retry on failure, collects failed names in `FAILED_PACKAGES` array
 - Added `FAILED_PACKAGES` summary to Setup Summary section in `macos/new-mac.sh`: lists failed package names with `brew info <name>` diagnostic hint and re-run instructions
 - Added `specs/new-mac-idempotency/` smolspec and task list for the resilient package install feature
