@@ -56,6 +56,19 @@ check "Battery display sleep: 10" test "$(pmset -g custom | awk '/Battery Power/
 check "Battery system sleep: 1" test "$(pmset -g custom | awk '/Battery Power/{found=1} found && /^ sleep/{print $2; exit}')" = "1"
 
 echo ""
+echo "=== Headless Operation ==="
+# systemsetup needs root; sudo -n avoids hanging on a password prompt when
+# run non-interactively (the check just fails instead).
+check_grep "Remote Login (SSH) enabled" \
+  "$(sudo -n systemsetup -getremotelogin 2>/dev/null || echo unavailable)" "On"
+check "Tailscale app installed" test -d "/Applications/Tailscale.app"
+check "Tailscale logged in" /Applications/Tailscale.app/Contents/MacOS/Tailscale status
+check_grep "Sleep disabled (clamshell always-on)" \
+  "$(pmset -g | grep SleepDisabled)" "1"
+check_grep "Auto-restart after power failure" \
+  "$(pmset -g | grep autorestart)" "1"
+
+echo ""
 echo "=== Default Browser ==="
 BROWSER_HANDLERS=$(plutil -extract LSHandlers json -o - \
   ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist 2>/dev/null || echo "")

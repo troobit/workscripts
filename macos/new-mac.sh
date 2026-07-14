@@ -20,9 +20,13 @@ packages_casks=(
   "caffeine" "claude-code" "dropbox" "firefox"
   "gcloud-cli" "gimp" "github" "google-chrome" "google-drive"
   "inkscape" "iterm2" "logi-options+" "nordvpn" "notunes"
-  "postman" "raycast" "spotify" "stremio" "transmission"
+  "postman" "raycast" "spotify" "stremio" "tailscale-app" "transmission"
   "visual-studio-code" "vlc" "whatsapp" "wireshark" "yubico-authenticator"
 )
+# tailscale-app: verified via `brew info --cask tailscale-app` (the GUI app,
+# which bundles the Network Extension needed on macOS). The bare formula
+# `tailscale` is the CLI-only daemon and is NOT what we want here; the old
+# name `tailscale` cask is an alias. Login happens post-run (see checklist).
 
 ########### END PACKAGE CONFIGURATION ################
 
@@ -376,6 +380,36 @@ sudo pmset -b sleep 1 || echo "⚠️  Could not set battery system sleep"
 
 echo "✅ Power management configured"
 
+########### HEADLESS OPERATION ################
+# This machine is intended to run always-on in clamshell mode (lid closed,
+# on AC power, no external display) and be reached over SSH/Tailscale.
+
+echo "🖥️  Configuring headless operation..."
+
+# Remote Login (SSH). systemsetup is idempotent — setting it on when it is
+# already on succeeds without side effects, so re-runs are safe.
+if sudo systemsetup -getremotelogin 2>/dev/null | grep -qi "on$"; then
+  echo "✅ Remote Login (SSH) already enabled"
+else
+  sudo systemsetup -setremotelogin on \
+    || echo "⚠️  Could not enable Remote Login — enable in System Settings → General → Sharing"
+fi
+
+# Prevent sleep entirely, including with the lid closed. Plain `pmset sleep 0`
+# is not enough for clamshell: without an external display macOS still sleeps
+# on lid close. `disablesleep 1` overrides that (same mechanism used for
+# clamshell servers). Trade-off: it also disables sleep on battery, so a
+# power cut runs the battery down — acceptable for an always-plugged-in
+# server. Revert with: sudo pmset -a disablesleep 0
+sudo pmset -a disablesleep 1 || echo "⚠️  Could not set disablesleep"
+
+# Auto-restart after power failure, so the machine comes back unattended.
+sudo systemsetup -setrestartpowerfailure on 2>/dev/null \
+  || sudo pmset -a autorestart 1 \
+  || echo "⚠️  Could not enable auto-restart after power failure"
+
+echo "✅ Headless operation configured"
+
 ########### DEFAULT BROWSER ################
 
 echo "🌐 Setting default browser..."
@@ -716,4 +750,15 @@ if [ "${#FAILED_PACKAGES[@]}" -gt 0 ]; then
   echo "Fix any invalid names in the PACKAGE CONFIGURATION block and re-run the script."
 fi
 
+# Consolidated manual sign-ins — every remaining interactive login in one
+# place. GitHub was already handled in the interactive phase (gh auth login).
+# This list is mirrored in docs/new-mac-localhost.md.
+echo ""
+echo "=== Manual sign-ins still required ==="
+echo "  [ ] Tailscale   — open Tailscale.app, sign in to your tailnet (browser)"
+echo "  [ ] Claude Code — run: claude   (first run opens browser login)"
+echo "  [ ] App Store   — sign in with your Apple ID so mas can install/update apps"
+echo "                    then re-run: mas install 441258766   # Magnet"
+echo "  [x] GitHub      — done in the interactive phase (verify: gh auth status)"
+echo ""
 echo "Restart your terminal to apply all changes."

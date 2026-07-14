@@ -21,25 +21,25 @@ references:
 
 ## Headless capabilities
 
-- [ ] 3. Install and bring up Tailscale <!-- id:4w9cwst -->
+- [x] 3. Install and bring up Tailscale <!-- id:4w9cwst -->
   - Verify package name via brew info before use (tailscale-app was previously invalid)
   - Place tailscale login in interactive phase or post-run checklist
   - Stream: 1
 
-- [ ] 4. Enable Remote Login (SSH) idempotently <!-- id:4w9cwsu -->
+- [x] 4. Enable Remote Login (SSH) idempotently <!-- id:4w9cwsu -->
   - sudo systemsetup -setremotelogin on or equivalent
   - Stream: 1
 
-- [ ] 5. Configure always-on clamshell power settings <!-- id:4w9cwsv -->
+- [x] 5. Configure always-on clamshell power settings <!-- id:4w9cwsv -->
   - No sleep with lid closed on AC (e.g. pmset disablesleep) with explanatory comment
   - Auto-restart after power failure (systemsetup -setrestartpowerfailure on or pmset autorestart)
   - Stream: 1
 
-- [ ] 6. Consolidated manual sign-ins checklist (GitHub, Claude, Tailscale, App Store) <!-- id:4w9cwsw -->
+- [x] 6. Consolidated manual sign-ins checklist (GitHub, Claude, Tailscale, App Store) <!-- id:4w9cwsw -->
   - Printed at end of run and repeated in the guide
   - Stream: 2
 
-- [ ] 7. Extend verify-setup.sh: remote login, Tailscale, always-on power checks <!-- id:4w9cwsx -->
+- [x] 7. Extend verify-setup.sh: remote login, Tailscale, always-on power checks <!-- id:4w9cwsx -->
   - Blocked-by: 4w9cwst (Install and bring up Tailscale), 4w9cwsu (Enable Remote Login SSH idempotently), 4w9cwsv (Configure always-on clamshell power settings)
   - Stream: 2
 
