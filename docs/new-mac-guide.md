@@ -1,6 +1,11 @@
 # New Mac Setup Guide
 
-> Last verified: 2026-03-24 | Source of truth: `macos/new-mac.sh`
+> Last verified: 2026-07-14 | Source of truth: `macos/new-mac.sh`
+
+Setting the machine up as an always-on headless server (clamshell, SSH,
+Tailscale, tmux)? Run through this guide first, then follow the
+[Headless Mac Server Guide](new-mac-localhost.md) — the headless workflow
+lives there and is not duplicated here.
 
 ## Quick Start
 
@@ -56,6 +61,7 @@ After the banner, no further input is required. You can walk away while the scri
 - Configures system preferences (hot corners, accent colour, Mission Control, Finder)
 - Sets up the Dock layout with spacers and preferences (auto-hide, magnification, tile size)
 - Configures power management (AC: never sleep; battery: conservative)
+- Configures headless operation — Remote Login (SSH), sleep fully disabled for clamshell use, auto-restart after power failure (see the [headless guide](new-mac-localhost.md))
 - Sets Brave Browser as the default browser (auto-dismisses the confirmation dialog)
 - Adds login items (Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast)
 - Creates `.gitconfig` with your name, email, SSH key path, and conditional includes
@@ -68,7 +74,7 @@ All output from the unattended phase is logged to **`~/SETUP.log`** — check th
 
 ## Software Installed
 
-The script installs packages in three categories. By default, `default_packages` and `home_packages` are combined. `work_packages` are excluded unless you opt in.
+The script installs two arrays defined in the `PACKAGE CONFIGURATION` block at the top of `macos/new-mac.sh`: `packages_formulae` (CLI tools) and `packages_casks` (GUI apps). Edit that block before running to customise. The tables below describe the packages, grouped for readability.
 
 ### Default Packages
 
@@ -135,15 +141,14 @@ The script installs packages in three categories. By default, `default_packages`
 | wireshark | Cask | Network protocol analyser |
 | yubico-authenticator | Cask | TOTP authenticator that stores codes on a YubiKey |
 
-### Work Packages (opt-in)
+### Work Packages (not installed)
 
-These are **excluded by default**. To include them, edit `macos/new-mac.sh` and add `"${work_packages[@]}"` to the `all_packages` array:
+These are **not in the script**. Add them to `packages_formulae`/`packages_casks` in the `PACKAGE CONFIGURATION` block if the machine is for work:
 
 | Package | Type |
 |---------|------|
 | slack | Cask |
 | microsoft-teams | Cask |
-| terraform | Formula |
 
 ### Mac App Store
 
@@ -160,6 +165,7 @@ Installed via `mas` (requires App Store sign-in):
 | Dock | Removes all items, adds 16 apps + 2 spacers + Downloads folder; sets auto-hide, magnification, tile size 44, hides recents | `macos/new-mac.sh` |
 | System preferences | Hot corner (BR → Quick Note), accent colour (Pink), highlight colour (Green), Mission Control (group by app, no auto-rearrange), Finder (column view) | `macos/new-mac.sh` |
 | Power | AC: display and system sleep disabled; battery: display sleep 10 min, system sleep 1 min | `macos/new-mac.sh` |
+| Headless | Remote Login (SSH) on, sleep fully disabled (`disablesleep`) for clamshell use, auto-restart after power failure — workflow in the [headless guide](new-mac-localhost.md) | `macos/new-mac.sh` |
 | Default browser | Brave Browser set as default for HTTP/HTTPS via Swift/NSWorkspace API | `macos/new-mac.sh` |
 | Login items | Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, Raycast added via AppleScript | `macos/new-mac.sh` |
 | Shell | Oh My Zsh with zsh-autosuggestions plugin; random theme from curated list; aliases (docker→podman, terraform shortcuts, git helpers) | `macos/zshrc`, `macos/aliases.zsh` |
@@ -173,7 +179,7 @@ Installed via `mas` (requires App Store sign-in):
 
 ## Post-Setup Manual Steps
 
-After the script completes, restart your terminal (or run `source ~/.zshrc`) to pick up all shell changes. Then work through these items:
+After the script completes, restart your terminal (or run `source ~/.zshrc`) to pick up all shell changes. The script prints a consolidated **manual sign-ins checklist** at the end of the run (Tailscale, Claude Code, App Store; GitHub is already done in the interactive phase) — complete that first, then work through these items:
 
 ### App Store and Licensing
 
@@ -225,6 +231,7 @@ The script checks ~30 items across these categories:
 - **Dock Preferences** — confirms auto-hide, tile size, magnification, and recents settings
 - **System Preferences** — checks hot corner, accent colour, Mission Control, and Finder view
 - **Power Management** — validates AC and battery sleep settings
+- **Headless Operation** — Remote Login (SSH), Tailscale installed and logged in, sleep disabled, auto-restart after power failure
 - **Default Browser** — confirms Brave is the default for HTTP/HTTPS
 - **Login Items** — checks that Caffeine, noTunes, Magnet, Bluesnooze, Google Drive, and Raycast are registered
 - **Homebrew Packages** — spot-checks a sample of installed packages (bat, fzf, tmux, mas, dockutil)
@@ -237,11 +244,10 @@ Each check shows ✅ (pass) or ❌ (fail). The final line reports totals, e.g. `
 
 To tailor the setup for your own use, edit these in `macos/new-mac.sh`:
 
-- **`default_packages` / `home_packages` arrays** (lines ~133–153) — add or remove Homebrew formulae and casks
-- **`work_packages` array** (line ~142) — add packages you only need for work; include `"${work_packages[@]}"` in the `all_packages` line to opt in
-- **`DOCK_NAMES` / `DOCK_PATHS` arrays** (lines ~234–258) — change the Dock app order, add/remove apps, or insert `"SPACER"` entries
-- **`LOGIN_APPS` array** (lines ~371–378) — control which apps launch at login
-- **`clone_repo` calls** (lines ~494–497) — add or remove repositories cloned into `~/repos/`
+- **`packages_formulae` / `packages_casks` arrays** (`PACKAGE CONFIGURATION` block at the top) — add or remove Homebrew formulae and casks
+- **`DOCK_NAMES` / `DOCK_PATHS` arrays** (`DOCK CONFIGURATION` section) — change the Dock app order, add/remove apps, or insert `"SPACER"` entries
+- **`LOGIN_APPS` array** (`LOGIN ITEMS` section) — control which apps launch at login
+- **`clone_repo` calls** (`REPOSITORY SETUP` section) — add or remove repositories cloned into `~/repos/`
 
 ## Troubleshooting
 
