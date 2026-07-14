@@ -1,0 +1,49 @@
+- name: a4l-vpc1
+  location: us-east-1
+  az: us-east-1
+  cidr: 10.16.0.0/16  
+  subnets:
+    private:
+      us-east-1a:
+        - name: reserved
+          cidr: 10.16.0.0/20
+          netnum: 0
+        - name: db
+          cidr: 10.16.16.0/20
+          netnum: 1
+        - name: app
+          cidr: 10.16.32.0/20
+          netnum: 2
+      us-east-1b:
+        - name: reserved
+          cidr: 10.16.64.0/20
+          netnum: 4
+        - name: db
+          cidr: 10.16.80.0/20
+          netnum: 5
+        - name: app
+          cidr: 10.16.96.0/20
+          netnum: 6
+      us-east-1c:
+        - name: reserved
+          cidr: 10.16.128.0/20
+          netnum: 8
+        - name: db
+          cidr: 10.16.144.0/20
+          netnum: 9
+        - name: app
+          cidr: 10.16.160.0/20
+          netnum: 10
+    public:
+      us-east-1a:
+        - name: web
+          cidr: 10.16.48.0/20
+          netnum: 3
+      us-east-1b:
+        - name: web
+          cidr: 10.16.112.0/20
+          netnum: 7
+      us-east-1c:
+        - name: web
+          cidr: 10.16.176.0/20
+          netnum: 11

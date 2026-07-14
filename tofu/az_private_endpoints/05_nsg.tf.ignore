@@ -1,0 +1,48 @@
+# ====================================================================================
+# Creating Network Security Groups and attachments for vnets and network interface cards.
+# NSG's and rules can be edited ad hoc, as well as the connections to different network devices
+# ====================================================================================
+
+# ====================================================================================
+# NSGs and Rules
+# ====================================================================================
+
+resource "azurerm_network_security_group" "ws_frontend" {
+  name                = "nsg-ingress"
+  location            = var.location
+  resource_group_name = var.ws_rg_name
+
+  security_rule {
+    name                       = "http-inbound"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "https-inbound"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  depends_on = [azurerm_resource_group.ingress_rg]
+}
+
+# ====================================================================================
+# NSGs Associations (This is what ties the rules to the vnet or nics)
+# ====================================================================================
+
+resource "azurerm_subnet_network_security_group_association" "nsg-assoc-ingress" {
+  subnet_id                 = azurerm_subnet.ws_default_sn.id
+  network_security_group_id = azurerm_network_security_group.ws_frontend.id
+  depends_on = [azurerm_network_security_group.ws_frontend]
+}

@@ -6,7 +6,7 @@ references:
 
 ## Migration
 
-- [ ] 1. Migrate roots from /Users/r/Downloads/tf into tofu/ (copy, source is read-only) <!-- id:is7zc3z -->
+- [x] 1. Migrate roots from /Users/r/Downloads/tf into tofu/ (copy, source is read-only) <!-- id:is7zc3z -->
   - One directory per root, preserve roots/modules split
   - Drop az_test_workloads (empty); az_hostedrunner is the azure context's (goes to azure/hosted-runner/, not tofu/)
   - Carry or drop .tf.ignore / ignore/ files; record each choice in tofu/README.md

@@ -1,0 +1,12 @@
+# local provider caches and state
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# real per-environment config stays local; committed *.example files are the templates
+*-backend.hcl
+*.tfvars
+!example.tfvars

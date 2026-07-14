@@ -1,0 +1,28 @@
+- name: hub-vnet
+  location: australiaeast
+  cidr: 10.0.0.0/16
+  subnets:
+    - name: subnet-01
+      cidr: 10.0.0.0/24
+    - name: AzureBastionSubnet
+      cidr: 10.0.255.192/26
+
+- name: spoke1-vnet
+  location: australiaeast
+  cidr: 10.1.0.0/16
+  subnets:
+    - name: subnet-01
+      cidr: 10.1.0.0/24
+
+- name: spoke2-vnet
+  location: australiasoutheast
+  cidr: 10.2.0.0/16
+  subnets:
+    - name: subnet-01
+      cidr: 10.2.0.0/24
+
+# peerings:
+#   - source: hub-vnet
+#   destination: 
+#     - spoke1-vnet
+#     - spoke2-vnet
