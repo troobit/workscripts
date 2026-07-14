@@ -92,7 +92,8 @@ if [ ! -f "$HOME/.ssh/github" ]; then
     echo "⚠️  SSH key already uploaded to GitHub (fingerprint: $KEY_FINGERPRINT)"
   else
     echo "Uploading SSH key to GitHub..."
-    gh ssh-key add "$HOME/.ssh/github.pub" --title "MacBook-$(date +%Y%m%d)"
+    gh ssh-key add "$HOME/.ssh/github.pub" --title "MacBook-$(date +%Y%m%d)" \
+      || echo "⚠️  Could not upload SSH key — add ~/.ssh/github.pub manually at https://github.com/settings/keys"
   fi
 
   echo "Testing SSH connection..."
@@ -109,12 +110,16 @@ echo ""
 echo "🔐 Requesting administrator access for system configuration..."
 sudo -v
 
-# Keep sudo alive in the background
+# Keep sudo alive in the background. `sudo -n` never prompts: if the cached
+# credential is ever revoked the loop's sudo fails silently (stderr to
+# /dev/null) and simply retries — the loop itself never exits, and because
+# it is a background job an inner failure cannot trip the script's set -e.
 while true; do sudo -n true; sleep 60; done 2>/dev/null &
 SUDO_KEEPALIVE_PID=$!
 
-# Trap to kill keep-alive on script exit
-trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
+# Kill keep-alive on any exit (success, set -e abort, or signal). `|| true`
+# so a failing kill inside the trap can't overwrite the script's exit code.
+trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
 
 echo ""
 echo "🚀 Unattended phase starting — you can walk away now"
@@ -123,13 +128,21 @@ echo ""
 ########### UNATTENDED PHASE ################
 # No further user interaction required
 
-# Initialize logging — capture all unattended operations
+# Initialize logging — capture all unattended operations.
+# Interplay notes (set -e + tee + keep-alive):
+# - This runs AFTER the EXIT trap is installed, so an abort mid-phase still
+#   kills the sudo keep-alive loop.
+# - tee runs as a process substitution; on exit it may flush the last lines
+#   slightly after the prompt returns. That is cosmetic only.
+# - set -e is still active: every command below that may legitimately fail
+#   (network, missing app, App Store not signed in) is wrapped in `if`/`||`
+#   so one failure cannot silently skip the rest of the unattended phase.
 SETUP_LOG="$HOME/SETUP.log"
 exec > >(tee -a "$SETUP_LOG") 2>&1
 echo "=== Setup started at $(date) ==="
 
 echo "Updating Homebrew..."
-brew update
+brew update || echo "⚠️  brew update failed — continuing with existing package index"
 
 brew install --cask font-droid-sans-mono-nerd-font || echo "Nerd font already installed or failed."
 
@@ -145,7 +158,8 @@ fi
 ZSH_PLUGINS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
 if [ ! -d "$ZSH_PLUGINS_DIR/zsh-autosuggestions" ]; then
   echo "Cloning zsh-autosuggestions..."
-  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS_DIR/zsh-autosuggestions"
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_PLUGINS_DIR/zsh-autosuggestions" \
+    || echo "⚠️  Could not clone zsh-autosuggestions — re-run to retry"
 else
   echo "zsh-autosuggestions plugin already exists."
 fi
@@ -200,14 +214,28 @@ fi
 # Download config files, but check if they exist first to avoid duplication
 if [ ! -f "$HOME/.vimrc" ]; then
     echo "Downloading .vimrc..."
-    curl -o "$HOME/.vimrc" https://raw.githubusercontent.com/troobit/workscripts/main/macos/vimrc
+    # -f: fail on HTTP errors instead of saving an error page as .vimrc;
+    # || guard keeps set -e from aborting the run on a transient failure
+    curl -fsSL -o "$HOME/.vimrc" https://raw.githubusercontent.com/troobit/workscripts/main/macos/vimrc \
+      || echo "⚠️  Could not download .vimrc"
 fi
 
-if ! grep -q "troobit/workscripts" "$HOME/.zshrc"; then
+# Append repo zshrc settings once. The marker comment is the idempotency
+# guard, so it is only written after a successful download — otherwise a
+# failed run would burn the marker and re-runs would never add the content.
+if ! grep -q "troobit/workscripts" "$HOME/.zshrc" 2>/dev/null; then
     echo "Appending custom .zshrc settings..."
-    # Add a comment to prevent re-adding in the future
-    echo "\n# Added from troobit/workscripts setup script" >> "$HOME/.zshrc"
-    curl https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc >> "$HOME/.zshrc"
+    ZSHRC_TMP=$(mktemp)
+    if curl -fsSL -o "$ZSHRC_TMP" https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc; then
+      # printf, not echo: bash echo does not interpret \n, so the old
+      # echo "\n..." wrote a literal backslash-n line into ~/.zshrc
+      printf '\n# Added from troobit/workscripts setup script\n' >> "$HOME/.zshrc"
+      cat "$ZSHRC_TMP" >> "$HOME/.zshrc"
+      echo "✅ Custom .zshrc settings appended"
+    else
+      echo "⚠️  Could not download zshrc additions — skipping (re-run to retry)"
+    fi
+    rm -f "$ZSHRC_TMP"
 fi
 
 ########### SHELL CONFIGURATION ################
@@ -221,6 +249,7 @@ curl -fsSL -o "$HOME/.aliases.zsh" \
 
 # Source from .zshrc if not already present
 if ! grep -q "source.*\.aliases\.zsh" "$HOME/.zshrc" 2>/dev/null; then
+  # shellcheck disable=SC2016 # literal $HOME wanted — zsh expands it at shell startup
   echo '[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"' >> "$HOME/.zshrc"
   echo "✅ Added aliases.zsh sourcing to .zshrc"
 else
@@ -230,6 +259,7 @@ fi
 # Ensure Homebrew Python takes precedence over macOS system Python
 if ! grep -q "brew --prefix python" "$HOME/.zshrc" 2>/dev/null; then
   echo '# Prefer Homebrew Python over system Python' >> "$HOME/.zshrc"
+  # shellcheck disable=SC2016 # literal $(brew --prefix python) wanted — evaluated at shell startup
   echo 'export PATH="$(brew --prefix python)/bin:$PATH"' >> "$HOME/.zshrc"
   echo "✅ Added Homebrew Python PATH preference to .zshrc"
 else
@@ -370,34 +400,43 @@ if [ -d "/Applications/Brave Browser.app" ]; then
 APPLESCRIPT
     DIALOG_PID=$!
 
-    # Set default browser via NSWorkspace API (macOS 12+)
-    if swift <<'SWIFT'; then
+    # Set default browser via NSWorkspace API (macOS 12+).
+    # NOTE: the heredoc body must start on the line directly after the `if`
+    # line and `then` must come after the closing SWIFT delimiter — putting
+    # `then`-branch lines before the heredoc body feeds them to swift as
+    # source code and breaks the shell parse (this was a past defect).
+    if swift <<'SWIFT'
+import AppKit
+let ws = NSWorkspace.shared
+guard let url = ws.urlForApplication(withBundleIdentifier: "com.brave.Browser") else {
+  fputs("Brave Browser not found\n", stderr)
+  exit(1)
+}
+let sem = DispatchSemaphore(value: 0)
+var exitCode: Int32 = 0
+ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "http") { error in
+  if let error = error { fputs("http: \(error)\n", stderr); exitCode = 1 }
+  ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "https") { error in
+    if let error = error { fputs("https: \(error)\n", stderr); exitCode = 1 }
+    sem.signal()
+  }
+}
+sem.wait()
+exit(exitCode)
+SWIFT
+    then
       echo "✅ Default browser set to Brave"
     else
+      # Failure path: swift compile/runtime errors land in the log via the
+      # tee redirection; the `if` guard keeps set -e from aborting the run.
       echo "⚠️  Could not set default browser with swift"
     fi
-    import AppKit
-    let ws = NSWorkspace.shared
-    guard let url = ws.urlForApplication(withBundleIdentifier: "com.brave.Browser") else {
-      fputs("Brave Browser not found\n", stderr)
-      exit(1)
-    }
-    let sem = DispatchSemaphore(value: 0)
-    var exitCode: Int32 = 0
-    ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "http") { error in
-      if let error = error { fputs("http: \(error)\n", stderr); exitCode = 1 }
-      ws.setDefaultApplication(at: url, toOpenURLsWithScheme: "https") { error in
-        if let error = error { fputs("https: \(error)\n", stderr); exitCode = 1 }
-        sem.signal()
-      }
-    }
-    sem.wait()
-    exit(exitCode)
-SWIFT
 
-    # Clean up dialog handler
-    kill "$DIALOG_PID" 2>/dev/null
-    wait "$DIALOG_PID" 2>/dev/null
+    # Clean up dialog handler. Both must be || true under set -e: kill fails
+    # if osascript already finished, and wait returns 143 for a killed child
+    # — either would otherwise abort the whole script here.
+    kill "$DIALOG_PID" 2>/dev/null || true
+    wait "$DIALOG_PID" 2>/dev/null || true
   fi
 else
   echo "⚠️  Brave Browser not installed — skipping default browser"

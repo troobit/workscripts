@@ -6,14 +6,17 @@ references:
 
 ## Script audit and fixes
 
-- [ ] 1. Audit new-mac.sh and verify-setup.sh; fix defects and shellcheck findings <!-- id:4w9cwsr -->
+- [x] 1. Audit new-mac.sh and verify-setup.sh; fix defects and shellcheck findings <!-- id:4w9cwsr -->
   - Fix echo "\n" bashism (new-mac.sh:209) writing literal \n into ~/.zshrc
   - Review set -e + exec tee + background sudo keep-alive interplay and Swift heredoc failure path
   - shellcheck clean on both scripts (warnings triaged or suppressed with reason)
 
-- [ ] 2. Verify safe re-run: second run completes without error or duplicate config lines <!-- id:4w9cwss -->
+- [x] 2. Verify safe re-run: second run completes without error or duplicate config lines <!-- id:4w9cwss -->
   - No duplicate lines in ~/.zshrc or ~/.gitconfig on re-run
   - Document dry-run reasoning or VM check as evidence
+  - Evidence (sandbox check): config-write blocks copied verbatim into a harness with HOME=sandbox and curl stubbed, run twice — .zshrc and .gitconfig byte-identical after run 2, no duplicate non-blank lines, no literal backslash-n line
+  - Evidence (guard audit): .zshrc appends guarded by grep markers ("troobit/workscripts" written only after successful download; "source.*aliases.zsh"; "brew --prefix python"); .gitconfig/.vimrc/ssh-key/oh-my-zsh/plugin/repos/symlink writes all guarded by existence checks; brew install re-run on installed packages exits 0; dock section is remove-all-then-re-add (idempotent net state)
+  - Evidence (no-abort audit): every unattended command that can legitimately fail is if/|| guarded so set -e cannot skip later sections; fixed unguarded kill/wait of the dialog handler (wait returned 143 and aborted the run mid-script)
   - Blocked-by: 4w9cwsr (Audit new-mac.sh and verify-setup.sh; fix defects and shellcheck findings)
 
 ## Headless capabilities
