@@ -4,6 +4,12 @@
 PASS=0
 FAIL=0
 
+# Repo macos/ dir (this script's dir), plus the managed marker strings that
+# sync-config.sh splices into ~/.zshrc — kept in sync with sync-config.sh.
+MACOS_DIR="$(cd "$(dirname "$0")" && pwd)"
+MANAGED_BEGIN="# >>> workscripts skup (managed) >>>"
+MANAGED_END="# <<< workscripts skup (managed) <<<"
+
 check() {
   local desc=$1; shift
   if "$@" &>/dev/null; then
@@ -23,6 +29,25 @@ check_grep() {
   else
     echo "  ❌ $desc"; FAIL=$((FAIL + 1))
   fi
+}
+
+# --- Predicates for the converged-state (skup) checks ------------------------
+# LINK is a symlink whose target is exactly TARGET (a file inside the repo).
+link_points_to() {
+  local link="$1" target="$2"
+  [ -L "$link" ] && [ "$(readlink "$link")" = "$target" ]
+}
+
+# FILE contains exactly WANT lines equal (whole-line) to LINE.
+line_count_is() {
+  local file="$1" line="$2" want="$3"
+  [ "$(grep -Fxc -- "$line" "$file" 2>/dev/null)" = "$want" ]
+}
+
+# Fixed PAT is NOT present anywhere in FILE.
+absent_fixed() {
+  local file="$1" pat="$2"
+  ! grep -Fq -- "$pat" "$file" 2>/dev/null
 }
 
 echo "=== Dock Apps ==="
@@ -99,6 +124,86 @@ check "docker-compose alias defined" grep -q "alias docker-compose='podman-compo
 echo ""
 echo "=== Compose File ==="
 check "docker-compose.yml exists in repo" test -f "$(dirname "$0")/docker-compose.yml"
+
+# --- Converged end state after sync-config.sh (specs/skup, Req 3.5, 4.1) -----
+echo ""
+echo "=== skup: Managed Links ==="
+check "aliases.zsh links into repo" \
+  link_points_to "$HOME/.aliases.zsh" "$MACOS_DIR/aliases.zsh"
+check "vimrc links into repo" \
+  link_points_to "$HOME/.vimrc" "$MACOS_DIR/vimrc"
+check "zshrc.workscripts links into repo snippet" \
+  link_points_to "$HOME/.zshrc.workscripts" "$MACOS_DIR/zshrc.snippet"
+check "local/bin/skup links into repo" \
+  link_points_to "$HOME/.local/bin/skup" "$MACOS_DIR/skup"
+check "local/bin/skup is executable" test -x "$HOME/.local/bin/skup"
+
+echo ""
+echo "=== skup: Managed zshrc Block ==="
+check "exactly one managed begin marker in zshrc" \
+  line_count_is "$HOME/.zshrc" "$MANAGED_BEGIN" 1
+check "exactly one managed end marker in zshrc" \
+  line_count_is "$HOME/.zshrc" "$MANAGED_END" 1
+check "zshrc sources the repo snippet" \
+  grep -Fq '.zshrc.workscripts' "$HOME/.zshrc"
+check "no legacy troobit marker remains in zshrc" \
+  absent_fixed "$HOME/.zshrc" "# Added from troobit/workscripts setup script"
+
+echo ""
+echo "=== skup: Captured Drift Aliases ==="
+# Content assertions (not mere definedness): a corrupted alias still "resolves".
+check "alias t resolves to tmux" \
+  grep -Fxq "alias t='tmux'" "$HOME/.aliases.zsh"
+check "alias tk resolves to fixed kill-session form" \
+  grep -Fxq "alias tk='tmux kill-session -t'" "$HOME/.aliases.zsh"
+check "corrupted tk alias definition absent" \
+  absent_fixed "$HOME/.aliases.zsh" "alias tk='tmux kill~session"
+check "alias cld defined" \
+  grep -Fq "alias cld='claude --dangerously-skip-permissions'" "$HOME/.aliases.zsh"
+check "lorb() defined" \
+  grep -Fq 'lorb() {' "$HOME/.aliases.zsh"
+
+echo ""
+echo "=== skup: Machine-Specific Config Kept Local ==="
+check "PRISMPATH still present in zshrc" grep -Fq 'PRISMPATH' "$HOME/.zshrc"
+check "cppr still present in zshrc" grep -Fq 'cppr' "$HOME/.zshrc"
+check "PRISMPATH not captured into repo aliases" absent_fixed "$MACOS_DIR/aliases.zsh" 'PRISMPATH'
+check "PRISMPATH not captured into repo snippet" absent_fixed "$MACOS_DIR/zshrc.snippet" 'PRISMPATH'
+check "cppr not captured into repo aliases" absent_fixed "$MACOS_DIR/aliases.zsh" 'cppr'
+
+echo ""
+echo "=== skup: Config ==="
+# Source skup (its main is guarded off when sourced) to reuse the real parser,
+# then confirm skup.conf yields a default set. $0 is passed as a sentinel so the
+# sourced skup sees BASH_SOURCE[0] != $0 and does not run skup_main.
+# shellcheck disable=SC2016  # $1/$2 are expanded by the inner bash, not here
+check "skup.conf parses with a default set" \
+  bash -c 'set +u; source "$1"; skup_parse_conf "$2"; skup_conf_get default >/dev/null' \
+  verify-skup "$MACOS_DIR/skup" "$MACOS_DIR/skup.conf"
+# Report each configured repo: present under repos_root or reported missing
+# (informational — a repo not yet cloned does not fail the converged-state check).
+bash -c '
+  set +u
+  source "$1"
+  skup_parse_conf "$2"
+  root="$(skup_repos_root)"
+  seen=" "
+  for i in "${!CONF_KEYS[@]}"; do
+    case "${CONF_KEYS[$i]}" in
+      default|tag.*) ;;
+      *) continue ;;
+    esac
+    for repo in ${CONF_VALS[$i]}; do
+      case "$seen" in *" $repo "*) continue ;; esac
+      seen="$seen$repo "
+      if [ -d "$root/$repo" ]; then
+        echo "  ✅ repo $repo present under $root"
+      else
+        echo "  ⚠️  repo $repo not found under $root (reported)"
+      fi
+    done
+  done
+' verify-skup "$MACOS_DIR/skup" "$MACOS_DIR/skup.conf"
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"

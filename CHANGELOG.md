@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `macos/tests/idempotency.sh`: a behavioural twice-run test asserting `sync-config.sh` is idempotent — the second run creates no new backup and leaves `~/.zshrc` byte-identical to the first
+- Extended `macos/verify-setup.sh` with a converged-state (skup) assertion block: the four managed links point into the repo and `skup` is executable, `~/.zshrc` has exactly one managed marker pair sourcing the snippet with no legacy `troobit` marker, captured drift aliases resolve to their fixed definitions (content assertion, catching a corrupted `tk`), machine-specific `PRISMPATH`/`cppr` stay in `~/.zshrc` and out of the repo, and `skup.conf` parses with each configured repo reported present or missing
 - Added `macos/sync-config.sh`: an idempotent, no-sudo config sync step that links repo files into `$HOME` (`~/.aliases.zsh`, `~/.vimrc`, `~/.zshrc.workscripts`, `~/.local/bin/skup`) with write-once collision-safe backups under `~/.workscripts-backups/`, splices a managed marker block into `~/.zshrc` above the first `source $ZSH/oh-my-zsh.sh` (guarded `PATH` add), and migrates the legacy `troobit/workscripts` block via anchor-range deletion plus guarded drift-line removal
 - Added `macos/zshrc.snippet`: the installer-free oh-my-zsh settings (theme, plugins, `setopt`, `LSCOLORS`) split out of `macos/zshrc` and sourced via `~/.zshrc.workscripts`
 - Added `macos/Brewfile`: package manifest (formulae, casks, `mas "Magnet"`) replacing the in-script package arrays

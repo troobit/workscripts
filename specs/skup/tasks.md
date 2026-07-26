@@ -113,7 +113,7 @@ references:
 
 ## Verification
 
-- [ ] 17. Extend verify-setup.sh with converged-state assertions <!-- id:pp5y8fk -->
+- [x] 17. Extend verify-setup.sh with converged-state assertions <!-- id:pp5y8fk -->
   - Assert the 4 managed links are symlinks pointing into the repo; ~/.zshrc has exactly one managed marker pair and sources ~/.zshrc.workscripts; no legacy # Added from troobit/workscripts setup script marker remains; ~/.local/bin/skup is executable; skup.conf parses and each default/tag repo resolves under repos_root or is reported
   - Drift content assertions: t->tmux, tk->tmux kill-session -t (fixed form, not corrupted), cld and lorb defined; PRISMPATH/cppr still in ~/.zshrc and absent from repo files
   - This task is itself the test harness extension
@@ -121,7 +121,7 @@ references:
   - Stream: 1
   - Requirements: [3.5](requirements.md#3.5), [4.1](requirements.md#4.1)
 
-- [ ] 18. Write the twice-run idempotency test <!-- id:pp5y8fl -->
+- [x] 18. Write the twice-run idempotency test <!-- id:pp5y8fl -->
   - macos/tests/idempotency.sh: run sync-config.sh twice; assert the second run creates no new backup and leaves ~/.zshrc byte-identical to after the first run
   - Blocked-by: pp5y8fa (Implement migration + drift-line removal; add captured aliases; wire sync-config main flow)
   - Stream: 1
