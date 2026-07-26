@@ -1,0 +1,72 @@
+# workscripts package manifest (specs/skup, Req 2).
+#
+# Installed by new-mac.sh via `brew bundle --file macos/Brewfile`. Edit this
+# data file to change what gets installed — no script code changes needed.
+# `brew bundle` skips already-installed entries, continues past failures, and
+# `brew bundle check --verbose` names anything still unsatisfied.
+
+# --- Formulae (CLI tools / libraries) ---
+brew "bat"
+brew "fzf"
+brew "gh"
+brew "git"
+brew "go"
+brew "htop"
+brew "jq"
+brew "mas"
+brew "python"
+brew "rename"
+brew "tmux"
+brew "tree"
+brew "wget"
+brew "yq"
+brew "awscli"
+brew "azure-cli"
+brew "cloudflared"
+brew "lychee"
+brew "nvm"
+brew "opentofu"
+brew "podman"
+brew "podman-compose"
+brew "uv"
+brew "ykman"
+brew "dockutil"
+
+# --- Casks (GUI applications) ---
+cask "anydesk"
+cask "audacity"
+cask "bitwarden"
+cask "bluesnooze"
+cask "brave-browser"
+cask "caffeine"
+cask "claude-code"
+cask "dropbox"
+cask "firefox"
+cask "gcloud-cli"
+cask "gimp"
+cask "github"
+cask "google-chrome"
+cask "google-drive"
+cask "inkscape"
+cask "iterm2"
+cask "logi-options+"
+cask "nordvpn"
+cask "notunes"
+cask "postman"
+cask "raycast"
+cask "spotify"
+cask "stremio"
+# tailscale-app: the GUI app (bundles the Network Extension needed on macOS).
+# The bare formula `tailscale` is the CLI-only daemon and is NOT what we want.
+cask "tailscale-app"
+cask "transmission"
+cask "visual-studio-code"
+cask "vlc"
+cask "whatsapp"
+cask "wireshark"
+cask "yubico-authenticator"
+
+# --- Mac App Store ---
+# Magnet (window manager). Skipped with a non-fatal error when the App Store is
+# not signed in; the rest of the manifest still installs (Req 2.4).
+mas "Magnet", id: 441258766

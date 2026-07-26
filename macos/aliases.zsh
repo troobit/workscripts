@@ -16,6 +16,22 @@ alias ohmyzsh="code ~/.oh-my-zsh"
 # Strip the oh-my-zsh random theme line from .zshrc, back up first, then re-source.
 alias removetheme="cp ~/.zshrc ~/.zshrc.bak; sed -i '' 's/ \"$RANDOM_THEME\"//g' ~/.zshrc; source ~/.zshrc"
 
+# --- tmux ---
+alias t='tmux'
+# Kill a named tmux session, e.g. `tk mysession`. (Fixed form: the live ~/.zshrc
+# had a corrupted `tmux kill~session ~t` — captured here as the correct command.)
+alias tk='tmux kill-session -t'
+
+# --- Claude ---
+alias cld='claude --dangerously-skip-permissions'
+
+# --- orbit ---
+# Launch an orbit run in the background from a tasks file, e.g. `lorb my-feature`
+# (reads specs/my-feature.md). Detached via nohup so it survives the shell.
+lorb() {
+    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &
+}
+
 # --- Terraform ---
 alias tf='terraform'
 alias tfaaa='terraform apply --auto-approve'

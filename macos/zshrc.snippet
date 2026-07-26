@@ -1,0 +1,27 @@
+# workscripts oh-my-zsh settings snippet.
+#
+# Repo-managed, sourceable settings split out of macos/zshrc (see specs/skup,
+# Decision 6). This file is linked to ~/.zshrc.workscripts and sourced from the
+# machine-local ~/.zshrc *before* `source $ZSH/oh-my-zsh.sh`, so oh-my-zsh reads
+# the theme and plugin list set here.
+#
+# It deliberately holds ONLY installer-free settings. It must be safe to
+# `source` on its own: it MUST NOT contain `export ZSH`, the
+# `source $ZSH/oh-my-zsh.sh` bootstrap, or any oh-my-zsh install line — those
+# stay in the machine-local ~/.zshrc.
+
+setopt shwordsplit
+setopt EXTENDED_HISTORY
+
+ZSH_THEME=random
+ZSH_THEME_RANDOM_CANDIDATES=( "adben" "afowler" "agnoster" "amuse" "apple" "arrow" "aussiegeek" "avit" "awesomepanda" "bira" "blinks" "candy-kingdom" "crcandy" "darkblood" "daveverwer" "dogenpunk" "dst" "dstufft" "duellj" "edvardm" "fino" "frisk" "frontcube" "funky" "garyblessington" "geoffgarside" "gianu" "imajes" "intheloop" "itchy" "jbergantine" "jispwoso" "jonathan" "josh" "jtriley" "kolo" "kphoen" "linuxonly" "lukerandall" "mgutz" "mh" "mikeh" "miloshadzic" "minimal" "mira" "mlh" "mortalscumbag" "mrtazz" "murilasso" "muse" "nanotech" "nebirhos" "nicoulaj" "pmcgee" "refined" "rgm" "robbyrussell" "simonoff" "simple" "sorin" "steeef" "strug" "sunrise" "suvash" "terminalparty" "theunraveler" "trapd00r" "xiong-chiamiov-plus" "xiong-chiamiov" "ys" "zhann" )
+
+# Hyphen-insensitive completion (_ and - interchangeable).
+HYPHEN_INSENSITIVE="true"
+
+# Do not mark untracked files under VCS as dirty — faster status on big repos.
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+plugins=(brew vim-interaction zsh-interactive-cd zsh-navigation-tools)
+
+export LSCOLORS='ExGxDxDxCxDxDxFxFxexEx'

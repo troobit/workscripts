@@ -7,6 +7,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `macos/sync-config.sh`: an idempotent, no-sudo config sync step that links repo files into `$HOME` (`~/.aliases.zsh`, `~/.vimrc`, `~/.zshrc.workscripts`, `~/.local/bin/skup`) with write-once collision-safe backups under `~/.workscripts-backups/`, splices a managed marker block into `~/.zshrc` above the first `source $ZSH/oh-my-zsh.sh` (guarded `PATH` add), and migrates the legacy `troobit/workscripts` block via anchor-range deletion plus guarded drift-line removal
+- Added `macos/zshrc.snippet`: the installer-free oh-my-zsh settings (theme, plugins, `setopt`, `LSCOLORS`) split out of `macos/zshrc` and sourced via `~/.zshrc.workscripts`
+- Added `macos/Brewfile`: package manifest (formulae, casks, `mas "Magnet"`) replacing the in-script package arrays
+- Added `macos/skup` and `macos/skup.conf`: a command that opens a tagged set of repos as tmux sessions with dev servers, with an `eval`-free config parser, per-repo start-command detection (`cmd.<repo>` override → `make dev` → `pnpm dev` → shell-only), tmux session create/reuse with `pgrep`-based server liveness restart, and attach/`switch-client` handling
+- Added `macos/tests/`: six test suites covering `link_file`/`backup_path`, `write_managed_block`, legacy migration + drift removal, the skup config parser, start-command detection, and server liveness
+- Added `specs/skup/` requirements, design, decision log, and task list
+
+### Changed
+- `macos/new-mac.sh`: replaced the package arrays and standalone Mac App Store install with `brew bundle --file macos/Brewfile` (plus `brew bundle check --verbose` for the failure summary); replaced the curl-and-append shell-config sections with a call to `macos/sync-config.sh`; added `--local` (no-sudo, home-only) mode that skips the interactive SSH/`gh` phase and all sudo/system/Dock/power sections
+- `macos/aliases.zsh`: captured portable drift from the live `~/.zshrc` — `t=tmux`, `cld`, `lorb()`, and the corrected `tk=tmux kill-session -t` (fixing a corrupted `~` form)
+
+### Added
 - Executed PRD `specs/headless-mac-and-repo-restructure/` across five parallel contexts:
   - `macos/new-mac.sh` hardened for headless always-on use: fixed a hard syntax error in the Swift heredoc block, the `echo "\n"` bashism, and a `set -e`/`wait` abort after the browser section; added Tailscale, idempotent Remote Login, clamshell always-on power settings (`pmset disablesleep`, auto-restart on power failure), and a consolidated manual sign-ins checklist; `macos/verify-setup.sh` gained a Headless Operation section
   - Added `docs/new-mac-localhost.md` (headless server guide: ssh/tmux/Tailscale access, file copy, long-lived processes) and `macos/README.md`

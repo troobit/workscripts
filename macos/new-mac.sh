@@ -3,32 +3,26 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# Resolve this script's directory so repo-managed files (Brewfile,
+# sync-config.sh) are found whether run from a clone or re-run in place.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
 ########### PACKAGE CONFIGURATION ################
-# Edit this section before running to customise what gets installed.
-# Run `brew search <name>` to verify the correct Homebrew package name.
-# Formulae = CLI tools / libraries | Casks = GUI applications
+# Packages are defined in the repo-managed manifest macos/Brewfile (Req 2.1),
+# installed below via `brew bundle`. Edit that data file to change what gets
+# installed — no script code changes needed.
 
-packages_formulae=(
-  "bat" "fzf" "gh" "git" "go" "htop" "jq" "mas" "python" "rename"
-  "tmux" "tree" "wget" "yq"
-  "awscli" "azure-cli" "cloudflared" "lychee" "nvm" "opentofu"
-  "podman" "podman-compose" "uv" "ykman" "dockutil"
-)
-
-packages_casks=(
-  "anydesk" "audacity" "bitwarden" "bluesnooze" "brave-browser"
-  "caffeine" "claude-code" "dropbox" "firefox"
-  "gcloud-cli" "gimp" "github" "google-chrome" "google-drive"
-  "inkscape" "iterm2" "logi-options+" "nordvpn" "notunes"
-  "postman" "raycast" "spotify" "stremio" "tailscale-app" "transmission"
-  "visual-studio-code" "vlc" "whatsapp" "wireshark" "yubico-authenticator"
-)
-# tailscale-app: verified via `brew info --cask tailscale-app` (the GUI app,
-# which bundles the Network Extension needed on macOS). The bare formula
-# `tailscale` is the CLI-only daemon and is NOT what we want here; the old
-# name `tailscale` cask is an alias. Login happens post-run (see checklist).
-
-########### END PACKAGE CONFIGURATION ################
+# --local: home-directory-only, no-sudo mode for testing on the current Mac
+# (Req 3.4). It runs the Brewfile install and sync-config.sh, and SKIPS the
+# interactive SSH/gh phase, sudo credentials + keep-alive, and every
+# sudo/system side-effect section (system preferences, Dock, power management,
+# headless, default browser, login items).
+LOCAL=0
+for arg in "$@"; do
+  case "$arg" in
+    --local) LOCAL=1 ;;
+  esac
+done
 
 echo "🚀 Starting new Mac setup..."
 
@@ -59,6 +53,8 @@ fi
 
 # Install gh early — needed for SSH/GitHub auth in interactive phase
 brew install gh 2>/dev/null || true
+
+if [ "$LOCAL" != "1" ]; then
 
 # Collect user input upfront
 echo "📝 Collecting user information..."
@@ -129,6 +125,10 @@ echo ""
 echo "🚀 Unattended phase starting — you can walk away now"
 echo ""
 
+else
+  echo "⏭️  --local: skipping interactive SSH/gh phase and sudo credentials"
+fi
+
 ########### UNATTENDED PHASE ################
 # No further user interaction required
 
@@ -169,106 +169,44 @@ else
 fi
 
 
-########### BREW PACKAGE INSTALL ################
+########### BREW PACKAGE INSTALL (Brewfile manifest) ################
 
+# Kept for the summary block below. `brew bundle` reports its own failures
+# inline via `brew bundle check`, so this stays empty.
 FAILED_PACKAGES=()
 
-install_packages() {
-  local flag=$1
-  shift
-  local pkgs=("$@")
-
-  echo "Attempting batch install (${flag})..."
-  if brew install "$flag" "${pkgs[@]}"; then
-    return 0
-  fi
-
-  echo "⚠️  Batch install failed — retrying packages individually..."
-  for pkg in "${pkgs[@]}"; do
-    if brew install "$flag" "$pkg"; then
-      echo "✅ $pkg installed"
-    else
-      echo "❌ Failed to install: $pkg"
-      FAILED_PACKAGES+=("$pkg")
-    fi
-  done
-}
-
-echo "Installing brew formulae..."
-install_packages --formula "${packages_formulae[@]}"
-
-echo "Installing brew casks..."
-install_packages --cask "${packages_casks[@]}"
-
-########### MAC APP STORE ################
-
-if command -v mas &>/dev/null; then
-  echo "📦 Installing Mac App Store apps..."
-
-  # Magnet (window manager) — App Store ID: 441258766
-  if mas list | grep -q "441258766"; then
-    echo "✅ Magnet already installed"
-  else
-    mas install 441258766 || echo "⚠️  Could not install Magnet — ensure App Store is signed in"
-  fi
+BREWFILE="$SCRIPT_DIR/Brewfile"
+if [ -f "$BREWFILE" ]; then
+  echo "📦 Installing packages from Brewfile ($BREWFILE)..."
+  # `brew bundle` installs formulae, casks, and mas apps, skipping already
+  # installed entries, continuing past a failed entry, and exiting non-zero if
+  # any failed — which `|| true` absorbs (Req 2.2). No --no-lock: that flag was
+  # removed from modern Homebrew. mas entries are skipped with a non-fatal
+  # error when the App Store is not signed in; the run continues (Req 2.4).
+  brew bundle --file "$BREWFILE" || true
+  # Failure summary: `check --verbose` names any entry still unsatisfied.
+  echo "Checking Brewfile status (unsatisfied entries, if any, listed below):"
+  brew bundle check --file "$BREWFILE" --verbose || true
 else
-  echo "⚠️  mas not found — skipping Mac App Store apps"
+  echo "⚠️  Brewfile not found at $BREWFILE — skipping package install (re-run from the workscripts clone)"
 fi
 
-# Download config files, but check if they exist first to avoid duplication
-if [ ! -f "$HOME/.vimrc" ]; then
-    echo "Downloading .vimrc..."
-    # -f: fail on HTTP errors instead of saving an error page as .vimrc;
-    # || guard keeps set -e from aborting the run on a transient failure
-    curl -fsSL -o "$HOME/.vimrc" https://raw.githubusercontent.com/troobit/workscripts/main/macos/vimrc \
-      || echo "⚠️  Could not download .vimrc"
-fi
+########### SHELL CONFIGURATION (linked via sync-config.sh) ################
 
-# Append repo zshrc settings once. The marker comment is the idempotency
-# guard, so it is only written after a successful download — otherwise a
-# failed run would burn the marker and re-runs would never add the content.
-if ! grep -q "troobit/workscripts" "$HOME/.zshrc" 2>/dev/null; then
-    echo "Appending custom .zshrc settings..."
-    ZSHRC_TMP=$(mktemp)
-    if curl -fsSL -o "$ZSHRC_TMP" https://raw.githubusercontent.com/troobit/workscripts/main/macos/zshrc; then
-      # printf, not echo: bash echo does not interpret \n, so the old
-      # echo "\n..." wrote a literal backslash-n line into ~/.zshrc
-      printf '\n# Added from troobit/workscripts setup script\n' >> "$HOME/.zshrc"
-      cat "$ZSHRC_TMP" >> "$HOME/.zshrc"
-      echo "✅ Custom .zshrc settings appended"
-    else
-      echo "⚠️  Could not download zshrc additions — skipping (re-run to retry)"
-    fi
-    rm -f "$ZSHRC_TMP"
-fi
-
-########### SHELL CONFIGURATION ################
-
-echo "🔧 Deploying shell configuration..."
-
-# Download aliases.zsh (overwrite — repo-managed)
-curl -fsSL -o "$HOME/.aliases.zsh" \
-  https://raw.githubusercontent.com/troobit/workscripts/main/macos/aliases.zsh \
-  || echo "⚠️  Could not download aliases.zsh"
-
-# Source from .zshrc if not already present
-if ! grep -q "source.*\.aliases\.zsh" "$HOME/.zshrc" 2>/dev/null; then
-  # shellcheck disable=SC2016 # literal $HOME wanted — zsh expands it at shell startup
-  echo '[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"' >> "$HOME/.zshrc"
-  echo "✅ Added aliases.zsh sourcing to .zshrc"
+# Link repo-managed shell config into $HOME, migrate any legacy curl-appended
+# ~/.zshrc block, and splice the managed source block (Reqs 1, 3, 4). This
+# replaces the old curl-download-and-append of vimrc/zshrc/aliases so a `git
+# pull` in the repo updates every machine. No sudo, no side effects outside
+# $HOME. Idempotent: re-running makes no backup and no change once converged.
+SYNC_CONFIG="$SCRIPT_DIR/sync-config.sh"
+if [ -f "$SYNC_CONFIG" ]; then
+  echo "🔧 Linking shell configuration via sync-config.sh..."
+  bash "$SYNC_CONFIG" || echo "⚠️  sync-config.sh reported an error — continuing"
 else
-  echo "✅ aliases.zsh already sourced in .zshrc"
+  echo "⚠️  sync-config.sh not found at $SYNC_CONFIG — skipping shell config linking (re-run from the workscripts clone)"
 fi
 
-# Ensure Homebrew Python takes precedence over macOS system Python
-if ! grep -q "brew --prefix python" "$HOME/.zshrc" 2>/dev/null; then
-  echo '# Prefer Homebrew Python over system Python' >> "$HOME/.zshrc"
-  # shellcheck disable=SC2016 # literal $(brew --prefix python) wanted — evaluated at shell startup
-  echo 'export PATH="$(brew --prefix python)/bin:$PATH"' >> "$HOME/.zshrc"
-  echo "✅ Added Homebrew Python PATH preference to .zshrc"
-else
-  echo "✅ Homebrew Python PATH already in .zshrc"
-fi
+if [ "$LOCAL" != "1" ]; then
 
 ########### SYSTEM PREFERENCES ################
 
@@ -510,6 +448,10 @@ for app_path in "${LOGIN_APPS[@]}"; do
 done
 
 echo "✅ Login items configured"
+
+else
+  echo "⏭️  --local: skipping system preferences, Dock, power management, headless, default browser and login items"
+fi
 
 # Verify required dependencies are available
 echo "🔍 Verifying required dependencies..."

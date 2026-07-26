@@ -1,0 +1,235 @@
+#!/bin/bash
+# skup — open a tagged set of repos as tmux sessions with dev servers running.
+#
+# Usage:
+#   skup            open the config-designated default set
+#   skup <tag>      open the repo set for <tag> (unknown tag -> exit 1, lists tags)
+#
+# Config: skup.conf beside this script (line-oriented `key = value`). See Req 5
+# and design.md. Written for bash 3.2 (macOS system bash): no associative
+# arrays, no `eval`.
+
+set -u
+
+# --- Resolve the directory of the real script (follow symlinks) so skup.conf
+#     is found even when skup is linked onto PATH (e.g. ~/.local/bin/skup). ---
+_skup_src="${BASH_SOURCE[0]}"
+while [ -L "$_skup_src" ]; do
+  _skup_dir="$(cd "$(dirname "$_skup_src")" && pwd)"
+  _skup_src="$(readlink "$_skup_src")"
+  case "$_skup_src" in
+    /*) ;;
+    *) _skup_src="$_skup_dir/$_skup_src" ;;
+  esac
+done
+SKUP_DIR="$(cd "$(dirname "$_skup_src")" && pwd)"
+unset _skup_src _skup_dir
+
+# Parallel arrays hold parsed config: CONF_KEYS[i] -> CONF_VALS[i]. Key presence
+# is simply "key appears in CONF_KEYS", tracked independently of its value, so a
+# declared-but-empty entry (cmd.brandme =) is distinguishable from an absent one.
+CONF_KEYS=()
+CONF_VALS=()
+
+# Trim leading/trailing whitespace; internal whitespace preserved. Uses `read`
+# with default IFS, which strips surrounding whitespace from a single field.
+skup_trim() {
+  local s
+  read -r s <<< "$1"
+  printf '%s' "$s"
+}
+
+# Parse a skup.conf file into CONF_KEYS/CONF_VALS.
+#   - Full-line comments only: a line whose first non-space char is '#'.
+#     A '#' inside a value is kept (no inline comments).
+#   - Split on the FIRST '='; key and value are trimmed.
+#   - No eval: the line is never executed; values are read as plain text.
+skup_parse_conf() {
+  local file="$1" line trimmed key value
+  CONF_KEYS=()
+  CONF_VALS=()
+  while IFS= read -r line || [ -n "$line" ]; do
+    trimmed="$(skup_trim "$line")"
+    [ -z "$trimmed" ] && continue
+    case "$trimmed" in
+      \#*) continue ;;
+    esac
+    case "$line" in
+      *=*) ;;
+      *) continue ;;
+    esac
+    key="$(skup_trim "${line%%=*}")"
+    value="$(skup_trim "${line#*=}")"
+    [ -n "$key" ] || continue
+    CONF_KEYS+=("$key")
+    CONF_VALS+=("$value")
+  done < "$file"
+}
+
+# skup_conf_has KEY -> 0 if KEY was declared (even with an empty value).
+skup_conf_has() {
+  local target="$1" i
+  for i in "${!CONF_KEYS[@]}"; do
+    [ "${CONF_KEYS[$i]}" = "$target" ] && return 0
+  done
+  return 1
+}
+
+# skup_conf_get KEY -> prints the value; returns 1 if the key is absent.
+skup_conf_get() {
+  local target="$1" i
+  for i in "${!CONF_KEYS[@]}"; do
+    if [ "${CONF_KEYS[$i]}" = "$target" ]; then
+      printf '%s' "${CONF_VALS[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# repos_root, with a leading ~ expanded to $HOME. Tilde is expanded ONLY here;
+# start commands are left untouched (they run cd'd into the repo).
+skup_repos_root() {
+  local v
+  if ! v="$(skup_conf_get repos_root)"; then
+    v="$HOME/repos"
+  fi
+  printf '%s' "${v/#\~/$HOME}"
+}
+
+# List the tag names known to the config (the part after "tag.").
+skup_known_tags() {
+  local i k
+  for i in "${!CONF_KEYS[@]}"; do
+    k="${CONF_KEYS[$i]}"
+    case "$k" in
+      tag.*) echo "  ${k#tag.}" ;;
+    esac
+  done
+}
+
+# skup_pkg_has_dev PACKAGE_JSON -> 0 if .scripts.dev is present.
+skup_pkg_has_dev() {
+  local pkg="$1"
+  if command -v jq >/dev/null 2>&1; then
+    jq -e '.scripts.dev' "$pkg" >/dev/null 2>&1
+  else
+    # Fallback for a machine without jq: look for a "dev" key. Coarse but only
+    # reached when jq is unavailable.
+    grep -qE '"dev"[[:space:]]*:' "$pkg"
+  fi
+}
+
+# skup_start_cmd REPO PATH -> prints the start command (may be empty).
+#   1. cmd.<repo> declared (even empty) -> use it, no detection.
+#   2. else Makefile with a `^dev:` target -> "make dev".
+#   3. else package.json with .scripts.dev -> "pnpm dev".
+#   4. else "" (shell-only).
+skup_start_cmd() {
+  local repo="$1" path="$2"
+  if skup_conf_has "cmd.$repo"; then
+    skup_conf_get "cmd.$repo"
+    return 0
+  fi
+  if [ -f "$path/Makefile" ] && grep -qE '^dev:' "$path/Makefile"; then
+    printf '%s' 'make dev'
+    return 0
+  fi
+  if [ -f "$path/package.json" ] && skup_pkg_has_dev "$path/package.json"; then
+    printf '%s' 'pnpm dev'
+    return 0
+  fi
+  printf '%s' ''
+}
+
+# skup_server_alive REPO -> 0 if the repo's `server` window is running a
+# command. A tmux window outlives its command, so liveness is the presence of a
+# child process under the pane's shell, not the window's existence (D8).
+skup_server_alive() {
+  local repo="$1" pid
+  pid="$(tmux list-panes -t "$repo:server" -F '#{pane_pid}' 2>/dev/null | head -1)"
+  [ -n "$pid" ] || return 1
+  pgrep -P "$pid" >/dev/null 2>&1
+}
+
+# Does a tmux session named exactly REPO exist?
+skup_has_session() {
+  tmux has-session -t "=$1" 2>/dev/null
+}
+
+# Does REPO have a window named `server`?
+skup_has_server_window() {
+  tmux list-windows -t "=$1" -F '#{window_name}' 2>/dev/null | grep -qx server
+}
+
+# Create the server window for REPO at PATH and issue CMD into it.
+skup_start_server_window() {
+  local repo="$1" path="$2" cmd="$3"
+  skup_has_server_window "$repo" || tmux new-window -t "=$repo" -n server -c "$path"
+  tmux send-keys -t "$repo:server" "$cmd" C-m
+}
+
+skup_main() {
+  local conf tag repos repos_root first repo path cmd
+  conf="${SKUP_CONF:-$SKUP_DIR/skup.conf}"
+  if [ ! -f "$conf" ]; then
+    echo "skup: config not found: $conf" >&2
+    return 1
+  fi
+  skup_parse_conf "$conf"
+  repos_root="$(skup_repos_root)"
+
+  tag="${1:-}"
+  if [ -z "$tag" ]; then
+    if ! repos="$(skup_conf_get default)"; then
+      echo "skup: no 'default' set defined in $conf" >&2
+      return 1
+    fi
+  elif skup_conf_has "tag.$tag"; then
+    repos="$(skup_conf_get "tag.$tag")"
+  else
+    echo "skup: unknown tag '$tag'" >&2
+    echo "known tags:" >&2
+    skup_known_tags >&2
+    return 1
+  fi
+
+  first=""
+  for repo in $repos; do
+    path="$repos_root/$repo"
+    if [ ! -d "$path" ]; then
+      echo "skup: $repo missing at $path, skipping" >&2
+      continue
+    fi
+    cmd="$(skup_start_cmd "$repo" "$path")"
+    if ! skup_has_session "$repo"; then
+      tmux new-session -d -s "$repo" -c "$path" -n shell
+      if [ -n "$cmd" ]; then
+        skup_start_server_window "$repo" "$path" "$cmd"
+      fi
+    else
+      # Reuse: restart the server only if it has a command and isn't running.
+      if [ -n "$cmd" ] && ! skup_server_alive "$repo"; then
+        skup_start_server_window "$repo" "$path" "$cmd"
+      fi
+    fi
+    [ -z "$first" ] && first="$repo"
+  done
+
+  if [ -z "$first" ]; then
+    echo "skup: no repos to open" >&2
+    return 1
+  fi
+
+  # Switch when already inside tmux (never nest); attach otherwise.
+  if [ -n "${TMUX:-}" ]; then
+    tmux switch-client -t "$first"
+  else
+    tmux attach -t "$first"
+  fi
+}
+
+# Run only when executed, not when sourced (tests source this file).
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  skup_main "$@"
+fi
