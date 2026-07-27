@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `docs/entra-iac-quickstart.md`: a pointers-only quickstart walking Entra ID as code end to end (manual tenant creation, `identity/entra/` OpenTofu root, single-machine deploy via `az login`, GitHub OIDC deploy via `azure/github-workflows/tf-deploy.yml`) with a "Not yet codified" section flagging conditional access policies and licensing as out of scope
+
+### Changed
+- `.gitignore`: added `nextup.md` and `**/.orbit/**`
+
+### Added
 - Added `macos/tests/idempotency.sh`: a behavioural twice-run test asserting `sync-config.sh` is idempotent — the second run creates no new backup and leaves `~/.zshrc` byte-identical to the first
 - Extended `macos/verify-setup.sh` with a converged-state (skup) assertion block: the four managed links point into the repo and `skup` is executable, `~/.zshrc` has exactly one managed marker pair sourcing the snippet with no legacy `troobit` marker, captured drift aliases resolve to their fixed definitions (content assertion, catching a corrupted `tk`), machine-specific `PRISMPATH`/`cppr` stay in `~/.zshrc` and out of the repo, and `skup.conf` parses with each configured repo reported present or missing
 - Added `macos/sync-config.sh`: an idempotent, no-sudo config sync step that links repo files into `$HOME` (`~/.aliases.zsh`, `~/.vimrc`, `~/.zshrc.workscripts`, `~/.local/bin/skup`) with write-once collision-safe backups under `~/.workscripts-backups/`, splices a managed marker block into `~/.zshrc` above the first `source $ZSH/oh-my-zsh.sh` (guarded `PATH` add), and migrates the legacy `troobit/workscripts` block via anchor-range deletion plus guarded drift-line removal
