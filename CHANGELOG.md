@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added `macos/gitfilepurge.sh`: a script that removes files from git history using `git-filter-repo` with a confirmation prompt, adds the file to `.gitignore`, and stages the gitignore change
 - Added `docs/entra-iac-quickstart.md`: a pointers-only quickstart walking Entra ID as code end to end (manual tenant creation, `identity/entra/` OpenTofu root, single-machine deploy via `az login`, GitHub OIDC deploy via `azure/github-workflows/tf-deploy.yml`) with a "Not yet codified" section flagging conditional access policies and licensing as out of scope
 
 ### Changed
