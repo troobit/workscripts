@@ -30,7 +30,15 @@ fi
 echo "Purging '$FILE_PATH'..."
 git filter-repo --path "$FILE_PATH" --invert-paths --force
 
-echo "$FILE_PATH" >> .gitignore
+# Add to .gitignore only if not already listed
+if ! grep -qxF "$FILE_PATH" .gitignore 2>/dev/null; then
+    echo "$FILE_PATH" >> .gitignore
+fi
 
 git add .gitignore
+
+echo "Done. Note: git filter-repo removed the 'origin' remote as a safety measure."
+echo "Re-add it and force-push when ready:"
+echo "  git remote add origin <url>"
+echo "  git push --force --all origin"
 

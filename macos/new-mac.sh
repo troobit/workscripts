@@ -465,7 +465,12 @@ echo "✅ All required dependencies found."
 
 ########### GIT CONFIGURATION SETUP ################
 
-if [ ! -f "$HOME/.gitconfig" ]; then
+# GIT_NAME/GITHUB_EMAIL are only collected in the interactive phase, which
+# --local skips — writing the heredoc without them would create a ~/.gitconfig
+# with empty name/email.
+if [ ! -f "$HOME/.gitconfig" ] && { [ -z "${GIT_NAME:-}" ] || [ -z "${GITHUB_EMAIL:-}" ]; }; then
+  echo "⏭️  --local: skipping ~/.gitconfig creation (name/email not collected)"
+elif [ ! -f "$HOME/.gitconfig" ]; then
   echo "⚙️  Setting up Git configuration..."
   cat > "$HOME/.gitconfig" <<EOF
 [user]

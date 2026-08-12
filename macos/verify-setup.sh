@@ -165,8 +165,23 @@ check "lorb() defined" \
 
 echo ""
 echo "=== skup: Machine-Specific Config Kept Local ==="
-check "PRISMPATH still present in zshrc" grep -Fq 'PRISMPATH' "$HOME/.zshrc"
-check "cppr still present in zshrc" grep -Fq 'cppr' "$HOME/.zshrc"
+# PRISMPATH/cppr exist only on machines that already carried them (prism work,
+# used intermittently). A fresh machine has nothing to keep, so an unconditional
+# "still present" assert would fail there, breaking Req 3.7 convergence.
+# Instead: fail only when a pre-migration backup proves the machine had the
+# setting and ~/.zshrc has since lost it; otherwise skip.
+check_kept_local() {
+  local pat="$1"
+  if grep -Fq -- "$pat" "$HOME/.zshrc" 2>/dev/null; then
+    echo "  ✅ $pat still present in zshrc"; PASS=$((PASS + 1))
+  elif grep -Fq -- "$pat" "$HOME"/.workscripts-backups/.zshrc.* 2>/dev/null; then
+    echo "  ❌ $pat lost from zshrc (present in pre-migration backup)"; FAIL=$((FAIL + 1))
+  else
+    echo "  ⚠️  $pat not configured on this machine (skipped)"
+  fi
+}
+check_kept_local "PRISMPATH"
+check_kept_local "cppr"
 check "PRISMPATH not captured into repo aliases" absent_fixed "$MACOS_DIR/aliases.zsh" 'PRISMPATH'
 check "PRISMPATH not captured into repo snippet" absent_fixed "$MACOS_DIR/zshrc.snippet" 'PRISMPATH'
 check "cppr not captured into repo aliases" absent_fixed "$MACOS_DIR/aliases.zsh" 'cppr'

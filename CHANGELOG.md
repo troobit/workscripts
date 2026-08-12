@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- `macos/gitfilepurge.sh`: improved `.gitignore` handling to check for existing entries before appending (prevents duplicates), added helpful output explaining `git filter-repo` remote removal and re-add workflow
+- `macos/sync-config.sh`: fixed `remove_exact_line` function to handle the case where `grep -Fxv` returns exit code 1 when selecting nothing (file contained only that line); moved the temp file move outside the grep pipeline to avoid abort-on-fail
+- `macos/verify-setup.sh`: refactored PRISMPATH/cppr checks to be backup-aware (fail only when a pre-migration backup proves the setting was lost, skip on fresh machines to maintain Req 3.7 convergence guarantee); added `check_kept_local` helper function
+- `macos/new-mac.sh`: guarded gitconfig creation with a check for collected identity (`GIT_NAME`/`GITHUB_EMAIL`); `--local` mode skips the interactive phase so these vars remain unset and we now gracefully skip gitconfig creation instead of writing empty values
+- `docs/agent-notes/repo-layout.md`: documented machine-specific check backup-awareness and `--local` identity collection gotcha
+
 ### Added
 - Added `macos/gitfilepurge.sh`: a script that removes files from git history using `git-filter-repo` with a confirmation prompt, adds the file to `.gitignore`, and stages the gitignore change
 - Added `docs/entra-iac-quickstart.md`: a pointers-only quickstart walking Entra ID as code end to end (manual tenant creation, `identity/entra/` OpenTofu root, single-machine deploy via `az login`, GitHub OIDC deploy via `azure/github-workflows/tf-deploy.yml`) with a "Not yet codified" section flagging conditional access policies and licensing as out of scope

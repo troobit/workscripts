@@ -110,7 +110,10 @@ link_all() {
 remove_exact_line() {
   local file="$1" line="$2"
   if grep -Fxq -- "$line" "$file"; then
-    grep -Fxv -- "$line" "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+    # grep -Fxv exits 1 when it selects nothing (file held only that line);
+    # the empty tmp is still the correct result, so always move it into place.
+    grep -Fxv -- "$line" "$file" > "$file.tmp" || true
+    mv "$file.tmp" "$file"
     echo "  removed drift line: $line"
   else
     echo "  drift line not present (skipped): $line"
