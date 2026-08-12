@@ -26,10 +26,17 @@ alias tk='tmux kill-session -t'
 alias cld='claude --dangerously-skip-permissions'
 
 # --- orbit ---
-# Launch an orbit run in the background from a tasks file, e.g. `lorb my-feature`
-# (reads specs/my-feature.md). Detached via nohup so it survives the shell.
+# Launch an orbit run in the background from a tasks file. Detached via nohup so
+# it survives the shell.
+#   lorb skup                    -> specs/skup/tasks.md
+#   lorb specs/skup/tasks-ui.md  -> used as-is (reaches tasks-*.md variants)
+# Specs are directories (specs/<feature>/tasks.md), not flat specs/<feature>.md —
+# an earlier capture of this function assumed the flat form and always failed
+# with "tasks file not found".
 lorb() {
-    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &
+    local f="$1"
+    [ -f "$f" ] || f="specs/$1/tasks.md"
+    nohup orbit run --tasks-file "$f" --variants 1 --parallel > /dev/null 2>&1 &
 }
 
 # --- Terraform ---

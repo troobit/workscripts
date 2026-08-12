@@ -131,8 +131,11 @@ remove_exact_line() {
 # The exact 3-line lorb() block this script is allowed to remove. Requiring all
 # three lines contiguous is the guard — a bare `}` (e.g. cppr's) can never match
 # alone, and a lorb() the user has since altered is left in place.
+# This is the form found in the wild in ~/.zshrc, which is what migration must
+# remove — not the (improved) form now living in aliases.zsh. The two differ on
+# purpose: the repo holds the good version, this holds the stale one to delete.
 LORB_L1='lorb() {'
-LORB_L2='    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &'
+LORB_L2='    nohup orbit run --tasks-file "$1" --variants 1 --parallel > /dev/null 2>&1 &'
 LORB_L3='}'
 
 # lorb_block_present FILE -> 0 when the exact 3-line block is in FILE.

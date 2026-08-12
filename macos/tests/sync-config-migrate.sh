@@ -50,7 +50,7 @@ cppr() {
 alias cld='claude --dangerously-skip-permissions'
 alias tk='tmux kill~session ~t '
 lorb() {
-    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &
+    nohup orbit run --tasks-file "$1" --variants 1 --parallel > /dev/null 2>&1 &
 }
 EOF
 
