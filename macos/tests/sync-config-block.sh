@@ -104,6 +104,64 @@ else
   fail "content outside markers preserved"
 fi
 
+# --- Test 6: aliases are sourced, and AFTER oh-my-zsh ------------------------
+# Regression guard: migrate_legacy_zshrc deletes the legacy
+# `source ~/.aliases.zsh` line as part of the anchor range, so the post block
+# must reinstate it — below the oh-my-zsh line, since aliases override omz libs.
+alias_src='[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"'
+alias_ln="$(grep -Fxn -- "$alias_src" "$z1" | head -1 | cut -d: -f1)"
+omz_ln="$(grep -n 'source \$ZSH/oh-my-zsh.sh' "$z1" | head -1 | cut -d: -f1)"
+if [ -n "$alias_ln" ]; then
+  pass "aliases source line present after write"
+else
+  fail "aliases source line present after write"
+fi
+if [ -n "$alias_ln" ] && [ -n "$omz_ln" ] && [ "$alias_ln" -gt "$omz_ln" ]; then
+  pass "aliases sourced AFTER oh-my-zsh (override order preserved)"
+else
+  fail "aliases sourced AFTER oh-my-zsh (override order preserved)"
+fi
+if [ "$(grep -Fxc -- "$alias_src" "$z1")" -eq 1 ]; then
+  pass "exactly one aliases source line after two runs (idempotent)"
+else
+  fail "exactly one aliases source line after two runs (idempotent)"
+fi
+# Non-omz file still gets the aliases line.
+if grep -Fxq -- "$alias_src" "$z2"; then
+  pass "no oh-my-zsh line: aliases source still added"
+else
+  fail "no oh-my-zsh line: aliases source still added"
+fi
+
+# --- Test 7: full migrate -> write sequence leaves aliases sourced -----------
+# The end-to-end order main() uses. Fixture carries the legacy anchor range,
+# whose deletion removes the original aliases source line.
+z3="$SANDBOX/z3"
+cat > "$z3" <<'EOF'
+export ZSH="$HOME/.oh-my-zsh"
+source $ZSH/oh-my-zsh.sh
+
+# Added from troobit/workscripts setup script
+ZSH_THEME=random
+source $ZSH/oh-my-zsh.sh
+[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"
+# Prefer Homebrew Python over system Python
+export PATH="$(brew --prefix python)/bin:$PATH"
+export PRISMPATH='/some/machine/local/path'
+EOF
+migrate_legacy_zshrc "$z3" >/dev/null
+write_managed_block "$z3" >/dev/null
+if grep -Fxq -- "$alias_src" "$z3"; then
+  pass "migrate+write: aliases still sourced (brup survives migration)"
+else
+  fail "migrate+write: aliases still sourced (brup survives migration)"
+fi
+if grep -Fq 'PRISMPATH' "$z3"; then
+  pass "migrate+write: machine-local config untouched"
+else
+  fail "migrate+write: machine-local config untouched"
+fi
+
 echo
 if [ "$FAILS" -eq 0 ]; then
   echo "ALL PASS (sync-config-block)"

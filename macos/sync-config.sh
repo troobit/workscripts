@@ -21,6 +21,14 @@ DRY_RUN=0
 MANAGED_BEGIN="# >>> workscripts skup (managed) >>>"
 MANAGED_END="# <<< workscripts skup (managed) <<<"
 
+# A second, separate marker pair placed AFTER `source $ZSH/oh-my-zsh.sh`.
+# Aliases must load after oh-my-zsh so they override its lib aliases (the stock
+# ~/.zshrc comment says exactly this), whereas the pre-block must load BEFORE it
+# because oh-my-zsh reads ZSH_THEME/plugins from the snippet. One block cannot
+# sit on both sides of that line, hence two pairs.
+MANAGED_POST_BEGIN="# >>> workscripts skup aliases (managed) >>>"
+MANAGED_POST_END="# <<< workscripts skup aliases (managed) <<<"
+
 # --- backup_path DEST --------------------------------------------------------
 # Print a write-once, collision-safe backup path for DEST under
 # ~/.workscripts-backups/. A dedicated backup dir (not a sibling <name>.bak)
@@ -120,13 +128,32 @@ remove_exact_line() {
   fi
 }
 
-# Guarded removal of the exact 3-line lorb() block. Requiring all three lines
-# contiguous is the guard — a bare `}` (e.g. cppr's) can never match alone.
+# The exact 3-line lorb() block this script is allowed to remove. Requiring all
+# three lines contiguous is the guard — a bare `}` (e.g. cppr's) can never match
+# alone, and a lorb() the user has since altered is left in place.
+LORB_L1='lorb() {'
+LORB_L2='    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &'
+LORB_L3='}'
+
+# lorb_block_present FILE -> 0 when the exact 3-line block is in FILE.
+# Detection MUST use the same match as removal: a looser test (e.g. plain
+# `grep 'lorb() {'`) makes migrate_legacy_zshrc believe there is drift it cannot
+# actually remove, so it takes a fresh backup on every run, forever.
+lorb_block_present() {
+  awk -v a="$LORB_L1" -v b="$LORB_L2" -v c="$LORB_L3" '
+    { lines[NR] = $0 }
+    END {
+      for (i = 1; i <= NR; i++)
+        if (lines[i] == a && lines[i+1] == b && lines[i+2] == c) exit 0
+      exit 1
+    }
+  ' "$1"
+}
+
+# Guarded removal of the exact 3-line lorb() block.
 remove_lorb_block() {
   local file="$1"
-  local l1='lorb() {'
-  local l2='    nohup orbit run --tasks-file specs/"$1".md --variants 1 --parallel > /dev/null 2>&1 &'
-  local l3='}'
+  local l1="$LORB_L1" l2="$LORB_L2" l3="$LORB_L3"
   awk -v a="$l1" -v b="$l2" -v c="$l3" '
     { lines[NR] = $0 }
     END {
@@ -180,7 +207,7 @@ migrate_legacy_zshrc() {
     "alias tk='tmux kill~session ~t '"; do
     grep -Fxq -- "$dl" "$zshrc" && has_drift=1
   done
-  grep -Fq 'lorb() {' "$zshrc" && has_drift=1
+  lorb_block_present "$zshrc" && has_drift=1
 
   if [ "$has_range" -eq 0 ] && [ "$has_drift" -eq 0 ]; then
     echo "migration: no legacy region or drift found — nothing to do"
@@ -223,62 +250,84 @@ migrate_legacy_zshrc() {
 }
 
 # --- write_managed_block [ZSHRC] --------------------------------------------
-# Splice the managed marker block into ZSHRC (default ~/.zshrc) so it sources
-# the repo snippet and puts ~/.local/bin on PATH (Req 3.2). One rule governs
-# both fresh-install and re-run:
-#   1. strip any existing managed marker pair (keep content outside it)
-#   2. insert the block immediately ABOVE the first `source $ZSH/oh-my-zsh.sh`
-#      line, because oh-my-zsh reads ZSH_THEME/plugins (set in the snippet) when
-#      that line runs, so an EOF append would leave them inert.
-#   3. if there is no such line (non-omz machine), insert at the top.
-# Stripping then reinserting each run makes it idempotent: one marker pair, same
-# position, byte-identical on the second run. The PATH line is case-guarded so
-# it is a no-op when ~/.local/bin is already on PATH (avoids a duplicate block).
+# Splice the two managed marker blocks into ZSHRC (default ~/.zshrc) so it
+# sources the repo snippet, puts ~/.local/bin on PATH, and sources the linked
+# aliases file (Req 3.2, and Req 4.1's "resolve identically after migration").
+# One rule governs both fresh-install and re-run:
+#   1. strip any existing managed marker pair, both kinds (keep content outside)
+#   2. insert the PRE block immediately ABOVE the first
+#      `source $ZSH/oh-my-zsh.sh` line, because oh-my-zsh reads
+#      ZSH_THEME/plugins (set in the snippet) when that line runs, so an EOF
+#      append would leave them inert.
+#   3. insert the POST block immediately BELOW that same line, because aliases
+#      must override oh-my-zsh's lib aliases, not be overridden by them. This
+#      replaces the legacy `source ~/.aliases.zsh` line that
+#      migrate_legacy_zshrc deletes along with the rest of the anchor range —
+#      without it the aliases file would be correctly linked but never sourced.
+#   4. if there is no oh-my-zsh line (non-omz machine), insert both at the top,
+#      pre before post.
+# Stripping then reinserting each run makes it idempotent: one pair of each,
+# same position, byte-identical on the second run. The PATH line is case-guarded
+# so it is a no-op when ~/.local/bin is already on PATH.
 write_managed_block() {
   local zshrc="${1:-$HOME/.zshrc}"
-  local tmp_block tmp_stripped tmp_out
-  tmp_block="$(mktemp)"; tmp_stripped="$(mktemp)"; tmp_out="$(mktemp)"
+  local tmp_pre tmp_post tmp_stripped tmp_out
+  tmp_pre="$(mktemp)"; tmp_post="$(mktemp)"
+  tmp_stripped="$(mktemp)"; tmp_out="$(mktemp)"
 
-  cat > "$tmp_block" <<'BLOCK'
+  cat > "$tmp_pre" <<'BLOCK'
 # >>> workscripts skup (managed) >>>
 [ -f "$HOME/.zshrc.workscripts" ] && source "$HOME/.zshrc.workscripts"
 case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH";; esac
 # <<< workscripts skup (managed) <<<
 BLOCK
 
+  cat > "$tmp_post" <<'BLOCK'
+# >>> workscripts skup aliases (managed) >>>
+[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"
+# <<< workscripts skup aliases (managed) <<<
+BLOCK
+
   if [ "$DRY_RUN" -eq 1 ]; then
-    echo "[dry-run] would splice managed block into $zshrc"
-    rm -f "$tmp_block" "$tmp_stripped" "$tmp_out"
+    echo "[dry-run] would splice managed blocks into $zshrc"
+    rm -f "$tmp_pre" "$tmp_post" "$tmp_stripped" "$tmp_out"
     return 0
   fi
 
   [ -f "$zshrc" ] || : > "$zshrc"
 
-  # 1. strip any existing managed marker pair.
-  awk -v b="$MANAGED_BEGIN" -v e="$MANAGED_END" '
-    $0 == b { inblk = 1; next }
-    inblk && $0 == e { inblk = 0; next }
+  # 1. strip any existing managed marker pair (either kind).
+  awk -v b="$MANAGED_BEGIN" -v e="$MANAGED_END" \
+      -v pb="$MANAGED_POST_BEGIN" -v pe="$MANAGED_POST_END" '
+    $0 == b || $0 == pb { inblk = 1; next }
+    inblk && ($0 == e || $0 == pe) { inblk = 0; next }
     inblk { next }
     { print }
   ' "$zshrc" > "$tmp_stripped"
 
-  # 2/3. splice above first oh-my-zsh source line, else insert at top.
+  # 2/3/4. splice around the first oh-my-zsh source line, else both at top.
   if grep -Eq '^[[:space:]]*source[[:space:]]+"?\$ZSH"?/oh-my-zsh\.sh' "$tmp_stripped"; then
-    awk -v blockfile="$tmp_block" '
-      BEGIN { n = 0; while ((getline line < blockfile) > 0) block[n++] = line }
+    awk -v prefile="$tmp_pre" -v postfile="$tmp_post" '
+      BEGIN {
+        np = 0; while ((getline line < prefile) > 0) pre[np++] = line
+        ns = 0; while ((getline line < postfile) > 0) post[ns++] = line
+      }
       !done && $0 ~ /^[[:space:]]*source[[:space:]]+"?\$ZSH"?\/oh-my-zsh\.sh/ {
-        for (i = 0; i < n; i++) print block[i]
+        for (i = 0; i < np; i++) print pre[i]
+        print
+        for (i = 0; i < ns; i++) print post[i]
         done = 1
+        next
       }
       { print }
     ' "$tmp_stripped" > "$tmp_out"
   else
-    cat "$tmp_block" "$tmp_stripped" > "$tmp_out"
+    cat "$tmp_pre" "$tmp_post" "$tmp_stripped" > "$tmp_out"
   fi
 
   cat "$tmp_out" > "$zshrc"
-  rm -f "$tmp_block" "$tmp_stripped" "$tmp_out"
-  echo "managed block written to $zshrc"
+  rm -f "$tmp_pre" "$tmp_post" "$tmp_stripped" "$tmp_out"
+  echo "managed blocks written to $zshrc"
 }
 
 # --- main --------------------------------------------------------------------

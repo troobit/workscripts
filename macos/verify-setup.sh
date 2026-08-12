@@ -9,6 +9,9 @@ FAIL=0
 MACOS_DIR="$(cd "$(dirname "$0")" && pwd)"
 MANAGED_BEGIN="# >>> workscripts skup (managed) >>>"
 MANAGED_END="# <<< workscripts skup (managed) <<<"
+MANAGED_POST_BEGIN="# >>> workscripts skup aliases (managed) >>>"
+MANAGED_POST_END="# <<< workscripts skup aliases (managed) <<<"
+ALIAS_SRC='[ -f "$HOME/.aliases.zsh" ] && source "$HOME/.aliases.zsh"'
 
 check() {
   local desc=$1; shift
@@ -148,6 +151,21 @@ check "zshrc sources the repo snippet" \
   grep -Fq '.zshrc.workscripts' "$HOME/.zshrc"
 check "no legacy troobit marker remains in zshrc" \
   absent_fixed "$HOME/.zshrc" "# Added from troobit/workscripts setup script"
+check "exactly one managed aliases begin marker in zshrc" \
+  line_count_is "$HOME/.zshrc" "$MANAGED_POST_BEGIN" 1
+check "exactly one managed aliases end marker in zshrc" \
+  line_count_is "$HOME/.zshrc" "$MANAGED_POST_END" 1
+# The aliases file being linked is not enough — it must also still be SOURCED,
+# and after oh-my-zsh so it overrides omz lib aliases rather than losing to them.
+check "exactly one aliases source line in zshrc" \
+  line_count_is "$HOME/.zshrc" "$ALIAS_SRC" 1
+aliases_sourced_after_omz() {
+  local a o
+  a="$(grep -Fxn -- "$ALIAS_SRC" "$HOME/.zshrc" 2>/dev/null | head -1 | cut -d: -f1)"
+  o="$(grep -En '^[[:space:]]*source[[:space:]]+"?\$ZSH"?/oh-my-zsh\.sh' "$HOME/.zshrc" 2>/dev/null | head -1 | cut -d: -f1)"
+  [ -n "$a" ] && [ -n "$o" ] && [ "$a" -gt "$o" ]
+}
+check "aliases sourced after oh-my-zsh (override order)" aliases_sourced_after_omz
 
 echo ""
 echo "=== skup: Captured Drift Aliases ==="
