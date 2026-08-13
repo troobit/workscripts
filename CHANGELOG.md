@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Added `specs/config-reconcile/`: requirements, design, decision log, and rune task list for the machine→repo drift direction — reporting software and settings present on the Mac but never captured in the repo, plus an opt-in `--adopt` that writes them back. Reporting extends `macos/verify-setup.sh` rather than adding a script, and never affects its exit code
+- `specs/config-reconcile/design.md`: defined the manifest format for `dock.conf`, `login-items.conf`, `settings.conf` and `reconcile-ignore.conf` — `key = value` split on the first `=`, per-file record-start/attribute key whitelists making schema violations fatal with `file:line`, and freedesktop escaping (`\\ \n \r \t \s`) applied only where the line structure cannot carry the value, leaving interior spaces literal. Verified in `/bin/bash` 3.2.57 across 25 adversarial values and 4 rejection cases
+- `specs/config-reconcile/design.md`: recorded six mandatory parser mechanics, each measured rather than reasoned — getters use `printf -v` because `$(...)` strips trailing newlines; the callback runs with stdin from `/dev/null` or it eats the config file; `read` needs the `|| [ -n "$line" ]` clause or drops a just-appended final line; the callback's exit status is discarded, since an incidental trailing `[ ]` test otherwise aborts iteration mid-file; a trailing CR is stripped, or CRLF endings append `\r` to every value invisibly; and trimming avoids the per-line subshell fork, bringing a four-file parse to 33 ms
+- `specs/config-reconcile/tasks.md`: 27 tasks across 7 phases in red/green pairs, on two work streams. Ordering is load-bearing in two places — the argv golden logs are captured before the refactor that they validate, and wrapping `new-mac.sh`'s Dock/settings/login sections in functions is its own task ahead of the extraction, because those sections are top-level linear code with no entry point and cannot be exercised today
+- `specs/config-reconcile/design.md`: specified home-relative rewriting for adoption (Req 7.3), which had no mechanism — a value rooted at the user's home is written as `~` into a manifest (expanded by `conf_parse` at read time) and as a literal `$HOME` into `aliases.zsh` (expanded by the shell); prefix matches only, since a home path mid-value cannot be known to be a path root, so that item is reported unadoptable instead
+- `specs/config-reconcile/design.md`: Dock and manifest paths compare as bytes with no Unicode normalisation — APFS does not normalise to NFD (an NFC-created directory reads back as NFC while the NFD spelling still resolves), so folding both sides would invent differences between a Dock and a manifest that agree
+
+### Changed
+- `.gitignore`: added `tmp/` for scratch research output
+
 ### Changed
 - `macos/gitfilepurge.sh`: improved `.gitignore` handling to check for existing entries before appending (prevents duplicates), added helpful output explaining `git filter-repo` remote removal and re-add workflow
 - `macos/sync-config.sh`: fixed `remove_exact_line` function to handle the case where `grep -Fxv` returns exit code 1 when selecting nothing (file contained only that line); moved the temp file move outside the grep pipeline to avoid abort-on-fail
