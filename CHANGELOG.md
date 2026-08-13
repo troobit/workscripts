@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `specs/config-reconcile/design.md`: Dock and manifest paths compare as bytes with no Unicode normalisation — APFS does not normalise to NFD (an NFC-created directory reads back as NFC while the NFD spelling still resolves), so folding both sides would invent differences between a Dock and a manifest that agree
 
 ### Changed
+- `.orbit.yaml`: pinned the `claude-code` agent to `model: opus`. Set in config rather than on the command line because `orbit run` has no model flag — `--agent`/`--variant-agents` select the agent binary (claude-code, codex, kiro, copilot, opencode), not the model. Applies to every orbit run in this repo
 - `.gitignore`: added `tmp/` for scratch research output
 
 ### Changed

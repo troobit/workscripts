@@ -3,3 +3,4 @@ agents:
   claude-code:
     type: claude-code
     auto-approve: true
+    model: opus
